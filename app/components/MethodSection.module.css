@@ -1,0 +1,153 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap");
+
+.container {
+width : 100% ;
+  padding: 2rem;
+  margin: 0 auto;
+  color: #121212;
+  font-family: "Outfit", sans-serif;
+
+}
+
+.h1methode {
+  background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
+  background-size: 600% 600%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 8s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.arch {
+  display: flex;
+  gap: 60px;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin-inline: auto;
+
+}
+
+.arch__left {
+  display: flex;
+  flex-direction: column;
+  min-width: 400px;
+}
+
+.arch__info {
+  max-width: 600px;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.arch__info .header {
+  font-family: Outfit;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.84px;
+  background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
+  background-size: 600% 600%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 8s ease infinite;
+}
+
+.arch__info .desc {
+  color: gray;
+  font-size: 18px;
+  letter-spacing: -0.54px;
+  margin-block: 6px 28px;
+  line-height: 40px;
+  font-family: "Playfair Display", serif;
+}
+
+.arch__right {
+  flex-shrink: 1;
+  height: 100vh;
+  width: 100%;
+  max-width: 540px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.imgWrapper {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 400px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.imgWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 900px) {
+  .arch {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .arch {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .arch__left,
+  .arch__right {
+    display: contents;
+  }
+
+  .arch__right {
+    height: auto;
+    max-width: 100%;
+  }
+
+  .imgWrapper {
+    position: static;
+    transform: none;
+    height: 360px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .arch__info {
+    height: auto;
+    padding: 20px 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .arch {
+    gap: 12px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  .imgWrapper {
+    border-radius: 10px;
+    height: 280px;
+  }
+}

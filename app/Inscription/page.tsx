@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Inscription.css';
+import Link from 'next/link';
 
 // Types
 interface ChildData {
@@ -11,11 +12,7 @@ interface ChildData {
 }
 
 interface FormData {
-  step1: {
-    phone: string;
-    city: string;
-    street: string;
-  };
+  step1: { phone: string; city: string; street: string };
   children: ChildData[];
   medical: string;
   currentStep: number;
@@ -24,658 +21,514 @@ interface FormData {
 
 type Language = 'fr' | 'en' | 'ar';
 
-interface Translations {
-  [key: string]: {
-    formTitle: string;
-    formSubtitle: string;
-    step1: string;
-    step2: string;
-    step3: string;
-    step4: string;
-    phone: string;
-    city: string;
-    street: string;
-    children: string;
-    addChild: string;
-    child: string;
-    firstName: string;
-    age: string;
-    class: string;
-    medical: string;
-    docs: string;
-    upload: string;
-    prev: string;
-    next: string;
-    finish: string;
-    thankYou: string;
-    confirmed: string;
-    contact: string;
-    phoneTooltip: string;
-    cityTooltip: string;
-    streetTooltip: string;
-    medicalTooltip: string;
-    saveIndicator: string;
-  };
-}
-
-const translations: Translations = {
+const translations: Record<Language, any> = {
   fr: {
-    formTitle: 'École Moderne Tunis',
-    formSubtitle: 'inscription premium · année 2026',
+    schoolName: 'EduSmart',
+    subtitle: 'Excellence & Tradition depuis 1992',
+    formTitle: 'Inscription Année 2026',
     step1: 'Parent',
     step2: 'Enfants',
-    step3: 'Santé + docs',
-    step4: 'Final',
-    phone: 'Téléphone',
-    city: 'address',
-    street: 'Rue & numéro',
+    step3: 'Santé & Docs',
+    step4: 'Finalisation',
+    phone: 'Numéro de téléphone',
+    city: 'Ville / Gouvernorat',
+    street: 'Adresse complète',
     children: 'Vos enfants',
     addChild: 'Ajouter un enfant',
     child: 'Enfant',
     firstName: 'Prénom',
     age: 'Âge',
     class: 'Classe souhaitée',
-    medical: 'Remarque médicale',
-    docs: 'Documents requis',
-    upload: 'PDF ou photo (cliquez)',
+    medical: 'Informations médicales (allergies, etc.)',
+    docs: 'Documents à joindre',
+    upload: 'Cliquez pour télécharger (PDF, JPG)',
     prev: 'Précédent',
     next: 'Suivant',
-    finish: 'Terminer',
-    thankYou: 'Merci !',
-    confirmed: 'Inscription confirmée',
-    contact: "L'équipe vous contactera sous 48h",
-    phoneTooltip: 'Numéro valide requis',
-    cityTooltip: 'Votre ville de résidence',
-    streetTooltip: 'Adresse complète',
-    medicalTooltip: 'Informations médicales importantes',
-    saveIndicator: 'Brouillon sauvegardé'
+    finish: 'Finaliser',
+    thankYou: 'Merci pour votre confiance !',
+    confirmed: 'Votre inscription a été enregistrée.',
+    contact: 'Notre équipe vous contactera sous 48h.',
+    backHome: 'Retour à l\'accueil',
+    phoneTooltip: 'Ex: 55 123 456',
+    cityTooltip: 'Ex: Tunis, Sousse, etc.',
+    streetTooltip: 'Rue, numéro, code postal',
+    medicalTooltip: 'Indiquez toute information importante',
+    saveIndicator: 'Brouillon sauvegardé',
+    required: 'Champ obligatoire',
+    invalidPhone: 'Numéro invalide (8 chiffres minimum)',
+    childRequired: 'Prénom requis',
+    ageRequired: 'Âge valide (1-18)',
+    atLeastOneChild: 'Ajoutez au moins un enfant',
+    fileUploaded: 'Fichier sélectionné',
   },
   en: {
-    formTitle: 'Tunis Modern School',
-    formSubtitle: 'premium registration · year 2026',
+    schoolName: 'EduSmart',
+    subtitle: 'Excellence & Tradition since 1992',
+    formTitle: 'Registration 2026',
     step1: 'Parent',
     step2: 'Children',
-    step3: 'Health + docs',
-    step4: 'Final',
-    phone: 'Phone',
-    city: 'address',
-    street: 'Street & number',
+    step3: 'Health & Docs',
+    step4: 'Finalize',
+    phone: 'Phone number',
+    city: 'City / Governorate',
+    street: 'Full address',
     children: 'Your children',
     addChild: 'Add a child',
     child: 'Child',
     firstName: 'First name',
     age: 'Age',
     class: 'Desired class',
-    medical: 'Medical note',
-    docs: 'Required documents',
-    upload: 'PDF or photo (click)',
+    medical: 'Medical information (allergies, etc.)',
+    docs: 'Attach documents',
+    upload: 'Click to upload (PDF, JPG)',
     prev: 'Previous',
     next: 'Next',
     finish: 'Finish',
-    thankYou: 'Thank you!',
-    confirmed: 'Registration confirmed',
-    contact: 'The team will contact you within 48h',
-    phoneTooltip: 'Valid number required',
-    cityTooltip: 'Your city of residence',
-    streetTooltip: 'Complete address',
-    medicalTooltip: 'Important medical information',
-    saveIndicator: 'Draft saved'
+    thankYou: 'Thank you for your trust!',
+    confirmed: 'Your registration has been recorded.',
+    contact: 'Our team will contact you within 48h.',
+    backHome: 'Back to home',
+    phoneTooltip: 'e.g. 55 123 456',
+    cityTooltip: 'e.g. Tunis, Sousse',
+    streetTooltip: 'Street, number, postal code',
+    medicalTooltip: 'Indicate any important information',
+    saveIndicator: 'Draft saved',
+    required: 'Required',
+    invalidPhone: 'Invalid phone (min 8 digits)',
+    childRequired: 'First name required',
+    ageRequired: 'Valid age (1-18)',
+    atLeastOneChild: 'Add at least one child',
+    fileUploaded: 'File selected',
   },
   ar: {
-    formTitle: 'المدرسة التونسية العصرية',
-    formSubtitle: 'تسجيل ممتاز · سنة 2026',
+    schoolName: 'EduSmart',
+    subtitle: 'التميز والتقليد منذ 1992',
+    formTitle: 'تسجيل 2026',
     step1: 'ولي الأمر',
     step2: 'الأطفال',
-    step3: 'الصحة + المستندات',
-    step4: 'النهائي',
-    phone: 'الهاتف',
-    city: 'المدينة / المعتمدية',
-    street: 'الشارع والرقم',
+    step3: 'الصحة والوثائق',
+    step4: 'الإنهاء',
+    phone: 'رقم الهاتف',
+    city: 'المدينة / الولاية',
+    street: 'العنوان الكامل',
     children: 'أطفالكم',
     addChild: 'إضافة طفل',
     child: 'طفل',
     firstName: 'الاسم الأول',
     age: 'العمر',
     class: 'القسم المطلوب',
-    medical: 'ملاحظة طبية',
-    docs: 'المستندات المطلوبة',
-    upload: 'PDF أو صورة (انقر)',
+    medical: 'معلومات طبية (حساسية...)',
+    docs: 'المستندات المرفقة',
+    upload: 'انقر للتحميل (PDF، JPG)',
     prev: 'السابق',
     next: 'التالي',
     finish: 'إنهاء',
-    thankYou: 'شكراً!',
-    confirmed: 'تم تأكيد التسجيل',
-    contact: 'سيتصل بك الفريق خلال 48 ساعة',
-    phoneTooltip: 'رقم صالح مطلوب',
-    cityTooltip: 'مدينة إقامتك',
-    streetTooltip: 'العنوان الكامل',
-    medicalTooltip: 'معلومات طبية مهمة',
-    saveIndicator: 'تم حفظ المسودة'
+    thankYou: 'شكراً لثقتكم!',
+    confirmed: 'تم تسجيل طلبكم بنجاح.',
+    contact: 'سيتصل بكم فريقنا خلال 48 ساعة.',
+    backHome: 'العودة للرئيسية',
+    phoneTooltip: 'مثال: 55 123 456',
+    cityTooltip: 'مثال: تونس، سوسة',
+    streetTooltip: 'الشارع، الرقم، الرمز البريدي',
+    medicalTooltip: 'أي معلومات طبية مهمة',
+    saveIndicator: 'تم حفظ المسودة',
+    required: 'مطلوب',
+    invalidPhone: 'رقم غير صالح (8 أرقام على الأقل)',
+    childRequired: 'الاسم الأول مطلوب',
+    ageRequired: 'عمر صالح (1-18)',
+    atLeastOneChild: 'أضف طفلاً واحداً على الأقل',
+    fileUploaded: 'تم اختيار الملف',
   }
 };
 
 const Inscription: React.FC = () => {
-  const [currentLang, setCurrentLang] = useState<Language>('fr');
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [showSaveIndicator, setShowSaveIndicator] = useState<boolean>(false);
-  const [children, setChildren] = useState<ChildData[]>([
-    { firstName: 'Youssef', age: '7', class: 'CE1' }
-  ]);
-  
-  // Form fields
-  const [phone, setPhone] = useState<string>('52 555 789');
-  const [city, setCity] = useState<string>('TEBOLBA');
-  const [street, setStreet] = useState<string>('Route de la plage 7');
-  const [medicalNote, setMedicalNote] = useState<string>('Youssef : allergie aux arachides');
-  
-  // Error states
-  const [phoneError, setPhoneError] = useState<string>('');
-  const [cityError, setCityError] = useState<string>('');
-  const [streetError, setStreetError] = useState<string>('');
-  const [step1Error, setStep1Error] = useState<string>('');
-  const [step2Error, setStep2Error] = useState<string>('');
-  const [step3Error, setStep3Error] = useState<string>('');
-  
-  // Refs – FIXED: use ReturnType<typeof setTimeout>
-  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [lang, setLang] = useState<Language>('fr');
+  const [step, setStep] = useState(1);
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [street, setStreet] = useState('');
+  const [children, setChildren] = useState<ChildData[]>([{ firstName: '', age: '', class: 'CP1' }]);
+  const [medical, setMedical] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showSave, setShowSave] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const totalSteps = 4;
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load draft on mount
+  const t = translations[lang];
+
+  // Load draft
   useEffect(() => {
-    loadDraft();
-  }, []);
-
-  // Update language and direction
-  useEffect(() => {
-    document.documentElement.lang = currentLang;
-    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    
-    // Animate on language change
-    if (cardRef.current) {
-      cardRef.current.style.transform = 'scale(1.02)';
-      setTimeout(() => {
-        if (cardRef.current) cardRef.current.style.transform = 'scale(1)';
-      }, 300);
-    }
-  }, [currentLang]);
-
-  // Auto-save function
-  const autoSaveDraft = useCallback(() => {
-    const formData: FormData = {
-      step1: { phone, city, street },
-      children,
-      medical: medicalNote,
-      currentStep,
-      lang: currentLang
-    };
-    
-    localStorage.setItem('formDraft', JSON.stringify(formData));
-    setShowSaveIndicator(true);
-    setTimeout(() => setShowSaveIndicator(false), 3000);
-  }, [phone, city, street, children, medicalNote, currentStep, currentLang]);
-
-  // Debounced auto-save
-  useEffect(() => {
-    if (saveTimeout.current) clearTimeout(saveTimeout.current);
-    saveTimeout.current = setTimeout(autoSaveDraft, 1000);
-    
-    return () => {
-      if (saveTimeout.current) clearTimeout(saveTimeout.current);
-    };
-  }, [phone, city, street, children, medicalNote, currentStep, currentLang, autoSaveDraft]);
-
-  // Load draft from localStorage
-  const loadDraft = () => {
-    const draft = localStorage.getItem('formDraft');
+    const draft = localStorage.getItem('inscriptionDraft');
     if (draft) {
       const data: FormData = JSON.parse(draft);
-      
-      if (window.confirm(
-        currentLang === 'fr' ? 'Un brouillon a été trouvé. Voulez-vous le restaurer ?' :
-        currentLang === 'en' ? 'A draft was found. Do you want to restore it?' :
-        'تم العثور على مسودة. هل تريد استعادتها؟'
-      )) {
+      if (window.confirm(t.saveIndicator + ' – ' + (lang === 'fr' ? 'Restaurer ?' : 'Restore?'))) {
         setPhone(data.step1.phone || '');
         setCity(data.step1.city || '');
         setStreet(data.step1.street || '');
-        setMedicalNote(data.medical || '');
-        setChildren(data.children.length ? data.children : [{ firstName: '', age: '', class: 'CP1' }]);
-        setCurrentStep(data.currentStep || 1);
-        if (data.lang) setCurrentLang(data.lang as Language);
+        setMedical(data.medical || '');
+        if (data.children.length) setChildren(data.children);
+        setStep(data.currentStep || 1);
+        if (data.lang) setLang(data.lang as Language);
       }
     }
-  };
+  }, []);
 
-  // Validate current step
-  const validateStep = (step: number): boolean => {
-    let isValid = true;
+  // Auto-save
+  const autoSave = useCallback(() => {
+    const data: FormData = {
+      step1: { phone, city, street },
+      children,
+      medical,
+      currentStep: step,
+      lang,
+    };
+    localStorage.setItem('inscriptionDraft', JSON.stringify(data));
+    setShowSave(true);
+    setTimeout(() => setShowSave(false), 2500);
+  }, [phone, city, street, children, medical, step, lang]);
 
-    if (step === 1) {
-      setPhoneError('');
-      setCityError('');
-      setStreetError('');
-      setStep1Error('');
+  useEffect(() => {
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(autoSave, 1200);
+    return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
+  }, [phone, city, street, children, medical, step, lang, autoSave]);
 
-      if (!phone.trim()) {
-        setPhoneError(currentLang === 'fr' ? 'Le téléphone est requis' : 
-                     currentLang === 'en' ? 'Phone is required' : 'الهاتف مطلوب');
-        isValid = false;
-      } else if (!/^[0-9\s\+\-]{8,}$/.test(phone)) {
-        setPhoneError(currentLang === 'fr' ? 'Format de téléphone invalide' : 
-                     currentLang === 'en' ? 'Invalid phone format' : 'صيغة الهاتف غير صالحة');
-        isValid = false;
+  // Validation
+  const validateStep = (s: number): boolean => {
+    const newErrors: { [key: string]: string } = {};
+    let valid = true;
+
+    if (s === 1) {
+      if (!phone.trim() || phone.length < 8) {
+        newErrors.phone = t.invalidPhone;
+        valid = false;
       }
-
       if (!city.trim()) {
-        setCityError(currentLang === 'fr' ? 'La ville est requise' : 
-                    currentLang === 'en' ? 'City is required' : 'المدينة مطلوبة');
-        isValid = false;
+        newErrors.city = t.required;
+        valid = false;
       }
-
       if (!street.trim()) {
-        setStreetError(currentLang === 'fr' ? "L'adresse est requise" : 
-                      currentLang === 'en' ? 'Address is required' : 'العنوان مطلوب');
-        isValid = false;
+        newErrors.street = t.required;
+        valid = false;
       }
-
-      setStep1Error(isValid ? '' : 
-        currentLang === 'fr' ? 'Veuillez corriger les erreurs' : 
-        currentLang === 'en' ? 'Please correct the errors' : 'يرجى تصحيح الأخطاء');
-      
-      return isValid;
-    }
-
-    if (step === 2) {
+    } else if (s === 2) {
       if (children.length === 0) {
-        setStep2Error(currentLang === 'fr' ? 'Ajoutez au moins un enfant' :
-                     currentLang === 'en' ? 'Add at least one child' : 'أضف طفلاً واحداً على الأقل');
-        return false;
-      }
-
-      let allValid = true;
-      children.forEach((child, index) => {
-        if (!child.firstName.trim()) {
-          allValid = false;
-        }
-        if (!child.age || parseInt(child.age) < 1 || parseInt(child.age) > 18) {
-          allValid = false;
-        }
-      });
-
-      setStep2Error(allValid ? '' : 
-        currentLang === 'fr' ? 'Veuillez corriger les erreurs' : 
-        currentLang === 'en' ? 'Please correct the errors' : 'يرجى تصحيح الأخطاء');
-      
-      return allValid;
-    }
-
-    if (step === 3) {
-      setStep3Error('');
-      return true;
-    }
-
-    return true;
-  };
-
-  // Navigation handlers
-  const goToNext = () => {
-    if (!validateStep(currentStep)) {
-      // Shake animation
-      const activePane = document.querySelector('.step-pane.active-pane');
-      if (activePane) {
-        activePane.animate([
-          { transform: 'translateX(-12px)' },
-          { transform: 'translateX(12px)' },
-          { transform: 'translateX(-6px)' },
-          { transform: 'translateX(6px)' },
-          { transform: 'translateX(-3px)' },
-          { transform: 'translateX(3px)' },
-          { transform: 'translateX(0)' }
-        ], {
-          duration: 400,
-          easing: 'ease-in-out'
+        newErrors.children = t.atLeastOneChild;
+        valid = false;
+      } else {
+        children.forEach((child, i) => {
+          if (!child.firstName.trim()) {
+            newErrors[`child_${i}_firstName`] = t.childRequired;
+            valid = false;
+          }
+          const age = parseInt(child.age);
+          if (isNaN(age) || age < 1 || age > 18) {
+            newErrors[`child_${i}_age`] = t.ageRequired;
+            valid = false;
+          }
         });
       }
-      return;
     }
-    
-    if (currentStep < totalSteps) {
-      setCurrentStep(prev => prev + 1);
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const goNext = () => {
+    if (validateStep(step)) {
+      if (step < 4) setStep(step + 1);
+    } else {
+      // shake animation on the active pane
+      const pane = document.querySelector('.step-pane.active-pane');
+      if (pane) {
+        pane.animate([
+          { transform: 'translateX(-10px)' },
+          { transform: 'translateX(10px)' },
+          { transform: 'translateX(-6px)' },
+          { transform: 'translateX(6px)' },
+          { transform: 'translateX(0)' }
+        ], { duration: 400, easing: 'ease-in-out' });
+      }
     }
   };
 
-  const goToPrev = () => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
+  const goPrev = () => { if (step > 1) setStep(step - 1); };
 
-  // Child management
   const addChild = () => {
-    setChildren(prev => [...prev, { firstName: '', age: '', class: 'CP1' }]);
+    setChildren([...children, { firstName: '', age: '', class: 'CP1' }]);
   };
 
-  const removeChild = (index: number) => {
+  const removeChild = (idx: number) => {
     if (children.length > 1) {
-      setChildren(prev => prev.filter((_, i) => i !== index));
+      setChildren(children.filter((_, i) => i !== idx));
     }
   };
 
-  const updateChild = (index: number, field: keyof ChildData, value: string) => {
-    setChildren(prev => prev.map((child, i) => 
-      i === index ? { ...child, [field]: value } : child
-    ));
+  const updateChild = (idx: number, field: keyof ChildData, value: string) => {
+    const updated = children.map((c, i) => (i === idx ? { ...c, [field]: value } : c));
+    setChildren(updated);
   };
 
-  // Confetti effect
-  const showConfetti = () => {
-    const colors = ['#0b2f4e', '#1e2f3c', '#d0dae6', '#ffffff'];
-    
-    for (let i = 0; i < 100; i++) {
-      const confetti = document.createElement('div');
-      confetti.style.cssText = `
-        position: fixed;
-        width: ${Math.random() * 10 + 5}px;
-        height: ${Math.random() * 10 + 5}px;
-        background-color: ${colors[Math.floor(Math.random() * colors.length)]};
-        left: ${Math.random() * 100}%;
-        top: -10px;
-        opacity: ${Math.random() * 0.8 + 0.2};
-        transform: rotate(${Math.random() * 360}deg);
-        z-index: 1000;
-        pointer-events: none;
-        animation: confettiFall ${Math.random() * 3 + 2}s linear forwards;
-      `;
-      document.body.appendChild(confetti);
-      
-      setTimeout(() => confetti.remove(), 5000);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
     }
   };
 
-  const handleFinish = () => {
-    // Animate check icon
-    const icon = document.querySelector('.thankyou-message i');
-    if (icon) {
-      icon.animate([
-        { transform: 'scale(1)' },
-        { transform: 'scale(1.3)' },
-        { transform: 'scale(1)' }
-      ], {
-        duration: 600,
-        easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-      });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateStep(3)) {
+      setSubmitted(true);
+      // Show confetti / success
+      localStorage.removeItem('inscriptionDraft');
+      // Confetti effect
+      if (typeof window !== 'undefined') {
+        const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
+        for (let i = 0; i < 120; i++) {
+          const el = document.createElement('div');
+          el.style.cssText = `
+            position: fixed; 
+            width: ${6 + Math.random() * 10}px; 
+            height: ${6 + Math.random() * 10}px; 
+            background: ${colors[Math.floor(Math.random() * colors.length)]}; 
+            left: ${Math.random() * 100}%; 
+            top: -10px; 
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'}; 
+            transform: rotate(${Math.random() * 360}deg); 
+            z-index: 9999; 
+            pointer-events: none; 
+            animation: confettiFall ${2 + Math.random() * 3}s linear forwards;
+          `;
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }
+      }
     }
-    
-    showConfetti();
-    localStorage.removeItem('formDraft');
   };
 
-  const t = translations[currentLang];
+  const getStepClass = (s: number) => {
+    if (step === s) return 'active';
+    if (step > s) return 'completed';
+    return '';
+  };
 
   return (
-    <div className="inscription-body">
-      {/* Floating decorative shapes */}
-      <div className="floating-shapeI shapeI-1"></div>
-      <div className="floating-shapeI shapeI-2"></div>
-      <div className="floating-shapeI shapeI-3"></div>
-      <div className="floating-shapeI shapeI-4"></div>
-
-      {/* Language selector */}
-      <div className="language-selector" id="languageSelector">
-        {(['fr', 'ar', 'en'] as Language[]).map(lang => (
+    <div className="inscription-page">
+      <div className="background-decor" />
+      
+      <div className="language-selector">
+        {(['fr', 'ar', 'en'] as Language[]).map(l => (
           <button
-            key={lang}
-            className={`lang-btn ${currentLang === lang ? 'active' : ''}`}
-            onClick={() => setCurrentLang(lang)}
+            key={l}
+            className={`lang-btn ${lang === l ? 'active' : ''}`}
+            onClick={() => setLang(l)}
           >
-            <i className="fas fa-flag"></i> {
-              lang === 'fr' ? 'Français' : lang === 'ar' ? 'العربية' : 'English'
-            }
+            {l === 'fr' ? 'FR' : l === 'ar' ? 'ع' : 'EN'}
           </button>
         ))}
       </div>
 
-      {/* Save indicator */}
-      {showSaveIndicator && (
-        <div className="save-indicator" role="status">
-          <i className="fas fa-check" aria-hidden="true"></i> {t.saveIndicator}
+      {showSave && (
+        <div className="save-indicator">
+          <i className="fas fa-check-circle"></i> {t.saveIndicator}
         </div>
       )}
 
-      <div className="premium-card" ref={cardRef} role="main" aria-label="Formulaire d'inscription scolaire">
-        <div className="school-header">
-          <div className="school-icon" aria-hidden="true">
-            <i className="fas fa-graduation-cap"></i>
+      <div className="inscription-card" ref={cardRef}>
+        <div className="card-header">
+          <div className="school-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
           </div>
-          <h2>
-            {t.formTitle} <span>{t.formSubtitle}</span>
-          </h2>
+          <div>
+            <h1>{t.schoolName}</h1>
+            <p>{t.subtitle}</p>
+            <span className="form-title">{t.formTitle}</span>
+          </div>
         </div>
 
-        {/* Progress step indicator */}
-        <div className="progress-steps" id="progressSteps" role="navigation" aria-label="Progression de l'inscription">
-          {[1, 2, 3, 4].map(step => (
-            <div 
-              key={step}
-              className={`step-item ${currentStep === step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}
-              data-step={step}
-              role="tab"
-              aria-selected={currentStep === step}
-              aria-label={`Étape ${step}: ${t[`step${step}` as keyof Translations['fr']]}`}
-            >
-              <div className="step-circle" aria-hidden="true">
-                {currentStep > step ? <i className="fas fa-check"></i> : step}
+        {/* Progress */}
+        <div className="progress-steps">
+          {[1, 2, 3, 4].map(s => (
+            <div key={s} className={`step-item ${getStepClass(s)}`}>
+              <div className="step-circle">
+                {step > s ? <i className="fas fa-check"></i> : s}
               </div>
-              <div className="step-label">{t[`step${step}` as keyof Translations['fr']]}</div>
+              <div className="step-label">{t[`step${s}`]}</div>
             </div>
           ))}
         </div>
 
-        {/* Step 1: Parent */}
-        <div className={`step-pane ${currentStep === 1 ? 'active-pane' : ''}`} id="step1" role="tabpanel">
-          <div className="form-grid">
-            <div className="field full-width">
-              <label htmlFor="phone">
-                <i className="fas fa-mobile-alt" aria-hidden="true"></i> {t.phone} <span className="required">*</span>
-              </label>
-              <input 
-                type="tel" 
-                id="phone" 
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder={t.phone}
-                aria-required="true"
-                aria-describedby="phoneError"
-                className={phoneError ? 'error' : ''}
-              />
-              <span className="tooltip" role="tooltip">{t.phoneTooltip}</span>
-              {phoneError && <div className="error-msg" id="phoneError" role="alert">{phoneError}</div>}
-            </div>
-            <div className="field full-width">
-              <label htmlFor="city">
-                <i className="fas fa-map-pin" aria-hidden="true"></i> {t.city} <span className="required">*</span>
-              </label>
-              <input 
-                type="text" 
-                id="city" 
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder={t.city}
-                aria-required="true"
-                aria-describedby="cityError"
-                className={cityError ? 'error' : ''}
-              />
-              <span className="tooltip" role="tooltip">{t.cityTooltip}</span>
-              {cityError && <div className="error-msg" id="cityError" role="alert">{cityError}</div>}
-            </div>
-            <div className="field full-width">
-              <label htmlFor="street">
-                <i className="fas fa-road" aria-hidden="true"></i> {t.street} <span className="required">*</span>
-              </label>
-              <input 
-                type="text" 
-                id="street" 
-                value={street}
-                onChange={(e) => setStreet(e.target.value)}
-                placeholder={t.street}
-                aria-required="true"
-                aria-describedby="streetError"
-                className={streetError ? 'error' : ''}
-              />
-              <span className="tooltip" role="tooltip">{t.streetTooltip}</span>
-              {streetError && <div className="error-msg" id="streetError" role="alert">{streetError}</div>}
+        <form onSubmit={handleSubmit}>
+          {/* Step 1 */}
+          <div className={`step-pane ${step === 1 ? 'active-pane' : ''}`}>
+            <div className="form-grid">
+              <div className="field full-width">
+                <label><i className="fas fa-phone-alt"></i> {t.phone} <span className="required">*</span></label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  placeholder={t.phoneTooltip}
+                  className={errors.phone ? 'error' : ''}
+                />
+                {errors.phone && <span className="error-msg">{errors.phone}</span>}
+              </div>
+              <div className="field full-width">
+                <label><i className="fas fa-map-marker-alt"></i> {t.city} <span className="required">*</span></label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  placeholder={t.cityTooltip}
+                  className={errors.city ? 'error' : ''}
+                />
+                {errors.city && <span className="error-msg">{errors.city}</span>}
+              </div>
+              <div className="field full-width">
+                <label><i className="fas fa-road"></i> {t.street} <span className="required">*</span></label>
+                <input
+                  type="text"
+                  value={street}
+                  onChange={e => setStreet(e.target.value)}
+                  placeholder={t.streetTooltip}
+                  className={errors.street ? 'error' : ''}
+                />
+                {errors.street && <span className="error-msg">{errors.street}</span>}
+              </div>
             </div>
           </div>
-          {step1Error && <div className="validation-summary" id="step1Error" role="alert">{step1Error}</div>}
-        </div>
 
-        {/* Step 2: Children */}
-        <div className={`step-pane ${currentStep === 2 ? 'active-pane' : ''}`} id="step2" role="tabpanel">
-          <div className="children-header">
-            <h3><i className="fas fa-child" style={{ color: '#0b2f4e' }} aria-hidden="true"></i> {t.children}</h3>
-            <button className="add-child-btn" onClick={addChild} aria-label={t.addChild}>
-              <i className="fas fa-plus" aria-hidden="true"></i> {t.addChild}
-            </button>
-          </div>
-          
-          <div className="children-section" id="childrenContainer" role="list" aria-label="Liste des enfants">
-            {children.map((child, index) => (
-              <div key={index} className="child-card" data-child={index + 1} role="listitem">
-                <div className="child-header">
-                  <h4>👶 {t.child} {index + 1}</h4>
-                  <button 
-                    className="remove-child" 
-                    onClick={() => removeChild(index)}
-                    style={{ visibility: children.length > 1 ? 'visible' : 'hidden' }}
-                    aria-label={`${t.child} ${index + 1}`}
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
-                <div className="form-grid">
-                  <div className="field">
-                    <label htmlFor={`child${index}-firstname`}>
-                      {t.firstName} <span className="required">*</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      id={`child${index}-firstname`}
-                      value={child.firstName}
-                      onChange={(e) => updateChild(index, 'firstName', e.target.value)}
-                      aria-required="true"
-                    />
-                  </div>
-                  <div className="field">
-                    <label htmlFor={`child${index}-age`}>
-                      {t.age} <span className="required">*</span>
-                    </label>
-                    <input 
-                      type="number" 
-                      id={`child${index}-age`}
-                      value={child.age}
-                      onChange={(e) => updateChild(index, 'age', e.target.value)}
-                      aria-required="true"
-                    />
-                  </div>
-                  <div className="field full-width">
-                    <label htmlFor={`child${index}-class`}>{t.class}</label>
-                    <select 
-                      id={`child${index}-class`}
-                      value={child.class}
-                      onChange={(e) => updateChild(index, 'class', e.target.value)}
+          {/* Step 2 */}
+          <div className={`step-pane ${step === 2 ? 'active-pane' : ''}`}>
+            <div className="children-header">
+              <h3><i className="fas fa-child"></i> {t.children}</h3>
+              <button type="button" className="add-child-btn" onClick={addChild}>
+                <i className="fas fa-plus"></i> {t.addChild}
+              </button>
+            </div>
+            <div className="children-list">
+              {children.map((child, idx) => (
+                <div key={idx} className="child-card">
+                  <div className="child-header">
+                    <h4>{t.child} {idx + 1}</h4>
+                    <button
+                      type="button"
+                      className="remove-child"
+                      onClick={() => removeChild(idx)}
+                      style={{ visibility: children.length > 1 ? 'visible' : 'hidden' }}
                     >
-                      <option>CP1</option>
-                      <option>CP2</option>
-                      <option>CE1</option>
-                    </select>
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <div className="form-grid">
+                    <div className="field">
+                      <label>{t.firstName} <span className="required">*</span></label>
+                      <input
+                        type="text"
+                        value={child.firstName}
+                        onChange={e => updateChild(idx, 'firstName', e.target.value)}
+                        className={errors[`child_${idx}_firstName`] ? 'error' : ''}
+                      />
+                      {errors[`child_${idx}_firstName`] && <span className="error-msg">{errors[`child_${idx}_firstName`]}</span>}
+                    </div>
+                    <div className="field">
+                      <label>{t.age} <span className="required">*</span></label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="18"
+                        value={child.age}
+                        onChange={e => updateChild(idx, 'age', e.target.value)}
+                        className={errors[`child_${idx}_age`] ? 'error' : ''}
+                      />
+                      {errors[`child_${idx}_age`] && <span className="error-msg">{errors[`child_${idx}_age`]}</span>}
+                    </div>
+                    <div className="field full-width">
+                      <label>{t.class}</label>
+                      <select
+                        value={child.class}
+                        onChange={e => updateChild(idx, 'class', e.target.value)}
+                      >
+                        <option>CP1</option>
+                        <option>CP2</option>
+                        <option>CE1</option>
+                        <option>CE2</option>
+                        <option>CM1</option>
+                        <option>CM2</option>
+                        <option>6ème</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          {step2Error && <div className="validation-summary" id="step2Error" role="alert">{step2Error}</div>}
-        </div>
-
-        {/* Step 3: Health + docs */}
-        <div className={`step-pane ${currentStep === 3 ? 'active-pane' : ''}`} id="step3" role="tabpanel">
-          <div className="form-grid">
-            <div className="field full-width">
-              <label htmlFor="docs">
-                <i className="fas fa-paperclip" aria-hidden="true"></i> {t.docs}
-              </label>
-              <div 
-                className="file-zone" 
-                onClick={() => document.getElementById('docs')?.click()}
-                role="button"
-                tabIndex={0}
-                aria-label={t.upload}
-              >
-                <i className="fas fa-cloud-upload-alt" style={{ fontSize: '2.2rem', color: '#0b2f4e' }} aria-hidden="true"></i>
-                <p>{t.upload}</p>
-                <input type="file" id="docs" hidden multiple accept=".pdf,.jpg,.jpeg,.png" aria-hidden="true" />
-              </div>
-            </div>
-            <div className="field full-width">
-              <label htmlFor="medicalNote">
-                <i className="fas fa-heartbeat" aria-hidden="true"></i> {t.medical}
-              </label>
-              <textarea 
-                id="medicalNote" 
-                value={medicalNote}
-                onChange={(e) => setMedicalNote(e.target.value)}
-                placeholder={t.medical}
-                aria-describedby="medicalHelp"
-              ></textarea>
-              <span className="tooltip" role="tooltip">{t.medicalTooltip}</span>
+              ))}
+              {errors.children && <div className="error-summary">{errors.children}</div>}
             </div>
           </div>
-          {step3Error && <div className="validation-summary" id="step3Error" role="alert">{step3Error}</div>}
-        </div>
 
-        {/* Step 4: Final */}
-        <div className={`step-pane ${currentStep === 4 ? 'active-pane' : ''}`} id="step4" role="tabpanel">
-          <div className="thankyou-message">
-            <i className="fas fa-check-circle" aria-hidden="true"></i>
-            <h2>{t.thankYou}</h2>
-            <p>{t.confirmed}</p>
-            <p style={{ color: '#0b2f4e' }}>{t.contact}</p>
+          {/* Step 3 */}
+          <div className={`step-pane ${step === 3 ? 'active-pane' : ''}`}>
+            <div className="form-grid">
+              <div className="field full-width">
+                <label><i className="fas fa-file-upload"></i> {t.docs}</label>
+                <div className="file-zone">
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={handleFileChange}
+                    id="fileInput"
+                  />
+                  <label htmlFor="fileInput">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <p>{files.length ? `${files.length} ${t.fileUploaded}` : t.upload}</p>
+                  </label>
+                </div>
+              </div>
+              <div className="field full-width">
+                <label><i className="fas fa-heartbeat"></i> {t.medical}</label>
+                <textarea
+                  value={medical}
+                  onChange={e => setMedical(e.target.value)}
+                  placeholder={t.medicalTooltip}
+                  rows={3}
+                />
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Navigation */}
-        <div className="nav-buttons">
-          <button 
-            className="btn" 
-            id="prevBtn" 
-            onClick={goToPrev}
-            disabled={currentStep === 1}
-            aria-label={t.prev}
-          >
-            <i className="fas fa-arrow-right" aria-hidden="true"></i> {t.prev}
-          </button>
-          
-          {currentStep < totalSteps ? (
-            <button className="btn btn-primary" id="nextBtn" onClick={goToNext} aria-label={t.next}>
-              {t.next} <i className="fas fa-arrow-left" aria-hidden="true"></i>
-            </button>
-          ) : (
-            <button className="btn btn-primary" id="finishBtn" onClick={handleFinish} aria-label={t.finish}>
-              {t.finish} <i className="fas fa-check" aria-hidden="true"></i>
-            </button>
+          {/* Step 4 – Final */}
+          {step === 4 && (
+            <div className="step-pane active-pane final-step">
+              <div className="thankyou-message">
+                <i className="fas fa-check-circle"></i>
+                <h2>{t.thankYou}</h2>
+                <p>{t.confirmed}</p>
+                <p className="contact-note">{t.contact}</p>
+                <Link href="/" className="btn-home">
+                  <i className="fas fa-arrow-left"></i> {t.backHome}
+                </Link>
+              </div>
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* Keyframe animation for confetti */}
-      <style>{`
-        @keyframes confettiFall {
-          to {
-            transform: translateY(100vh) rotate(${Math.random() * 720}deg);
-            opacity: 0;
-          }
-        }
-      `}</style>
+          {/* Navigation */}
+          {step !== 4 && (
+            <div className="nav-buttons">
+              <button type="button" className="btn btn-secondary" onClick={goPrev} disabled={step === 1}>
+                <i className="fas fa-arrow-left"></i> {t.prev}
+              </button>
+              <button type="button" className="btn btn-primary" onClick={goNext}>
+                {step === 3 ? t.finish : t.next} <i className="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   );
 };

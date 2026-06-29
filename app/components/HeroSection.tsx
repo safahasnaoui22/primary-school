@@ -405,7 +405,7 @@ export default function HeroSection() {
     Parent Login
   </Link>
   <Link
-    href="/Inscription" // or wherever you want
+    href="/Inscription" 
     style={{ background: 'var(--amber)', color: '#fff', textAlign: 'center', display: 'block' }}
   >
     Apply Now
