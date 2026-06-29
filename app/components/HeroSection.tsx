@@ -293,7 +293,10 @@ export default function HeroSection() {
            <Link href="/authentification" className={styles.btnGhost}>
   Parent Login
 </Link>
-            <button className={styles.btnAmber}>Apply Now</button>
+            <Link href="/inscription" className={styles.btnAmber}>
+ Apply Now
+</Link>
+         
                 <InstallButton compact={true} />
             <button
               className={styles.navToggle}
@@ -395,13 +398,19 @@ export default function HeroSection() {
           </li>
         </ul>
         <div className={styles.mobileActions}>
-          <button style={{ background: 'var(--bg-blue)', color: 'var(--navy)' }}>
-            Parent Login
-          </button>
-          <button style={{ background: 'var(--amber)', color: '#fff' }}>
-            Apply Now
-          </button>
-        </div>
+  <Link
+    href="/authentification"
+    style={{ background: 'var(--bg-blue)', color: 'var(--navy)', textAlign: 'center', display: 'block' }}
+  >
+    Parent Login
+  </Link>
+  <Link
+    href="/inscription" // or wherever you want
+    style={{ background: 'var(--amber)', color: '#fff', textAlign: 'center', display: 'block' }}
+  >
+    Apply Now
+  </Link>
+</div>
       </div>
 
       {/* ── HERO ── */}

@@ -914,3 +914,20 @@
     right: 0;
   }
 }
+.mobileActionsBtn {
+  display: block;
+  border: none;
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  text-decoration: none;
+}
+.mobileActionsBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
