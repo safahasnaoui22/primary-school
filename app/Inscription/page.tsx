@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Inscription.css';
 import Link from 'next/link';
 
-// Types
+// Types (same)
 interface ChildData {
   firstName: string;
   age: string;
@@ -23,125 +23,123 @@ type Language = 'fr' | 'en' | 'ar';
 
 const translations: Record<Language, any> = {
   fr: {
-    schoolName: 'EduSmart',
-    subtitle: 'Excellence & Tradition depuis 1992',
-    formTitle: 'Inscription Année 2026',
+    schoolName: 'École Primaire EduSmart',      // ← changed
+    subtitle: 'Inscription 2026',
     step1: 'Parent',
     step2: 'Enfants',
-    step3: 'Santé & Docs',
-    step4: 'Finalisation',
-    phone: 'Numéro de téléphone',
-    city: 'Ville / Gouvernorat',
-    street: 'Adresse complète',
+    step3: 'Santé',
+    step4: 'Final',
+    phone: 'Téléphone',
+    city: 'Ville',
+    street: 'Adresse',
     children: 'Vos enfants',
     addChild: 'Ajouter un enfant',
     child: 'Enfant',
     firstName: 'Prénom',
     age: 'Âge',
-    class: 'Classe souhaitée',
-    medical: 'Informations médicales (allergies, etc.)',
-    docs: 'Documents à joindre',
-    upload: 'Cliquez pour télécharger (PDF, JPG)',
+    class: 'Classe',
+    medical: 'Remarques médicales',
+    docs: 'Documents',
+    upload: 'Cliquez pour télécharger',
     prev: 'Précédent',
     next: 'Suivant',
     finish: 'Finaliser',
-    thankYou: 'Merci pour votre confiance !',
+    thankYou: 'Merci !',
     confirmed: 'Votre inscription a été enregistrée.',
-    contact: 'Notre équipe vous contactera sous 48h.',
-    backHome: 'Retour à l\'accueil',
+    contact: 'Nous vous contacterons sous 48h.',
+    backHome: 'Accueil',
     phoneTooltip: 'Ex: 55 123 456',
-    cityTooltip: 'Ex: Tunis, Sousse, etc.',
-    streetTooltip: 'Rue, numéro, code postal',
-    medicalTooltip: 'Indiquez toute information importante',
+    cityTooltip: 'Ex: Tunis',
+    streetTooltip: 'Rue et numéro',
+    medicalTooltip: 'Allergies, etc.',
     saveIndicator: 'Brouillon sauvegardé',
     required: 'Champ obligatoire',
-    invalidPhone: 'Numéro invalide (8 chiffres minimum)',
+    invalidPhone: 'Numéro invalide (8 chiffres min)',
     childRequired: 'Prénom requis',
-    ageRequired: 'Âge valide (1-18)',
+    ageRequired: 'Âge entre 1 et 18',
     atLeastOneChild: 'Ajoutez au moins un enfant',
     fileUploaded: 'Fichier sélectionné',
   },
   en: {
-    schoolName: 'EduSmart',
-    subtitle: 'Excellence & Tradition since 1992',
-    formTitle: 'Registration 2026',
+    schoolName: 'EduSmart Primary School',      // ← changed
+    subtitle: 'Registration 2026',
     step1: 'Parent',
     step2: 'Children',
-    step3: 'Health & Docs',
-    step4: 'Finalize',
-    phone: 'Phone number',
-    city: 'City / Governorate',
-    street: 'Full address',
+    step3: 'Health',
+    step4: 'Final',
+    phone: 'Phone',
+    city: 'City',
+    street: 'Address',
     children: 'Your children',
-    addChild: 'Add a child',
+    addChild: 'Add child',
     child: 'Child',
     firstName: 'First name',
     age: 'Age',
-    class: 'Desired class',
-    medical: 'Medical information (allergies, etc.)',
-    docs: 'Attach documents',
-    upload: 'Click to upload (PDF, JPG)',
+    class: 'Class',
+    medical: 'Medical notes',
+    docs: 'Documents',
+    upload: 'Click to upload',
     prev: 'Previous',
     next: 'Next',
     finish: 'Finish',
-    thankYou: 'Thank you for your trust!',
+    thankYou: 'Thank you!',
     confirmed: 'Your registration has been recorded.',
-    contact: 'Our team will contact you within 48h.',
-    backHome: 'Back to home',
+    contact: 'We will contact you within 48h.',
+    backHome: 'Home',
     phoneTooltip: 'e.g. 55 123 456',
-    cityTooltip: 'e.g. Tunis, Sousse',
-    streetTooltip: 'Street, number, postal code',
-    medicalTooltip: 'Indicate any important information',
+    cityTooltip: 'e.g. Tunis',
+    streetTooltip: 'Street and number',
+    medicalTooltip: 'Allergies, etc.',
     saveIndicator: 'Draft saved',
     required: 'Required',
-    invalidPhone: 'Invalid phone (min 8 digits)',
+    invalidPhone: 'Invalid (min 8 digits)',
     childRequired: 'First name required',
-    ageRequired: 'Valid age (1-18)',
+    ageRequired: 'Age 1-18',
     atLeastOneChild: 'Add at least one child',
     fileUploaded: 'File selected',
   },
   ar: {
-    schoolName: 'EduSmart',
-    subtitle: 'التميز والتقليد منذ 1992',
-    formTitle: 'تسجيل 2026',
+    schoolName: 'مدرسة إيدو سمارت الابتدائية',  // ← changed
+    subtitle: 'تسجيل 2026',
     step1: 'ولي الأمر',
     step2: 'الأطفال',
-    step3: 'الصحة والوثائق',
-    step4: 'الإنهاء',
-    phone: 'رقم الهاتف',
-    city: 'المدينة / الولاية',
-    street: 'العنوان الكامل',
+    step3: 'الصحة',
+    step4: 'النهائي',
+    phone: 'الهاتف',
+    city: 'المدينة',
+    street: 'العنوان',
     children: 'أطفالكم',
     addChild: 'إضافة طفل',
     child: 'طفل',
     firstName: 'الاسم الأول',
     age: 'العمر',
-    class: 'القسم المطلوب',
-    medical: 'معلومات طبية (حساسية...)',
-    docs: 'المستندات المرفقة',
-    upload: 'انقر للتحميل (PDF، JPG)',
+    class: 'القسم',
+    medical: 'ملاحظات طبية',
+    docs: 'المستندات',
+    upload: 'انقر للتحميل',
     prev: 'السابق',
     next: 'التالي',
     finish: 'إنهاء',
-    thankYou: 'شكراً لثقتكم!',
-    confirmed: 'تم تسجيل طلبكم بنجاح.',
-    contact: 'سيتصل بكم فريقنا خلال 48 ساعة.',
-    backHome: 'العودة للرئيسية',
+    thankYou: 'شكراً!',
+    confirmed: 'تم تسجيل طلبكم.',
+    contact: 'سنتصل بكم خلال 48 ساعة.',
+    backHome: 'الرئيسية',
     phoneTooltip: 'مثال: 55 123 456',
-    cityTooltip: 'مثال: تونس، سوسة',
-    streetTooltip: 'الشارع، الرقم، الرمز البريدي',
-    medicalTooltip: 'أي معلومات طبية مهمة',
+    cityTooltip: 'مثال: تونس',
+    streetTooltip: 'الشارع والرقم',
+    medicalTooltip: 'حساسية، إلخ',
     saveIndicator: 'تم حفظ المسودة',
     required: 'مطلوب',
-    invalidPhone: 'رقم غير صالح (8 أرقام على الأقل)',
+    invalidPhone: 'رقم غير صالح (8 أرقام)',
     childRequired: 'الاسم الأول مطلوب',
-    ageRequired: 'عمر صالح (1-18)',
+    ageRequired: 'العمر بين 1 و 18',
     atLeastOneChild: 'أضف طفلاً واحداً على الأقل',
     fileUploaded: 'تم اختيار الملف',
   }
 };
 
-const Inscription: React.FC = () => {
+// ─── The rest of the component is unchanged ───
+export default function Inscription() {
   const [lang, setLang] = useState<Language>('fr');
   const [step, setStep] = useState(1);
   const [phone, setPhone] = useState('');
@@ -239,16 +237,15 @@ const Inscription: React.FC = () => {
     if (validateStep(step)) {
       if (step < 4) setStep(step + 1);
     } else {
-      // shake animation on the active pane
       const pane = document.querySelector('.step-pane.active-pane');
       if (pane) {
         pane.animate([
-          { transform: 'translateX(-10px)' },
-          { transform: 'translateX(10px)' },
-          { transform: 'translateX(-6px)' },
-          { transform: 'translateX(6px)' },
+          { transform: 'translateX(-8px)' },
+          { transform: 'translateX(8px)' },
+          { transform: 'translateX(-4px)' },
+          { transform: 'translateX(4px)' },
           { transform: 'translateX(0)' }
-        ], { duration: 400, easing: 'ease-in-out' });
+        ], { duration: 300, easing: 'ease-in-out' });
       }
     }
   };
@@ -280,12 +277,11 @@ const Inscription: React.FC = () => {
     e.preventDefault();
     if (validateStep(3)) {
       setSubmitted(true);
-      // Show confetti / success
       localStorage.removeItem('inscriptionDraft');
       // Confetti effect
       if (typeof window !== 'undefined') {
         const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
-        for (let i = 0; i < 120; i++) {
+        for (let i = 0; i < 100; i++) {
           const el = document.createElement('div');
           el.style.cssText = `
             position: fixed; 
@@ -315,9 +311,7 @@ const Inscription: React.FC = () => {
 
   return (
     <div className="inscription-page">
-      <div className="background-decor" />
-      
-      <div className="language-selector">
+      <div className="lang-bar">
         {(['fr', 'ar', 'en'] as Language[]).map(l => (
           <button
             key={l}
@@ -330,44 +324,37 @@ const Inscription: React.FC = () => {
       </div>
 
       {showSave && (
-        <div className="save-indicator">
+        <div className="save-toast">
           <i className="fas fa-check-circle"></i> {t.saveIndicator}
         </div>
       )}
 
-      <div className="inscription-card" ref={cardRef}>
+      <div className="card" ref={cardRef}>
         <div className="card-header">
-          <div className="school-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-          </div>
-          <div>
+          <div className="brand">
             <h1>{t.schoolName}</h1>
-            <p>{t.subtitle}</p>
-            <span className="form-title">{t.formTitle}</span>
+            <span className="badge">{t.subtitle}</span>
           </div>
         </div>
 
-        {/* Progress */}
-        <div className="progress-steps">
+        {/* Horizontal progress */}
+        <div className="progress-horizontal">
           {[1, 2, 3, 4].map(s => (
-            <div key={s} className={`step-item ${getStepClass(s)}`}>
-              <div className="step-circle">
+            <div key={s} className={`progress-step ${getStepClass(s)}`}>
+              <div className="circle">
                 {step > s ? <i className="fas fa-check"></i> : s}
               </div>
-              <div className="step-label">{t[`step${s}`]}</div>
+              <div className="label">{t[`step${s}`]}</div>
             </div>
           ))}
+          <div className="progress-track" />
         </div>
 
         <form onSubmit={handleSubmit}>
           {/* Step 1 */}
           <div className={`step-pane ${step === 1 ? 'active-pane' : ''}`}>
-            <div className="form-grid">
-              <div className="field full-width">
+            <div className="fields">
+              <div className="field">
                 <label><i className="fas fa-phone-alt"></i> {t.phone} <span className="required">*</span></label>
                 <input
                   type="tel"
@@ -376,9 +363,9 @@ const Inscription: React.FC = () => {
                   placeholder={t.phoneTooltip}
                   className={errors.phone ? 'error' : ''}
                 />
-                {errors.phone && <span className="error-msg">{errors.phone}</span>}
+                {errors.phone && <span className="error">{errors.phone}</span>}
               </div>
-              <div className="field full-width">
+              <div className="field">
                 <label><i className="fas fa-map-marker-alt"></i> {t.city} <span className="required">*</span></label>
                 <input
                   type="text"
@@ -387,9 +374,9 @@ const Inscription: React.FC = () => {
                   placeholder={t.cityTooltip}
                   className={errors.city ? 'error' : ''}
                 />
-                {errors.city && <span className="error-msg">{errors.city}</span>}
+                {errors.city && <span className="error">{errors.city}</span>}
               </div>
-              <div className="field full-width">
+              <div className="field full">
                 <label><i className="fas fa-road"></i> {t.street} <span className="required">*</span></label>
                 <input
                   type="text"
@@ -398,34 +385,31 @@ const Inscription: React.FC = () => {
                   placeholder={t.streetTooltip}
                   className={errors.street ? 'error' : ''}
                 />
-                {errors.street && <span className="error-msg">{errors.street}</span>}
+                {errors.street && <span className="error">{errors.street}</span>}
               </div>
             </div>
           </div>
 
           {/* Step 2 */}
           <div className={`step-pane ${step === 2 ? 'active-pane' : ''}`}>
-            <div className="children-header">
-              <h3><i className="fas fa-child"></i> {t.children}</h3>
-              <button type="button" className="add-child-btn" onClick={addChild}>
-                <i className="fas fa-plus"></i> {t.addChild}
-              </button>
-            </div>
-            <div className="children-list">
+            <div className="children-section">
+              <div className="children-header">
+                <h3><i className="fas fa-child"></i> {t.children}</h3>
+                <button type="button" className="add-btn" onClick={addChild}>
+                  <i className="fas fa-plus"></i> {t.addChild}
+                </button>
+              </div>
               {children.map((child, idx) => (
                 <div key={idx} className="child-card">
                   <div className="child-header">
                     <h4>{t.child} {idx + 1}</h4>
-                    <button
-                      type="button"
-                      className="remove-child"
-                      onClick={() => removeChild(idx)}
-                      style={{ visibility: children.length > 1 ? 'visible' : 'hidden' }}
-                    >
-                      <i className="fas fa-times"></i>
-                    </button>
+                    {children.length > 1 && (
+                      <button type="button" className="remove-btn" onClick={() => removeChild(idx)}>
+                        <i className="fas fa-times"></i>
+                      </button>
+                    )}
                   </div>
-                  <div className="form-grid">
+                  <div className="fields">
                     <div className="field">
                       <label>{t.firstName} <span className="required">*</span></label>
                       <input
@@ -434,7 +418,7 @@ const Inscription: React.FC = () => {
                         onChange={e => updateChild(idx, 'firstName', e.target.value)}
                         className={errors[`child_${idx}_firstName`] ? 'error' : ''}
                       />
-                      {errors[`child_${idx}_firstName`] && <span className="error-msg">{errors[`child_${idx}_firstName`]}</span>}
+                      {errors[`child_${idx}_firstName`] && <span className="error">{errors[`child_${idx}_firstName`]}</span>}
                     </div>
                     <div className="field">
                       <label>{t.age} <span className="required">*</span></label>
@@ -446,9 +430,9 @@ const Inscription: React.FC = () => {
                         onChange={e => updateChild(idx, 'age', e.target.value)}
                         className={errors[`child_${idx}_age`] ? 'error' : ''}
                       />
-                      {errors[`child_${idx}_age`] && <span className="error-msg">{errors[`child_${idx}_age`]}</span>}
+                      {errors[`child_${idx}_age`] && <span className="error">{errors[`child_${idx}_age`]}</span>}
                     </div>
-                    <div className="field full-width">
+                    <div className="field full">
                       <label>{t.class}</label>
                       <select
                         value={child.class}
@@ -472,24 +456,18 @@ const Inscription: React.FC = () => {
 
           {/* Step 3 */}
           <div className={`step-pane ${step === 3 ? 'active-pane' : ''}`}>
-            <div className="form-grid">
-              <div className="field full-width">
+            <div className="fields">
+              <div className="field full">
                 <label><i className="fas fa-file-upload"></i> {t.docs}</label>
                 <div className="file-zone">
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={handleFileChange}
-                    id="fileInput"
-                  />
+                  <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange} id="fileInput" />
                   <label htmlFor="fileInput">
                     <i className="fas fa-cloud-upload-alt"></i>
                     <p>{files.length ? `${files.length} ${t.fileUploaded}` : t.upload}</p>
                   </label>
                 </div>
               </div>
-              <div className="field full-width">
+              <div className="field full">
                 <label><i className="fas fa-heartbeat"></i> {t.medical}</label>
                 <textarea
                   value={medical}
@@ -503,13 +481,13 @@ const Inscription: React.FC = () => {
 
           {/* Step 4 – Final */}
           {step === 4 && (
-            <div className="step-pane active-pane final-step">
-              <div className="thankyou-message">
+            <div className="step-pane active-pane final">
+              <div className="thankyou">
                 <i className="fas fa-check-circle"></i>
                 <h2>{t.thankYou}</h2>
                 <p>{t.confirmed}</p>
-                <p className="contact-note">{t.contact}</p>
-                <Link href="/" className="btn-home">
+                <p className="contact">{t.contact}</p>
+                <Link href="/" className="home-btn">
                   <i className="fas fa-arrow-left"></i> {t.backHome}
                 </Link>
               </div>
@@ -518,7 +496,7 @@ const Inscription: React.FC = () => {
 
           {/* Navigation */}
           {step !== 4 && (
-            <div className="nav-buttons">
+            <div className="nav">
               <button type="button" className="btn btn-secondary" onClick={goPrev} disabled={step === 1}>
                 <i className="fas fa-arrow-left"></i> {t.prev}
               </button>
@@ -529,8 +507,13 @@ const Inscription: React.FC = () => {
           )}
         </form>
       </div>
+
+      {/* Confetti keyframes */}
+      <style>{`
+        @keyframes confettiFall {
+          to { transform: translateY(100vh) rotate(${Math.random() * 720}deg); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
-};
-
-export default Inscription;
+}

@@ -1,5 +1,7 @@
 import ClassesSection from "./components/ClassesSection";
+
 import HeroSection from "./components/HeroSection";
+import MethodSection from "./components/MethodSection";
 
 
 
@@ -27,8 +29,11 @@ export default function Home() {
         <div className="orb-ring ring-2"></div>
         <div className="orb-ring ring-3"></div>
       </div>
+
+  
       <HeroSection></HeroSection>
     <ClassesSection/>
+    <MethodSection/>
     </main>
   );
 }
