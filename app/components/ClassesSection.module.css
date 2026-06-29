@@ -10,7 +10,6 @@
   padding: 2rem;
   color: white;
 }
-
 .h1classes {
   font-size: 48px;
   font-weight: 800;
@@ -23,6 +22,26 @@
   animation: gradientMove 8s ease infinite;
 }
 
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .h1classes {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 768px) {
+  .h1classes {
+    font-size: 30px;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 480px) {
+  .h1classes {
+    font-size: 24px;
+    line-height: 1.4;
+  }
+}
 .pclasses {
   color: gray;
 }

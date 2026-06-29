@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './HeroSection.module.css';
 import InstallButton from './InstallButton';
+import Link from 'next/link';
 
 export default function HeroSection() {
   const [scrolled, setScrolled] = useState(false);
@@ -289,7 +290,9 @@ export default function HeroSection() {
             </li>
           </ul>
           <div className={styles.navActions}>
-            <button className={styles.btnGhost}>Parent Login</button>
+           <Link href="/authentification" className={styles.btnGhost}>
+  Parent Login
+</Link>
             <button className={styles.btnAmber}>Apply Now</button>
                 <InstallButton compact={true} />
             <button
