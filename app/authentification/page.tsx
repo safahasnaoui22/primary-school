@@ -4,7 +4,21 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
-
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'box-icon': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          name?: string;
+          type?: string;
+          size?: string;
+          color?: string;
+        },
+        HTMLElement
+      >;
+    }
+  }
+}
 export default function AuthentificationPage() {
   const [active, setActive] = useState(false);
 
