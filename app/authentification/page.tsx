@@ -1,9 +1,10 @@
-// app/authentification/page.tsx
 'use client';
 
 import { useState } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
+
+// ─── Tell TypeScript that <box-icon> is a valid element ───
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -19,6 +20,8 @@ declare global {
     }
   }
 }
+// ─────────────────────────────────────────────────────────────
+
 export default function AuthentificationPage() {
   const [active, setActive] = useState(false);
 
@@ -41,10 +44,12 @@ export default function AuthentificationPage() {
         />
       </Head>
 
-      {/* Boxicons CDN */}
-      <Script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js" strategy="afterInteractive" />
+      <Script
+        src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"
+        strategy="afterInteractive"
+      />
 
-      <style>{`
+      <style jsx global>{`
         :root {
           --navy: #071B4A;
           --navy-light: #0F2B6A;
@@ -93,7 +98,6 @@ export default function AuthentificationPage() {
           isolation: isolate;
         }
 
-        /* Shapes always behind */
         .container .curved-shape,
         .container .curved-shape2 {
           pointer-events: none;
@@ -137,7 +141,6 @@ export default function AuthentificationPage() {
           transition-delay: 1.2s;
         }
 
-        /* FORMS ABOVE EVERYTHING CLICKABLE */
         .container .form-box {
           position: absolute;
           top: 0;
@@ -169,7 +172,6 @@ export default function AuthentificationPage() {
           z-index: 22;
         }
 
-        /* INFO TEXT SHOULD NEVER BLOCK INPUTS */
         .info-content {
           position: absolute;
           top: 0;
@@ -496,7 +498,7 @@ export default function AuthentificationPage() {
         }
       `}</style>
 
-      <div className={`container ${active ? 'active' : ''}`} id="authContainer">
+      <div className={`container ${active ? 'active' : ''}`}>
         <div className="curved-shape"></div>
         <div className="curved-shape2"></div>
 
