@@ -2,25 +2,6 @@
 
 import { useState } from 'react';
 import Head from 'next/head';
-import Script from 'next/script';
-
-// ─── Tell TypeScript that <box-icon> is a valid element ───
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'box-icon': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          name?: string;
-          type?: string;
-          size?: string;
-          color?: string;
-        },
-        HTMLElement
-      >;
-    }
-  }
-}
-// ─────────────────────────────────────────────────────────────
 
 export default function AuthentificationPage() {
   const [active, setActive] = useState(false);
@@ -44,12 +25,7 @@ export default function AuthentificationPage() {
         />
       </Head>
 
-      <Script
-        src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"
-        strategy="afterInteractive"
-      />
-
-      <style jsx global>{`
+      <style>{`
         :root {
           --navy: #071B4A;
           --navy-light: #0F2B6A;
@@ -312,11 +288,13 @@ export default function AuthentificationPage() {
           font-weight: 500;
         }
 
-        .input-box box-icon {
+        /* Updated icon style – now targets SVG instead of box-icon */
+        .input-box svg {
           position: absolute;
           top: 50%;
           right: 0;
-          font-size: 18px;
+          width: 18px;
+          height: 18px;
           transform: translateY(-50%);
           color: var(--text-gray);
           transition: .5s;
@@ -324,8 +302,8 @@ export default function AuthentificationPage() {
           pointer-events: none;
         }
 
-        .input-box input:focus ~ box-icon,
-        .input-box input:valid ~ box-icon {
+        .input-box input:focus ~ svg,
+        .input-box input:valid ~ svg {
           color: var(--gold);
         }
 
@@ -511,13 +489,21 @@ export default function AuthentificationPage() {
             <div className="input-box animation" style={{ '--D': 1, '--S': 22 } as React.CSSProperties}>
               <input type="text" required />
               <label>Username</label>
-              <box-icon type="solid" name="user"></box-icon>
+              {/* User icon */}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </div>
 
             <div className="input-box animation" style={{ '--D': 2, '--S': 23 } as React.CSSProperties}>
               <input type="password" required />
               <label>Password</label>
-              <box-icon name="lock-alt" type="solid"></box-icon>
+              {/* Lock icon */}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
             </div>
 
             <div className="input-box animation" style={{ '--D': 3, '--S': 24 } as React.CSSProperties}>
@@ -555,19 +541,29 @@ export default function AuthentificationPage() {
             <div className="input-box animation" style={{ '--li': 18, '--S': 1 } as React.CSSProperties}>
               <input type="text" required />
               <label>Username</label>
-              <box-icon type="solid" name="user"></box-icon>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </div>
 
             <div className="input-box animation" style={{ '--li': 19, '--S': 2 } as React.CSSProperties}>
               <input type="email" required />
               <label>Email</label>
-              <box-icon name="envelope" type="solid"></box-icon>
+              {/* Envelope icon */}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
             </div>
 
             <div className="input-box animation" style={{ '--li': 20, '--S': 3 } as React.CSSProperties}>
               <input type="password" required />
               <label>Password</label>
-              <box-icon name="lock-alt" type="solid"></box-icon>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
             </div>
 
             <div className="input-box animation" style={{ '--li': 21, '--S': 4 } as React.CSSProperties}>
