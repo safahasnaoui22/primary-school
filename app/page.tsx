@@ -1,17 +1,34 @@
-import InstallButton from "./components/InstallButton";
+import ClassesSection from "./components/ClassesSection";
+import HeroSection from "./components/HeroSection";
+
 
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">🏫 Primary School</h1>
-        <p className="text-gray-600 mb-6">Welcome to your school management dashboard</p>
-        <div className="border-t border-gray-200 pt-6">
-          <p className="text-sm text-gray-500 mb-2">Install this app on your device for quick access</p>
-          <InstallButton />
-        </div>
+         {/* Background decorative elements */}
+      <div className="gradient-bg"></div>
+      <div className="particles-container" id="particles"></div>
+      
+      {/* Floating shapes */}
+      <div className="floating-shapes">
+        <div className="shape shape-1"></div>
+        <div className="shape shape-2"></div>
+        <div className="shape shape-3"></div>
+        <div className="shape shape-4"></div>
+        <div className="shape shape-5"></div>
+        <div className="shape shape-6"></div>
       </div>
+
+      {/* Central Orb */}
+      <div className="bg-orb" id="centralOrb">
+        <div className="orb-core"></div>
+        <div className="orb-ring ring-1"></div>
+        <div className="orb-ring ring-2"></div>
+        <div className="orb-ring ring-3"></div>
+      </div>
+      <HeroSection></HeroSection>
+    <ClassesSection/>
     </main>
   );
 }

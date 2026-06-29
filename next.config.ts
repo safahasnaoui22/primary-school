@@ -3,7 +3,14 @@ import type { NextConfig } from 'next';
 import withPWA from 'next-pwa';
 
 const nextConfig: NextConfig = {
-  // your existing config (if any)
+ images: {
+  remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'i.pinimg.com',
+    },
+  ],
+},
 };
 
 export default withPWA({
