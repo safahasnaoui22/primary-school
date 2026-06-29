@@ -273,36 +273,35 @@ export default function Inscription() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateStep(3)) {
-      setSubmitted(true);
-      localStorage.removeItem('inscriptionDraft');
-      // Confetti effect
-      if (typeof window !== 'undefined') {
-        const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
-        for (let i = 0; i < 100; i++) {
-          const el = document.createElement('div');
-          el.style.cssText = `
-            position: fixed; 
-            width: ${6 + Math.random() * 10}px; 
-            height: ${6 + Math.random() * 10}px; 
-            background: ${colors[Math.floor(Math.random() * colors.length)]}; 
-            left: ${Math.random() * 100}%; 
-            top: -10px; 
-            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'}; 
-            transform: rotate(${Math.random() * 360}deg); 
-            z-index: 9999; 
-            pointer-events: none; 
-            animation: confettiFall ${2 + Math.random() * 3}s linear forwards;
-          `;
-          document.body.appendChild(el);
-          setTimeout(() => el.remove(), 5000);
-        }
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  if (validateStep(3)) {
+    setSubmitted(true);
+    localStorage.removeItem('inscriptionDraft');
+    // Confetti effect – now uses the static keyframe from CSS
+    if (typeof window !== 'undefined') {
+      const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
+      for (let i = 0; i < 100; i++) {
+        const el = document.createElement('div');
+        el.style.cssText = `
+          position: fixed; 
+          width: ${6 + Math.random() * 10}px; 
+          height: ${6 + Math.random() * 10}px; 
+          background: ${colors[Math.floor(Math.random() * colors.length)]}; 
+          left: ${Math.random() * 100}%; 
+          top: -10px; 
+          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'}; 
+          transform: rotate(${Math.random() * 360}deg); 
+          z-index: 9999; 
+          pointer-events: none; 
+          animation: confettiFall ${2 + Math.random() * 3}s linear forwards;
+        `;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
       }
     }
-  };
-
+  }
+};
   const getStepClass = (s: number) => {
     if (step === s) return 'active';
     if (step > s) return 'completed';
@@ -508,12 +507,7 @@ export default function Inscription() {
         </form>
       </div>
 
-      {/* Confetti keyframes */}
-      <style>{`
-        @keyframes confettiFall {
-          to { transform: translateY(100vh) rotate(${Math.random() * 720}deg); opacity: 0; }
-        }
-      `}</style>
+  
     </div>
   );
 }
