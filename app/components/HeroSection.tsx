@@ -293,7 +293,7 @@ export default function HeroSection() {
            <Link href="/authentification" className={styles.btnGhost}>
   Parent Login
 </Link>
-            <Link href="/inscription" className={styles.btnAmber}>
+            <Link href="/Inscription" className={styles.btnAmber}>
  Apply Now
 </Link>
          
@@ -405,7 +405,7 @@ export default function HeroSection() {
     Parent Login
   </Link>
   <Link
-    href="/inscription" // or wherever you want
+    href="/Inscription" // or wherever you want
     style={{ background: 'var(--amber)', color: '#fff', textAlign: 'center', display: 'block' }}
   >
     Apply Now
