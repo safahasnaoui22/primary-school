@@ -31,7 +31,7 @@ export default function Home() {
       </div>
 
   
-      <HeroSection></HeroSection>
+      <HeroSection/>
     <ClassesSection/>
     <MethodSection/>
     </main>

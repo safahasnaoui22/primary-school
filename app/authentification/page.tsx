@@ -1,19 +1,94 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import Head from 'next/head';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function AuthentificationPage() {
+  const router = useRouter();
   const [active, setActive] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Login fields
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  // Register fields
+  const [regUsername, setRegUsername] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
 
   const handleSignUp = (e: React.MouseEvent) => {
     e.preventDefault();
     setActive(true);
+    setError('');
   };
 
   const handleSignIn = (e: React.MouseEvent) => {
     e.preventDefault();
     setActive(false);
+    setError('');
+  };
+
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: loginEmail,
+      password: loginPassword,
+    });
+
+    setLoading(false);
+
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      router.push('/dashboard'); // change to your protected route
+    }
+  };
+
+  const handleRegister = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: regUsername,
+          email: regEmail,
+          password: regPassword,
+          // role defaults to PARENT in the API
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+      // Auto‑login after successful registration
+      const loginResult = await signIn('credentials', {
+        redirect: false,
+        email: regEmail,
+        password: regPassword,
+      });
+
+      if (loginResult?.error) {
+        setError(loginResult.error);
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -288,7 +363,6 @@ export default function AuthentificationPage() {
           font-weight: 500;
         }
 
-        /* Updated icon style – now targets SVG instead of box-icon */
         .input-box svg {
           position: absolute;
           top: 50%;
@@ -480,26 +554,34 @@ export default function AuthentificationPage() {
         <div className="curved-shape"></div>
         <div className="curved-shape2"></div>
 
-        {/* Login Form */}
+        {/* ── Login Form ── */}
         <div className="form-box Login">
           <h2 className="animation" style={{ '--D': 0, '--S': 21 } as React.CSSProperties}>
             Login
           </h2>
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={handleLogin}>
             <div className="input-box animation" style={{ '--D': 1, '--S': 22 } as React.CSSProperties}>
-              <input type="text" required />
-              <label>Username</label>
-              {/* User icon */}
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+              />
+              <label>Email</label>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
             </div>
 
             <div className="input-box animation" style={{ '--D': 2, '--S': 23 } as React.CSSProperties}>
-              <input type="password" required />
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+              />
               <label>Password</label>
-              {/* Lock icon */}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -507,8 +589,14 @@ export default function AuthentificationPage() {
             </div>
 
             <div className="input-box animation" style={{ '--D': 3, '--S': 24 } as React.CSSProperties}>
-              <button className="btn" type="submit">Login</button>
+              <button className="btn" type="submit" disabled={loading}>
+                {loading ? 'Logging in...' : 'Login'}
+              </button>
             </div>
+
+            {error && !active && (
+              <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
+            )}
 
             <div className="regi-link animation" style={{ '--D': 4, '--S': 25 } as React.CSSProperties}>
               <p>
@@ -522,7 +610,7 @@ export default function AuthentificationPage() {
           </form>
         </div>
 
-        {/* Login Info */}
+        {/* ── Login Info Panel ── */}
         <div className="info-content Login">
           <h2 className="animation" style={{ '--D': 0, '--S': 20 } as React.CSSProperties}>
             WELCOME BACK!
@@ -532,14 +620,19 @@ export default function AuthentificationPage() {
           </p>
         </div>
 
-        {/* Register Form */}
+        {/* ── Register Form ── */}
         <div className="form-box Register">
           <h2 className="animation" style={{ '--li': 17, '--S': 0 } as React.CSSProperties}>
             Register
           </h2>
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={handleRegister}>
             <div className="input-box animation" style={{ '--li': 18, '--S': 1 } as React.CSSProperties}>
-              <input type="text" required />
+              <input
+                type="text"
+                required
+                value={regUsername}
+                onChange={(e) => setRegUsername(e.target.value)}
+              />
               <label>Username</label>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -548,9 +641,13 @@ export default function AuthentificationPage() {
             </div>
 
             <div className="input-box animation" style={{ '--li': 19, '--S': 2 } as React.CSSProperties}>
-              <input type="email" required />
+              <input
+                type="email"
+                required
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+              />
               <label>Email</label>
-              {/* Envelope icon */}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
@@ -558,7 +655,12 @@ export default function AuthentificationPage() {
             </div>
 
             <div className="input-box animation" style={{ '--li': 20, '--S': 3 } as React.CSSProperties}>
-              <input type="password" required />
+              <input
+                type="password"
+                required
+                value={regPassword}
+                onChange={(e) => setRegPassword(e.target.value)}
+              />
               <label>Password</label>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -567,8 +669,14 @@ export default function AuthentificationPage() {
             </div>
 
             <div className="input-box animation" style={{ '--li': 21, '--S': 4 } as React.CSSProperties}>
-              <button className="btn" type="submit">Register</button>
+              <button className="btn" type="submit" disabled={loading}>
+                {loading ? 'Registering...' : 'Register'}
+              </button>
             </div>
+
+            {error && active && (
+              <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
+            )}
 
             <div className="regi-link animation" style={{ '--li': 22, '--S': 5 } as React.CSSProperties}>
               <p>
@@ -582,7 +690,7 @@ export default function AuthentificationPage() {
           </form>
         </div>
 
-        {/* Register Info */}
+        {/* ── Register Info Panel ── */}
         <div className="info-content Register">
           <h2 className="animation" style={{ '--li': 17, '--S': 0 } as React.CSSProperties}>
             WELCOME!
