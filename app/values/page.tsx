@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import Script from 'next/script';
-
+import { ArrowLeft, ArrowRight } from "lucide-react";
 export default function ValuesPage() {
   const initialized = useRef(false);
 
@@ -273,8 +273,17 @@ export default function ValuesPage() {
         </div>
 
         <div className="slider-control">
-          <div className="prev"><button type="button"><ion-icon name="arrow-back"></ion-icon></button></div>
-          <div className="next"><button type="button"><ion-icon name="arrow-forward"></ion-icon></button></div>
+     <div className="prev">
+  <button type="button">
+    <ArrowLeft size={20} />
+  </button>
+</div>
+
+<div className="next">
+  <button type="button">
+    <ArrowRight size={20} />
+  </button>
+</div>
         </div>
 
         <div className="blocks">

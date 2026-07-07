@@ -45,14 +45,14 @@ export default function Home() {
   
    <HeroSection />
    
-<SectionDivider tone="amber" />
+
 <ClassesSection />
-<SectionDivider tone="navy" flip />
+
 <ValuesPage/>
 <MethodSection />
-<SectionDivider tone="amber" />
+
 <Video />
-<SectionDivider tone="navy" flip />
+
 <Activities />
 <Why/>
 

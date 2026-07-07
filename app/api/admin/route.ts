@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
 
-  // Permission rules
+  // --- Permission rules ---
   if (actingRole === 'SUPER_ADMIN') {
     if (!['SCHOOL_OWNER', 'TEACHER', 'PARENT'].includes(role)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
@@ -35,65 +34,36 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const existing = await prisma.user.findUnique({
-    where: { email },
-  });
-
+  const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return NextResponse.json(
-      { error: 'Email already in use' },
-      { status: 409 }
-    );
+    return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
   }
 
   const hashed = await bcrypt.hash(password, 10);
 
   try {
-    // SUPER_ADMIN creating SCHOOL_OWNER + School
-    if (
-      actingRole === 'SUPER_ADMIN' &&
-      role === 'SCHOOL_OWNER' &&
-      schoolName
-    ) {
-      const result = await prisma.$transaction(
-        async (tx: Prisma.TransactionClient) => {
-          const owner = await tx.user.create({
-            data: {
-              username,
-              email,
-              password: hashed,
-              role: 'SCHOOL_OWNER',
-            },
-          });
+    // Case 1: SUPER_ADMIN creating a SCHOOL_OWNER + new school together
+    if (actingRole === 'SUPER_ADMIN' && role === 'SCHOOL_OWNER' && schoolName) {
+      const result = await prisma.$transaction(async (tx) => {
+        const owner = await tx.user.create({
+          data: { username, email, password: hashed, role: 'SCHOOL_OWNER' },
+        });
+        const school = await tx.school.create({
+          data: { name: schoolName, ownerId: owner.id },
+        });
+        const updatedOwner = await tx.user.update({
+          where: { id: owner.id },
+          data: { schoolId: school.id },
+        });
+        return { owner: updatedOwner, school };
+      });
 
-          const school = await tx.school.create({
-            data: {
-              name: schoolName,
-              ownerId: owner.id,
-            },
-          });
-
-          const updatedOwner = await tx.user.update({
-            where: {
-              id: owner.id,
-            },
-            data: {
-              schoolId: school.id,
-            },
-          });
-
-          return {
-            owner: updatedOwner,
-            school,
-          };
-        }
-      );
-
+      // 👇 This is the part that was fixed — nested under "owner" and "school"
       return NextResponse.json({
         owner: {
           id: result.owner.id,
-          username: result.owner.username,
           email: result.owner.email,
+          username: result.owner.username,
           role: result.owner.role,
         },
         school: {
@@ -103,15 +73,11 @@ export async function POST(req: Request) {
       });
     }
 
-    // SCHOOL_OWNER creating TEACHER
+    // Case 2: SCHOOL_OWNER creating a TEACHER for their own school
     if (actingRole === 'SCHOOL_OWNER' && role === 'TEACHER') {
       if (!session.user.schoolId) {
-        return NextResponse.json(
-          { error: 'You are not linked to a school' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'You are not linked to a school' }, { status: 400 });
       }
-
       const teacher = await prisma.user.create({
         data: {
           username,
@@ -121,7 +87,6 @@ export async function POST(req: Request) {
           schoolId: session.user.schoolId,
         },
       });
-
       return NextResponse.json({
         id: teacher.id,
         email: teacher.email,
@@ -129,7 +94,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // SUPER_ADMIN creating other users
+    // Case 3: SUPER_ADMIN creating any role directly (with explicit schoolId, or none for PARENT)
     const user = await prisma.user.create({
       data: {
         username,
@@ -147,10 +112,6 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error(err);
-
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
   }
 }

@@ -376,10 +376,9 @@ export default function Gallery() {
             onClick={() => handleItemClick(i)}
           >
             <div className="carousel-box">
-              <div className="title">{item.title}</div>
-              <div className="num">{item.num}</div>
+         
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.img} alt={item.title || ''} />
+              <img src={item.img}  />
             </div>
           </div>
         ))}
