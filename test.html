@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Choose Us | Bright Horizons Primary School</title>
+  <!-- Google Fonts: Fondamento (fairy tale script) + Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fondamento&family=Nunito:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --image-height: 70svh;
+      --font-body: "Nunito", sans-serif;
+      --font-heading: "Fondamento", cursive;
+      --color-primary: #4a7c59;
+      --color-light: #f9f7f2;
+      --color-dark: #3b2b1f;
+      --border-color: #d9cbb8;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 400;
+      background-color: var(--color-light);
+      color: var(--color-dark);
+    }
+
+    h1,
+    h2 {
+      font-family: var(--font-heading);
+      font-weight: 400;
+    }
+
+    figure {
+      margin: 0;
+    }
+
+    /* ===== WHY CHOOSE US SECTION ===== */
+    .why-us {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+      gap: 1.5rem;
+      padding: 2.5rem 5rem;
+      min-height: 100svh;
+      background-color: var(--color-light);
+    }
+
+    .why-us__content {
+      padding-right: 10%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.9rem;
+    }
+
+    /* Section label (static) */
+    .why-us__section-label {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--color-primary);
+      margin-bottom: 0.2rem;
+      font-weight: 700;
+    }
+
+    .why-us__heading,
+    .why-us__caption {
+      clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+    }
+
+    .why-us__heading {
+      font-size: clamp(2.2rem, 4.5rem, 5vw);
+      line-height: 1.2;
+      color: var(--color-dark);
+    }
+
+    .why-us__heading span {
+      color: var(--color-primary);
+    }
+
+    .why-us__caption {
+      font-size: 1.3rem;
+      color: #5e4e3a;
+    }
+
+    .why-us__heading.animate-in,
+    .why-us__caption.animate-in {
+      animation: headingAnim 0.9s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+    }
+
+    /* ===== IMAGE GRID ===== */
+    .why-us__images {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .why-us__image {
+      position: relative;
+      height: var(--image-height);
+      overflow: hidden;
+      border: 4px solid var(--border-color);
+      border-radius: 8px;
+      animation: imageReveal 1s 2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+    }
+
+    .why-us__image:nth-child(2) {
+      margin-top: 5rem;
+      animation-delay: 2.5s;
+    }
+
+    .why-us__image:nth-child(3) {
+      margin-top: 10rem;
+      animation-delay: 3s;
+    }
+
+    .why-us__image img {
+      width: 100%;
+      height: 100%;
+      inset: 0;
+      object-fit: cover;
+      position: absolute;
+      transition: transform 0.7s ease, opacity 0.4s ease;
+    }
+
+    .why-us__image__one {
+      z-index: 1;
+    }
+
+    .why-us__image__two {
+      z-index: 2;
+      transform: translate(100%, 100%);
+      opacity: 0;
+      transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.2, 1),
+        opacity 0.18s linear;
+      will-change: transform, opacity;
+    }
+
+    /* ===== CONTROLS ===== */
+    .why-us__controls {
+      position: absolute;
+      top: calc(var(--image-height) + 1.2rem);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: controlReveal 1s 3.5s ease-in both;
+    }
+
+    .why-us__control {
+      display: inline-flex;
+      padding: 0.5em 1.4em;
+      border: 2px solid var(--color-primary);
+      border-radius: 2rem;
+      font-weight: 700;
+      background-color: var(--color-primary);
+      color: white;
+      transition: background-color 0.3s ease-in, color 0.3s ease-in;
+      cursor: pointer;
+    }
+
+    .why-us__control:hover:not(:disabled) {
+      background-color: transparent;
+      color: var(--color-primary);
+    }
+
+    .why-us__control:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    /* ===== KEYFRAMES ===== */
+    @keyframes headingAnim {
+      to {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 300%);
+      }
+    }
+
+    @keyframes imageReveal {
+      from {
+        transform: translate(200%, 100%);
+        opacity: 0;
+      }
+      to {
+        transform: translate(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes controlReveal {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="why-us">
+    <div class="why-us__content">
+      <!-- Static section title added here -->
+      <p class="why-us__section-label">Why Choose Us</p>
+      <h1 class="why-us__heading"></h1>
+      <p class="why-us__caption"></p>
+    </div>
+    <div class="why-us__images">
+      <figure class="why-us__image">
+        <img src="" alt="" class="why-us__image__one" />
+        <img src="" alt="" class="why-us__image__two" />
+      </figure>
+      <figure class="why-us__image">
+        <img src="" alt="" class="why-us__image__one" />
+        <img src="" alt="" class="why-us__image__two" />
+      </figure>
+      <figure class="why-us__image">
+        <img src="" alt="" class="why-us__image__one" />
+        <img src="" alt="" class="why-us__image__two" />
+      </figure>
+      <div class="why-us__controls">
+        <button class="why-us__control why-us__control--prev">Prev</button>
+        <button class="why-us__control why-us__control--next">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      const slides = [
+        {
+          img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600",
+          title: "Nurturing <span>Environment</span>",
+          caption:
+            "A warm, welcoming space where every child feels safe and valued.",
+        },
+        {
+          img: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600",
+          title: "Play‑Based <span>Learning</span>",
+          caption:
+            "Hands‑on activities that spark curiosity and creativity.",
+        },
+        {
+          img: "https://images.unsplash.com/photo-1523050854058-8df90910e683?w=600",
+          title: "Qualified <span>Teachers</span>",
+          caption:
+            "Experienced educators passionate about early childhood development.",
+        },
+        {
+          img: "https://images.unsplash.com/photo-1509062522246-3755977927d4?w=600",
+          title: "Small <span>Class Sizes</span>",
+          caption:
+            "Individual attention that helps every student thrive.",
+        },
+        {
+          img: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600",
+          title: "Safe <span>Facilities</span>",
+          caption:
+            "Modern classrooms and secure playgrounds you can trust.",
+        },
+        {
+          img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb6?w=600",
+          title: "Community <span>Spirit</span>",
+          caption:
+            "Strong family involvement and lasting friendships.",
+        },
+      ];
+
+      const totalSlides = slides.length;
+      const FIGURE_COUNT = 3;
+      let indices = [0, 1, 2];
+
+      const figures = Array.from(document.querySelectorAll(".why-us__image"));
+      const headingEl = document.querySelector(".why-us__heading");
+      const captionEl = document.querySelector(".why-us__caption");
+      const btnNext = document.querySelector(".why-us__control--next");
+      const btnPrev = document.querySelector(".why-us__control--prev");
+
+      const preload = (src) =>
+        new Promise((res) => {
+          if (!src) return res();
+          const img = new Image();
+          img.onload = img.onerror = () => res();
+          img.src = src;
+        });
+
+      const whenTransitionEnd = (el, timeout = 1000) =>
+        new Promise((res) => {
+          let done = false;
+          const timer = setTimeout(() => {
+            if (!done) res();
+            done = true;
+          }, timeout + 200);
+
+          el.addEventListener("transitionend", (e) => {
+            if (done) return;
+            if (e.target === el && e.propertyName === "transform") {
+              done = true;
+              clearTimeout(timer);
+              res();
+            }
+          });
+        });
+
+      function animateText() {
+        [headingEl, captionEl].forEach((el) => {
+          el.classList.remove("animate-in");
+          void el.offsetHeight;
+          el.classList.add("animate-in");
+        });
+      }
+
+      function updateWhyUsContent(slideIndex) {
+        const slide = slides[slideIndex];
+        headingEl.innerHTML = slide.title;
+        captionEl.textContent = slide.caption;
+        animateText();
+      }
+
+      function populateInitial() {
+        figures.forEach((fig, i) => {
+          const imgOne = fig.querySelector(".why-us__image__one");
+          imgOne.src = slides[indices[i]].img;
+        });
+        updateWhyUsContent(indices[0]);
+      }
+
+      async function slide(direction) {
+        btnNext.disabled = btnPrev.disabled = true;
+
+        let newIndices;
+        if (direction === "next") {
+          newIndices = [
+            indices[1],
+            indices[2],
+            (indices[2] + 1) % totalSlides,
+          ];
+        } else {
+          newIndices = [
+            (indices[0] - 1 + totalSlides) % totalSlides,
+            indices[0],
+            indices[1],
+          ];
+        }
+
+        const newSrcs = newIndices.map((idx) => slides[idx].img);
+        await Promise.all(newSrcs.map(preload));
+
+        figures.forEach((fig, i) => {
+          const imgTwo = fig.querySelector(".why-us__image__two");
+          imgTwo.src = newSrcs[i];
+          imgTwo.style.transition = "none";
+          imgTwo.style.transform =
+            direction === "next"
+              ? "translate(100%, 100%)"
+              : "translate(-100%, -100%)";
+          imgTwo.style.opacity = "1";
+          imgTwo.style.zIndex = "2";
+        });
+
+        void document.body.offsetHeight;
+
+        figures.forEach((fig) => {
+          const imgTwo = fig.querySelector(".why-us__image__two");
+          imgTwo.style.transition =
+            "transform 0.8s cubic-bezier(.2,.9,.2,1)";
+          imgTwo.style.transform = "translate(0, 0)";
+        });
+
+        await Promise.all(
+          figures.map((fig) =>
+            whenTransitionEnd(
+              fig.querySelector(".why-us__image__two"),
+              800
+            )
+          )
+        );
+
+        figures.forEach((fig) => {
+          const imgOne = fig.querySelector(".why-us__image__one");
+          const imgTwo = fig.querySelector(".why-us__image__two");
+          imgOne.src = imgTwo.src;
+        });
+
+        figures.forEach((fig) => {
+          const imgTwo = fig.querySelector(".why-us__image__two");
+          imgTwo.style.transition = "none";
+          imgTwo.style.transform =
+            direction === "next"
+              ? "translate(100%, 100%)"
+              : "translate(-100%, -100%)";
+          imgTwo.style.opacity = "0";
+          imgTwo.style.zIndex = "2";
+        });
+
+        indices = newIndices;
+        updateWhyUsContent(indices[0]);
+
+        btnNext.disabled = btnPrev.disabled = false;
+      }
+
+      btnNext.addEventListener("click", () => slide("next"));
+      btnPrev.addEventListener("click", () => slide("prev"));
+
+      populateInitial();
+    })();
+  </script>
+</body>
+</html>

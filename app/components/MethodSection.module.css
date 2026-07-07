@@ -2,40 +2,38 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap");
 
 .container {
-  width: 100%;
+width : 100% ;
   padding: 2rem;
   margin: 0 auto;
   color: #121212;
   font-family: "Outfit", sans-serif;
-}
 
-/* ========== MAIN HEADING ========== */
+}
 .h1methode {
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+
+  /* gradient + animation */
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
-  /* Fluid font size: 28px on small screens → 48px on large */
-  font-size: clamp(28px, 5.5vw, 48px);
-  font-weight: 800;
-  margin-bottom: 10px;
-  line-height: 1.15;
+
+  /* mobile first */
+  font-size: 2rem;
 }
 
-/* Subtitle below main heading */
-.subtitle {
-  font-size: clamp(15px, 2vw, 18px);
-  opacity: 0.8;
-  line-height: 1.5;
-  max-width: 600px;
-  margin-inline: auto;
+@media (min-width: 768px) {
+  .h1methode {
+    font-size: 2.5rem;
+  }
 }
 
-/* Wrapper for the heading block */
-.headingWrapper {
-  text-align: center;
-  margin-bottom: clamp(40px, 8vw, 80px);
+@media (min-width: 1024px) {
+  .h1methode {
+    font-size: 3rem; /* = 48px */
+  }
 }
 
 @keyframes gradientMove {
@@ -50,34 +48,30 @@
   }
 }
 
-/* ========== ARCH LAYOUT ========== */
 .arch {
   display: flex;
   gap: 60px;
   justify-content: space-between;
   max-width: 1100px;
   margin-inline: auto;
+
 }
 
 .arch__left {
   display: flex;
   flex-direction: column;
-  flex: 1 1 0;
-  min-width: 300px;
+  min-width: 400px;
 }
 
-/* ========== EACH METHOD SECTION ========== */
 .arch__info {
   max-width: 600px;
   height: 100vh;
   display: grid;
   place-items: center;
 }
-
 .arch__info .header {
-  font-family: "Outfit", sans-serif;
-  /* Fluid: 24px → 42px */
-  font-size: clamp(24px, 4vw, 42px);
+  font-family: Outfit;
+  font-size: clamp(1.75rem, 4vw + 0.75rem, 2.625rem); /* 28px → 42px */
   font-weight: 800;
   letter-spacing: -0.84px;
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
@@ -85,22 +79,16 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
-  line-height: 1.2;
-  margin-bottom: 6px;
 }
-
 .arch__info .desc {
   color: gray;
-  /* Fluid: 15px → 18px */
-  font-size: clamp(15px, 1.8vw, 18px);
+  font-size: 18px;
   letter-spacing: -0.54px;
   margin-block: 6px 28px;
-  /* Fluid line-height: 28px → 40px */
-  line-height: clamp(28px, 3.8vw, 40px);
+  line-height: 40px;
   font-family: "Playfair Display", serif;
 }
 
-/* ========== RIGHT SIDE — IMAGES ========== */
 .arch__right {
   flex-shrink: 1;
   height: 100vh;
@@ -116,8 +104,7 @@
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  /* Fluid height: 280px → 400px */
-  height: clamp(280px, 45vw, 400px);
+  height: 400px;
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
@@ -130,24 +117,12 @@
   object-position: center;
 }
 
-/* ========== RESPONSIVE BREAKPOINTS ========== */
-
-/* Tablet: 769px – 900px */
 @media (max-width: 900px) {
   .arch {
     gap: 30px;
   }
-
-  .arch__left {
-    min-width: 260px;
-  }
-
-  .arch__info .desc {
-    line-height: clamp(26px, 3.5vw, 34px);
-  }
 }
 
-/* Mobile: ≤ 768px — stack vertically */
 @media (max-width: 768px) {
   .arch {
     flex-direction: column;
@@ -167,107 +142,28 @@
   .imgWrapper {
     position: static;
     transform: none;
-    height: clamp(260px, 55vw, 380px);
+    height: 360px;
     width: 100%;
     margin-bottom: 20px;
-    border-radius: 14px;
   }
 
   .arch__info {
     height: auto;
-    padding: 20px 0 32px;
-  }
-
-  .arch__info .header {
-    font-size: clamp(22px, 6vw, 32px);
-    letter-spacing: -0.5px;
-  }
-
-  .arch__info .desc {
-    font-size: clamp(14px, 3.2vw, 17px);
-    line-height: clamp(24px, 5vw, 30px);
-  }
-
-  .h1methode {
-    font-size: clamp(24px, 7vw, 36px);
+    padding: 20px 0;
   }
 }
 
-/* Small mobile: ≤ 560px */
 @media (max-width: 560px) {
-  .container {
-    padding: 12px;
-  }
-
   .arch {
     gap: 12px;
   }
 
+  .container {
+    padding: 10px;
+  }
+
   .imgWrapper {
     border-radius: 10px;
-    height: clamp(200px, 50vw, 280px);
-    margin-bottom: 14px;
-  }
-
-  .arch__info {
-    padding: 12px 0 24px;
-  }
-
-  .arch__info .header {
-    font-size: clamp(20px, 5.5vw, 26px);
-  }
-
-  .arch__info .desc {
-    font-size: clamp(13px, 3vw, 15px);
-    line-height: clamp(22px, 4.5vw, 26px);
-    margin-block: 4px 18px;
-  }
-
-  .h1methode {
-    font-size: clamp(22px, 6.5vw, 30px);
-  }
-
-  .subtitle {
-    font-size: clamp(13px, 3vw, 15px);
-  }
-}
-
-/* Very small devices: ≤ 400px */
-@media (max-width: 400px) {
-  .container {
-    padding: 8px;
-  }
-
-  .arch {
-    gap: 8px;
-  }
-
-  .imgWrapper {
-    border-radius: 8px;
-    height: clamp(180px, 48vw, 220px);
-    margin-bottom: 10px;
-  }
-
-  .arch__info {
-    padding: 8px 0 18px;
-  }
-
-  .arch__info .header {
-    font-size: clamp(18px, 5vw, 22px);
-  }
-
-  .arch__info .desc {
-    font-size: clamp(12px, 2.8vw, 14px);
-    line-height: clamp(20px, 4vw, 24px);
-    margin-block: 2px 12px;
-  }
-
-  .h1methode {
-    font-size: clamp(20px, 6vw, 26px);
-    margin-bottom: 6px;
-  }
-
-  .subtitle {
-    font-size: clamp(12px, 2.8vw, 14px);
+    height: 280px;
   }
 }

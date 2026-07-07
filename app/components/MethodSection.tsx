@@ -209,8 +209,7 @@ export default function MethodSection() {
         <h1
           className={styles.h1methode}
           style={{
-            fontSize: "48px",
-            fontWeight: 800,
+           
             marginBottom: "10px",
           }}
         >

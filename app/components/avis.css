@@ -1,0 +1,154 @@
+/* ===============================
+   Animated Background
+================================*/
+/* ===============================
+   PREMIUM ANIMATED BACKGROUND
+================================*/
+
+.avissection {
+    margin: 0;
+    overflow-x: hidden;
+    font-family: Helvetica, Arial, sans-serif;
+    background: linear-gradient(145deg, #e2f0fd, #d4eafc, #ffffff);
+}
+
+/* Gradient layer */
+.avissection::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: radial-gradient(circle at 20% 30%, #93c6ff55, transparent),
+                radial-gradient(circle at 80% 70%, #fbfdff55, transparent),
+                radial-gradient(circle at 50% 50%, #ffffff55, transparent);
+    animation: moveGradient 18s linear infinite;
+    z-index: -2;
+}
+
+/* Floating light particles */
+.avissection::after {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.15), transparent),
+        radial-gradient(2px 2px at 70% 60%, rgba(255,255,255,0.1), transparent),
+        radial-gradient(3px 3px at 40% 80%, rgba(255,255,255,0.1), transparent);
+    animation: floatLights 25s linear infinite;
+    z-index: -1;
+}
+
+/* Animations */
+
+@keyframes moveGradient {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes floatLights {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-40px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes bgMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===============================
+   Slider Layout
+================================*/
+.avislider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.swiper-containeravis {
+    width: 100%;
+    padding: 80px 0;
+}
+
+/* ===============================
+   Card Style
+================================*/
+.swiper-slide {
+    width: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    transition: .4s;
+}
+
+/* Floating animation */
+.swiper-slide-active {
+    animation: floatCard 3s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+    0%,100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ===============================
+   Image
+================================*/
+.pictureavis {
+    width: 320px;
+    height: 320px;
+    overflow: hidden;
+}
+
+.pictureavis img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===============================
+   Text
+================================*/
+.detailavis {
+    padding: 25px 20px;
+    text-align: center;
+}
+
+.detailavis h3 {
+    font-size: 20px;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    background: linear-gradient(
+        90deg,
+        #5B0E0E,
+        #800020,
+        #A52A2A
+    );
+    background-size: 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 8s linear infinite;
+}
+
+@keyframes gradientText {
+    0% { background-position: 0%; }
+    100% { background-position: 300%; }
+}
+
+.detailavis span {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Remove scrollbar completely */
+.swiper-scrollbar {
+    display: none !important;
+}

@@ -1,0 +1,65 @@
+<div class="text-slider-wrapper">
+            <div class="text-slider">
+                  <div class="text-slide"><h1>A blessing for <br> every skin.</h1></div>
+                  <div class="text-slide"><h1>The perfect mix of <br> old & new.</h1></div>
+                  <div class="text-slide"><h1>A journey over borders <br> & generations.</h1></div>
+                  <div class="text-slide"><h1>Your are the <br> stylist.</h1></div>
+                  <div class="text-slide"><h1>To be on the <br> forerfront.</h1></div>
+            </div>
+      </div>
+
+      <div class="slider-control">
+            <div class="prev"><button type="button"><ion-icon name="arrow-back"></ion-icon></button></div>
+            <div class="next"><button type="button"><ion-icon name="arrow-forward"></ion-icon></button></div>
+      </div>
+
+      <div class="blocks">
+            <div class="block-1"></div>
+            <div class="block-2"></div>
+            <div class="block-3"></div>
+      </div>
+
+      <div class="overlay"></div>
+
+      <div class="image-slider">
+            <div class="image-slide" id="one" style="background: url(https://images.unsplash.com/photo-1519011985187-444d62641929?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2452&q=80) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="two" style="background: url(https://images.unsplash.com/photo-1509679708047-e0e562d21e44?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="three" style="background: url(https://images.unsplash.com/photo-1508215302842-8a015a452a20?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="four" style="background: url(https://images.unsplash.com/photo-1537510929030-2ffb7888f379?ixlib=rb-1.2.1&auto=format&fit=crop&w=2378&q=80) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="five" style="background: url(https://images.unsplash.com/photo-1552793084-49132af00ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=2953&q=80) no-repeat 50% 50%; background-size: cover;"></div>
+      </div>
+      <script>
+            
+var sickPrimary = {
+      autoplay: true,
+      autoplaySpeed: 2400,
+      slidesToShow: 2,
+      slidesToScroll: 1,
+      speed: 1800,
+      cssEase: 'cubic-bezier(.84, 0, .08, .99)',
+      asNavFor: '.text-slider',
+      centerMode: true,
+      prevArrow: $('.prev'),
+      nextArrow: $('.next')
+}
+
+var sickSecondary = {
+      autoplay: true,
+      autoplaySpeed: 2400,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      speed: 1800,
+      cssEase: 'cubic-bezier(.84, 0, .08, .99)',
+      asNavFor: '.image-slider',
+      prevArrow: $('.prev'),
+      nextArrow: $('.next')
+}
+
+$('.image-slider').slick(sickPrimary);
+$('.text-slider').slick(sickSecondary);
+
+
+      </script>
+      <style>
+            
+      </style>

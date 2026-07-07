@@ -1,7 +1,16 @@
+import Activities from "./components/Activities";
+import Avis from "./components/Avis";
 import ClassesSection from "./components/ClassesSection";
 
 import HeroSection from "./components/HeroSection";
 import MethodSection from "./components/MethodSection";
+import Why from "./components/Why";
+import Video from "./components/Video";
+import GalleryPage from "./gallery/page";
+import SectionDivider from "./SectionDivider";
+import Footer from "./components/Footer";
+import ValuesPage from "./values/page";
+
 
 
 
@@ -31,9 +40,29 @@ export default function Home() {
       </div>
 
   
-      <HeroSection/>
-    <ClassesSection/>
-    <MethodSection/>
+
+
+  
+   <HeroSection />
+   
+<SectionDivider tone="amber" />
+<ClassesSection />
+<SectionDivider tone="navy" flip />
+<ValuesPage/>
+<MethodSection />
+<SectionDivider tone="amber" />
+<Video />
+<SectionDivider tone="navy" flip />
+<Activities />
+<Why/>
+
+<Avis />
+
+
+<GalleryPage/>
+<Footer/>
+
+
     </main>
   );
 }

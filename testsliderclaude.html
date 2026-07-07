@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Slick CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <title>Document</title>
+    <style>
+        :root {
+  --navy: #0d1b3e;
+  --navy-mid: #1b2f5e;
+  --navy-soft: #2a4080;
+  --amber: #f59e0b;
+  --amber-dark: #d97706;
+  --amber-light: #fef3c7;
+  --white: #fff;
+  --bg: #fafbff;
+  --bg-blue: #eef4ff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9;
+  --r: 14px;
+  --r-sm: 10px;
+  --shadow: 0 4px 24px rgba(13, 27, 62, 0.07);
+  --shadow-md: 0 8px 40px rgba(13, 27, 62, 0.13);
+  --shadow-lg: 0 20px 60px rgba(13, 27, 62, 0.18);
+  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+        html, body {
+      margin: 0%;
+      padding: 0%;
+      width: 100%;
+      height: 70vh;
+      overflow: hidden;
+      background: var(--navy);
+}
+
+.image-slider {
+      z-index: 0;
+      margin: 0 auto;
+      padding: 0;
+      width: 100%;
+      height: 70vh;
+}
+
+.image-slide {
+      height: 70vh;
+      margin: 0 auto;
+}
+
+.slick-slide.slick-center {
+      transform: scale(1.2);
+      transition: transform .8s 1.4s cubic-bezier(.84, 0, .08, .99);
+}
+
+.slick-slide {
+      transition: transform .7s cubic-bezier(.84, 0, .08, .99);
+}
+
+.slider-control {
+      margin: 0%;
+      position: absolute;
+      z-index: 2;
+      bottom: 12%;
+      left: 15%;
+      transform: translate(-50%, -50%);
+      display: flex;
+}
+
+.section-title {
+      z-index: 2;
+      position: absolute;
+      top: 6%;
+      left: 10%;
+      color: var(--white);
+      font-family: "Inter";
+      font-weight: 600;
+      font-size: 20px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin: 0;
+}
+
+@media(max-width: 990px) {
+      .section-title {
+            left: 22.5%;
+            font-size: 16px;
+      }
+}
+
+button {
+      color: var(--white);
+      background: none;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, .3);
+      font-size: 16px;
+      border-radius: 50%;
+      margin: .4em;
+      display: inline-block;
+}
+
+button:focus {
+      outline: none;
+}
+
+.block-1 {
+      z-index: 1;
+      position: fixed;
+      height: 70vh;
+      width: 5%;
+      left: 0%;
+      background: var(--navy);
+}
+
+.block-2 {
+      z-index: 1;
+      position: fixed;
+      height: 70vh;
+      width: 25%;
+      left: 25%;
+      background: var(--navy);
+}
+
+.block-3 {
+      z-index: 1;
+      position: fixed;
+      height: 70vh;
+      width: 5%;
+      right: 0%;
+      background: var(--navy);
+}
+
+.overlay {
+      z-index: 1;
+      position: fixed;
+      height: 70vh;
+      width: 20%;
+      left: 5%;
+      background: rgba(13, 27, 62, .65);
+}
+
+.text-slider-wrapper {
+      z-index: 2;
+      position: absolute;
+      width: 100%;
+      top: 30%;
+}
+
+.text-slider {
+      margin: 0%;
+      padding: 0%;
+      height: 70vh;
+}
+
+.text-slide h1 {
+      color: var(--white);
+      font-size: 64px;
+      font-family: "Inter";
+      font-weight: 400;
+      line-height: 110%;
+      letter-spacing: -2px;
+      padding-left: 10%;
+}
+
+@media(max-width: 990px) {
+      .block-2, .overlay {
+            display: none;
+      }
+
+      .block-1 {
+            width: 50%;
+      }
+
+      .block-3 {
+            width: 12%;
+      }
+
+      .slide-slick {
+            display: none !important;
+      }
+
+      .text-slide h1 {
+            font-size: 30px !important;
+      }
+
+      .text-slider-wrapper {
+            position: absolute;
+            top: 50% !important;
+      }
+
+      .slider-control {
+            left: 22.5%;
+      }
+}
+
+
+    </style>
+</head>
+<body>
+    <h2 class="section-title">Our School Values</h2>
+    <div class="text-slider-wrapper">
+            <div class="text-slider">
+                  <div class="text-slide"><h1>Learn <br> something new.</h1></div>
+                  <div class="text-slide"><h1>Grow <br> a little more.</h1></div>
+                  <div class="text-slide"><h1>Create <br> with your hands.</h1></div>
+                  <div class="text-slide"><h1>Dream <br> without limits.</h1></div>
+                  <div class="text-slide"><h1>Achieve <br> together.</h1></div>
+            </div>
+      </div>
+
+      <div class="slider-control">
+            <div class="prev"><button type="button"><ion-icon name="arrow-back"></ion-icon></button></div>
+            <div class="next"><button type="button"><ion-icon name="arrow-forward"></ion-icon></button></div>
+      </div>
+
+      <div class="blocks">
+            <div class="block-1"></div>
+            <div class="block-2"></div>
+            <div class="block-3"></div>
+      </div>
+
+      <div class="overlay"></div>
+
+      <div class="image-slider">
+            <div class="image-slide" id="one" style="background: url(https://i.pinimg.com/736x/f4/b0/18/f4b01825d3093ff0e1637c0981ab73f8.jpg) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="two" style="background: url(https://i.pinimg.com/736x/f4/b0/18/f4b01825d3093ff0e1637c0981ab73f8.jpg) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="three" style="background: url(https://i.pinimg.com/736x/f4/b0/18/f4b01825d3093ff0e1637c0981ab73f8.jpg) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="four" style="background: url(https://i.pinimg.com/736x/f4/b0/18/f4b01825d3093ff0e1637c0981ab73f8.jpg) no-repeat 50% 50%; background-size: cover;"></div>
+            <div class="image-slide" id="five" style="background: url(https://i.pinimg.com/736x/f4/b0/18/f4b01825d3093ff0e1637c0981ab73f8.jpg) no-repeat 50% 50%; background-size: cover;"></div>
+      </div>
+      <script>
+        
+var sickPrimary = {
+      autoplay: true,
+      autoplaySpeed: 2400,
+      slidesToShow: 2,
+      slidesToScroll: 1,
+      speed: 1800,
+      cssEase: 'cubic-bezier(.84, 0, .08, .99)',
+      asNavFor: '.text-slider',
+      centerMode: true,
+      prevArrow: $('.prev'),
+      nextArrow: $('.next')
+}
+
+var sickSecondary = {
+      autoplay: true,
+      autoplaySpeed: 2400,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      speed: 1800,
+      cssEase: 'cubic-bezier(.84, 0, .08, .99)',
+      asNavFor: '.image-slider',
+      prevArrow: $('.prev'),
+      nextArrow: $('.next')
+}
+
+$(function () {
+    $('.image-slider').slick(sickPrimary);
+    $('.text-slider').slick(sickSecondary);
+});
+
+      </script>
+      <!-- Slick JS -->
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<!-- Ionicons -->
+<script type="module" src="https://unpkg.com/ionicons@7.4.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.4.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

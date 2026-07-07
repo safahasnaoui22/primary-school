@@ -1,0 +1,143 @@
+/* ===== SCOPED RESETS & VARIABLES ===== */
+.gallerySection {
+  --gap: 1.25rem;
+  --radius: 1rem;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --color-primary: #4a7c59;
+  --color-light: #f9f7f2;
+  --color-dark: #3b2b1f;
+
+  box-sizing: border-box;
+  padding: 4rem 5vw;
+  background-color: var(--color-light);
+  font-family: "Nunito", sans-serif;
+  color: var(--color-dark);
+}
+
+.gallerySection *,
+.gallerySection *::before,
+.gallerySection *::after {
+  box-sizing: inherit;
+}
+
+/* Title */
+.title {
+  font-family: "Fondamento", cursive;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--color-dark);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: #5e4e3a;
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ===== GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--gap);
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* ===== CARD ===== */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+/* ===== OVERLAY (appears on hover) ===== */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent 50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .overlay {
+  opacity: 1;
+}
+
+.caption {
+  color: #fff;
+  font-family: "Fondamento", cursive;
+  font-size: 1.2rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== LIGHTBOX / MODAL ===== */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease;
+}
+
+.modalImg {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  object-fit: contain;
+  cursor: default;
+  animation: zoomIn 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/* ===== KEYFRAMES ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

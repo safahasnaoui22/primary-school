@@ -6,19 +6,51 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  username  String
+  role      Role     @default(PARENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  schoolId  String?
+  school    School?  @relation(fields: [schoolId], references: [id])
+}
+
+model School {
+  id        String    @id @default(cuid())
+  name      String
+  ownerId   String?   @unique
+  createdAt DateTime  @default(now())
+  invoices  Invoice[]
+  users     User[]
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  schoolId    String
+  parentId    String?
+  studentId   String?
+  amount      Float
+  status      InvoiceStatus @default(PENDING)
+  dueDate     DateTime
+  paidAt      DateTime?
+  description String?
+  createdAt   DateTime      @default(now())
+  school      School        @relation(fields: [schoolId], references: [id])
+}
+
 enum Role {
-  ADMIN
+  SUPER_ADMIN
   SCHOOL_OWNER
   TEACHER
   PARENT
 }
 
-model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  role      Role     @default(PARENT)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
 }

@@ -1,3 +1,6 @@
+@import 'slick-carousel/slick/slick.css';
+@import 'slick-carousel/slick/slick-theme.css';
+
 /* app/globals.css */
 * {
   margin: 0;
@@ -282,4 +285,75 @@ body {
 }
 html {
   scroll-behavior: smooth;
+}
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 3.5rem auto;
+  padding: 0 1.5rem;
+}
+
+.section-divider__line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.section-divider__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--navy);
+  transform: scaleX(0);
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section-divider__line--left::after { transform-origin: right; }
+.section-divider__line--right::after { transform-origin: left; }
+
+.section-divider.is-visible .section-divider__line::after {
+  transform: scaleX(1);
+}
+
+.section-divider__mark {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  background: var(--amber);
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.4s ease 0.5s;
+}
+
+.section-divider.is-visible .section-divider__mark {
+  transform: rotate(45deg) scale(1);
+}
+
+.section-divider__label {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.5s ease 0.6s;
+}
+
+.section-divider.is-visible .section-divider__label {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-divider__line::after,
+  .section-divider__mark,
+  .section-divider__label {
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
 }

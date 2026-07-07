@@ -1,56 +1,34 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { username, email, password, role } = await request.json();
+    const { username, email, password } = await req.json();
 
     if (!username || !email || !password) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    // Check if email or username already exists
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { username }],
-      },
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "A user with this email or username already exists" },
-        { status: 409 }
-      );
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Only accept valid roles
-    const validRoles = ["ADMIN", "SCHOOL_OWNER", "TEACHER", "PARENT"];
-    const finalRole = validRoles.includes(role) ? role : "PARENT";
+    const hashed = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
         username,
         email,
-        password: hashedPassword,
-        role: finalRole,
+        password: hashed,
+        role: 'PARENT', // self-registration always creates a PARENT
       },
     });
 
-    return NextResponse.json(
-      { user: { id: user.id, username: user.username, email: user.email, role: user.role } },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("Signup error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ id: user.id, email: user.email });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
   }
 }
