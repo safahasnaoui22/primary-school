@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"k
+  provider = "postgresql"
 }
 
 model User {
