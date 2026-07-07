@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -62,7 +61,9 @@ export async function POST(req: Request) {
   }
 
   const existing = await prisma.user.findUnique({
-    where: { email },
+    where: {
+      email,
+    },
   });
 
   if (existing) {
@@ -85,39 +86,37 @@ export async function POST(req: Request) {
       role === "SCHOOL_OWNER" &&
       schoolName
     ) {
-      const result = await prisma.$transaction(
-        async (tx: Prisma.TransactionClient) => {
-          const owner = await tx.user.create({
-            data: {
-              username,
-              email,
-              password: hashed,
-              role: "SCHOOL_OWNER",
-            },
-          });
+      const result = await prisma.$transaction(async (tx) => {
+        const owner = await tx.user.create({
+          data: {
+            username,
+            email,
+            password: hashed,
+            role: "SCHOOL_OWNER",
+          },
+        });
 
-          const school = await tx.school.create({
-            data: {
-              name: schoolName,
-              ownerId: owner.id,
-            },
-          });
+        const school = await tx.school.create({
+          data: {
+            name: schoolName,
+            ownerId: owner.id,
+          },
+        });
 
-          const updatedOwner = await tx.user.update({
-            where: {
-              id: owner.id,
-            },
-            data: {
-              schoolId: school.id,
-            },
-          });
+        const updatedOwner = await tx.user.update({
+          where: {
+            id: owner.id,
+          },
+          data: {
+            schoolId: school.id,
+          },
+        });
 
-          return {
-            owner: updatedOwner,
-            school,
-          };
-        }
-      );
+        return {
+          owner: updatedOwner,
+          school,
+        };
+      });
 
       return NextResponse.json({
         owner: {
@@ -148,7 +147,9 @@ export async function POST(req: Request) {
           {
             error: "You are not linked to a school",
           },
-          { status: 400 }
+          {
+            status: 400,
+          }
         );
       }
 
