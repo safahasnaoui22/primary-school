@@ -122,399 +122,356 @@ const Video: React.FC<VideoProps> = ({
         </div>
       )}
 
-      <style jsx>{`
-        .hero-section {
-          position: relative !important;
-          width: 100% !important;
-          height: 100vh !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          overflow: hidden !important;
-          font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          visibility: visible !important;
-          opacity: 1 !important;
-          z-index: 10 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          flex-shrink: 0 !important;
-        }
-
-        .background-container {
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          z-index: 1 !important;
-        }
-
-        .background-image {
-          width: 100%;
-          height: 100%;
-          background-image: url(${backgroundImage});
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-        }
-
-        .overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            to bottom,
-            rgba(0, 0, 0, 0.4) 0%,
-            rgba(0, 0, 0, 0.6) 100%
-          );
-          z-index: 2;
-        }
-
-        .content-container {
-          position: relative !important;
-          z-index: 3 !important;
-          text-align: center;
-          padding: 20px;
-          max-width: 1200px;
-          width: 100%;
-          display: flex !important;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-
-        .content-wrapper {
-          margin-bottom: 40px;
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-
-        .hero-title {
-          font-size: clamp(32px, 6vw, 56px);
-          font-weight: 700;
-          line-height: 1.2;
-          margin-bottom: 20px;
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-          letter-spacing: -0.02em;
-          color: #ffffff !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          font-family: 'Poppins', sans-serif;
-          display: block !important;
-        }
-
-        .hero-subtitle {
-          font-size: clamp(16px, 3vw, 20px);
-          font-weight: 300;
-          line-height: 1.5;
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-          color: #ffffff !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          max-width: 600px;
-          margin: 0 auto;
-          font-family: 'Poppins', sans-serif;
-          display: block !important;
-        }
-
-        .play-btn {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.25);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          border: 3px solid rgba(255, 255, 255, 0.9);
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
-          padding: 0;
-          margin: 0 auto;
-          pointer-events: auto;
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-
-        .play-btn:hover {
-          transform: scale(1.1);
-          background: rgba(255, 255, 255, 0.35);
-          border-color: #ffffff;
-          box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .play-icon {
-          width: 0;
-          height: 0;
-          border-left: 28px solid #ffffff;
-          border-top: 18px solid transparent;
-          border-bottom: 18px solid transparent;
-          margin-left: 8px;
-          filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.95);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999 !important;
-          backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-          position: relative;
-          width: 90%;
-          max-width: 1000px;
-          aspect-ratio: 16/9;
-        }
-
-        .modal-close {
-          position: absolute;
-          top: -40px;
-          right: -40px;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: white;
-          border: none;
-          font-size: 28px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #333;
-          transition: all 0.3s ease;
-          z-index: 10000;
-          line-height: 1;
-          padding: 0;
-        }
-
-        .modal-close:hover {
-          transform: scale(1.1);
-          background: #f0f0f0;
-        }
-
-        .video-element {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          border-radius: 8px;
-        }
-
-        @media (max-width: 768px) {
-          .hero-title {
-            font-size: 36px;
-          }
-
-          .hero-subtitle {
-            font-size: 16px;
-            padding: 0 20px;
-          }
-
-          .play-btn {
-            width: 90px;
-            height: 90px;
-          }
-
-          .play-icon {
-            border-left: 22px solid #ffffff;
-            border-top: 14px solid transparent;
-            border-bottom: 14px solid transparent;
-            margin-left: 6px;
-          }
-
-          .modal-close {
-            top: -30px;
-            right: 0;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .hero-title {
-            font-size: 28px;
-          }
-          
-          .hero-subtitle {
-            font-size: 14px;
-          }
-
-          .play-btn {
-            width: 80px;
-            height: 80px;
-          }
-
-          .play-icon {
-            border-left: 18px solid #ffffff;
-            border-top: 12px solid transparent;
-            border-bottom: 12px solid transparent;
-            margin-left: 5px;
-          }
-        }
-          /* ---------- Responsive Queries (add these inside <style jsx>) ---------- */
-
-/* Extra small devices (phones < 480px) */
-@media (max-width: 479px) {
+   <style jsx>{`
   .hero-section {
-    height: 100dvh; /* Better support for mobile browser bars */
-    min-height: -webkit-fill-available;
+    position: relative !important;
+    width: 100% !important;
+    height: 100vh !important;          /* fallback */
+    height: 100dvh !important;         /* dynamic viewport height */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
   }
-  .hero-title {
-    font-size: 28px !important;
-  }
-  .hero-subtitle {
-    font-size: 14px !important;
-    padding: 0 16px;
-  }
-  .play-btn {
-    width: 80px;
-    height: 80px;
-  }
-  .play-icon {
-    border-left: 18px solid #ffffff;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
-    margin-left: 5px;
-  }
-  .modal-close {
-    top: -30px;
-    right: 0;
-  }
-  .modal-content {
-    width: 95%;
-    aspect-ratio: auto;
-    max-height: 70vh;
-  }
-  .video-element {
-    height: auto;
-    max-height: 70vh;
-  }
-}
 
-/* Small devices (landscape phones, 480px - 767px) */
-@media (min-width: 480px) and (max-width: 767px) {
-  .hero-section {
-    height: 100dvh;
+  .background-container {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1 !important;
   }
-  .hero-title {
-    font-size: 36px !important;
-  }
-  .hero-subtitle {
-    font-size: 16px !important;
-    padding: 0 24px;
-  }
-  .play-btn {
-    width: 90px;
-    height: 90px;
-  }
-  .play-icon {
-    border-left: 22px solid #ffffff;
-    border-top: 14px solid transparent;
-    border-bottom: 14px solid transparent;
-    margin-left: 6px;
-  }
-  .modal-close {
-    top: -35px;
-    right: 5px;
-  }
-}
 
-/* Medium devices (tablets, 768px - 1024px) */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .hero-title {
-    font-size: 48px !important;
+  .background-image {
+    width: 100%;
+    height: 100%;
+    background-image: url(${backgroundImage});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
-  .hero-subtitle {
-    font-size: 18px !important;
-  }
-  .play-btn {
-    width: 110px;
-    height: 110px;
-  }
-  .play-icon {
-    border-left: 26px solid #ffffff;
-    border-top: 17px solid transparent;
-    border-bottom: 17px solid transparent;
-    margin-left: 7px;
-  }
-}
 
-/* Large desktops (1025px - 1440px) – base styles already work well, small refinements */
-@media (min-width: 1025px) and (max-width: 1440px) {
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    z-index: 2;
+  }
+
   .content-container {
-    max-width: 1100px;
+    position: relative !important;
+    z-index: 3 !important;
+    text-align: center;
+    padding: 20px;
+    max-width: 1200px;
+    width: 100%;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
-}
 
-/* Extra large desktops (> 1440px) */
-@media (min-width: 1441px) {
-  .hero-title {
-    font-size: 64px !important;
-  }
-  .hero-subtitle {
-    font-size: 24px !important;
-  }
-  .play-btn {
-    width: 140px;
-    height: 140px;
-  }
-  .play-icon {
-    border-left: 32px solid #ffffff;
-    border-top: 21px solid transparent;
-    border-bottom: 21px solid transparent;
-    margin-left: 10px;
-  }
-}
-
-/* Landscape orientation on very short screens (mobile landscape, height < 500px) */
-@media (max-height: 500px) and (orientation: landscape) {
-  .hero-section {
-    height: auto;
-    min-height: 100vh;
-    padding: 40px 0;
-  }
   .content-wrapper {
-    margin-bottom: 20px;
+    margin-bottom: 40px;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
+
   .hero-title {
-    font-size: 28px !important;
-    margin-bottom: 10px;
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-family: 'Poppins', sans-serif;
+    display: block !important;
   }
+
   .hero-subtitle {
-    font-size: 14px !important;
+    font-size: clamp(16px, 3vw, 20px);
+    font-weight: 300;
+    line-height: 1.5;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: 'Poppins', sans-serif;
+    display: block !important;
   }
+
   .play-btn {
-    width: 70px;
-    height: 70px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0 auto;
+    pointer-events: auto;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    visibility: visible !important;
+    opacity: 1 !important;
   }
+
+  .play-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.35);
+    border-color: #ffffff;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  }
+
   .play-icon {
-    border-left: 16px solid #ffffff;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    margin-left: 4px;
+    width: 0;
+    height: 0;
+    border-left: 28px solid #ffffff;
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    margin-left: 8px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
   }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999 !important;
+    backdrop-filter: blur(5px);
+  }
+
   .modal-content {
-    max-width: 80vw;
-    max-height: 80vh;
-    aspect-ratio: auto;
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    aspect-ratio: 16/9;
   }
+
+  .modal-close {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    transition: all 0.3s ease;
+    z-index: 10000;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .modal-close:hover {
+    transform: scale(1.1);
+    background: #f0f0f0;
+  }
+
   .video-element {
-    max-height: 80vh;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
   }
-}
-      `}</style>
+
+  /* ---------- RESPONSIVE (clean, no conflicts) ---------- */
+  /* Extra small devices (phones < 480px) */
+  @media (max-width: 479px) {
+    .hero-section {
+      height: 100dvh;
+    }
+    .content-wrapper {
+      margin-bottom: 24px;        /* tighter spacing */
+    }
+    .hero-title {
+      font-size: 28px !important;
+      margin-bottom: 12px;
+    }
+    .hero-subtitle {
+      font-size: 14px !important;
+      padding: 0 16px;
+    }
+    .play-btn {
+      width: 80px;
+      height: 80px;
+    }
+    .play-icon {
+      border-left: 18px solid #ffffff;
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      margin-left: 5px;
+    }
+    .modal-close {
+      top: -30px;
+      right: 0;
+    }
+    .modal-content {
+      width: 95%;
+      aspect-ratio: auto;
+      max-height: 70vh;
+    }
+    .video-element {
+      height: auto;
+      max-height: 70vh;
+    }
+  }
+
+  /* Small phones (480px - 767px) */
+  @media (min-width: 480px) and (max-width: 767px) {
+    .hero-section {
+      height: 100dvh;
+    }
+    .content-wrapper {
+      margin-bottom: 28px;
+    }
+    .hero-title {
+      font-size: 36px !important;
+    }
+    .hero-subtitle {
+      font-size: 16px !important;
+      padding: 0 24px;
+    }
+    .play-btn {
+      width: 90px;
+      height: 90px;
+    }
+    .play-icon {
+      border-left: 22px solid #ffffff;
+      border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent;
+      margin-left: 6px;
+    }
+    .modal-close {
+      top: -35px;
+      right: 5px;
+    }
+  }
+
+  /* Tablets (768px - 1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .hero-title {
+      font-size: 48px !important;
+    }
+    .hero-subtitle {
+      font-size: 18px !important;
+    }
+    .play-btn {
+      width: 110px;
+      height: 110px;
+    }
+    .play-icon {
+      border-left: 26px solid #ffffff;
+      border-top: 17px solid transparent;
+      border-bottom: 17px solid transparent;
+      margin-left: 7px;
+    }
+  }
+
+  /* Large desktops (1025px - 1440px) */
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    .content-container {
+      max-width: 1100px;
+    }
+  }
+
+  /* Extra large desktops (> 1440px) */
+  @media (min-width: 1441px) {
+    .hero-title {
+      font-size: 64px !important;
+    }
+    .hero-subtitle {
+      font-size: 24px !important;
+    }
+    .play-btn {
+      width: 140px;
+      height: 140px;
+    }
+    .play-icon {
+      border-left: 32px solid #ffffff;
+      border-top: 21px solid transparent;
+      border-bottom: 21px solid transparent;
+      margin-left: 10px;
+    }
+  }
+
+  /* Landscape on short screens */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .hero-section {
+      height: auto;
+      min-height: 100vh;
+      padding: 40px 0;
+    }
+    .content-wrapper {
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: 28px !important;
+      margin-bottom: 10px;
+    }
+    .hero-subtitle {
+      font-size: 14px !important;
+    }
+    .play-btn {
+      width: 70px;
+      height: 70px;
+    }
+    .play-icon {
+      border-left: 16px solid #ffffff;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      margin-left: 4px;
+    }
+    .modal-content {
+      max-width: 80vw;
+      max-height: 80vh;
+      aspect-ratio: auto;
+    }
+    .video-element {
+      max-height: 80vh;
+    }
+  }
+`}</style>
     </>
   );
 };

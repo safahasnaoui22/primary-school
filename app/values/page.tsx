@@ -78,19 +78,25 @@ export default function ValuesPage() {
           transition: transform .7s cubic-bezier(.84, 0, .08, .99);
         }
 
-        .values-title {
-          position: absolute;
-          top: 8%;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 3;
-          color: var(--white);
-          font-size: 24px;
-          font-family: "Inter";
-          font-weight: 500;
-          letter-spacing: 4px;
-          text-transform: uppercase;
-        }
+      .values-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: none;
+  z-index: 3;
+  width: 100%;
+  background: white;
+  color: var(--navy);
+  font-size: 24px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 1rem 2rem;
+  margin: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
 
         .image-slider {
           z-index: 0;
@@ -239,48 +245,109 @@ export default function ValuesPage() {
             left: 22.5%;
           }
         }
-          /* ---------- RESPONSIVE QUERIES ---------- */
-
-/* Large desktops (≥1400px) – fine-tune if needed */
-@media (min-width: 1400px) {
-  .text-slide h1 {
-    font-size: 72px;
-    padding-left: 12%;
-  }
+        /* Extra small phones (< 480px) */
+@media (max-width: 479px) {
+  /* Make the title a slim, semi‑transparent strip at the very top */
   .values-title {
-    font-size: 28px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 16px;
+    letter-spacing: 1px;
+    background: rgba(13, 27, 62, 0.85);   /* navy with transparency */
+    color: white;
+    z-index: 4;
+    text-align: center;
+    box-shadow: none;
   }
-}
 
-/* Desktops & small laptops (1200px - 1399px) */
-@media (max-width: 1399px) and (min-width: 1200px) {
-  .text-slide h1 {
-    font-size: 58px;
-    padding-left: 9%;
-  }
-}
-
-/* Standard tablets landscape / small laptops (1024px - 1199px) */
-@media (max-width: 1199px) and (min-width: 1024px) {
-  .text-slide h1 {
-    font-size: 48px;
-    letter-spacing: -1px;
-  }
-  .block-2 {
-    width: 20%;
-    left: 25%;
-  }
+  /* Reduce the blue blocks to just a slim frame – image dominates */
+  .block-2,
   .overlay {
-    width: 15%;
-    left: 5%;
+    display: none;
+  }
+  .block-1 {
+    width: 4%;
+  }
+  .block-3 {
+    width: 4%;
+  }
+
+  /* Text slider now sits comfortably over the image */
+  .text-slide h1 {
+    font-size: 24px !important;
+    letter-spacing: 0;
+    padding-left: 6%;
+    line-height: 125%;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);   /* better readability */
+  }
+  .text-slider-wrapper {
+    top: 45% !important;
+  }
+  .slider-control {
+    left: 50%;
+    bottom: 6%;
+    transform: translateX(-50%);
+  }
+  .values-wrapper button {
+    padding: 14px;
   }
 }
 
-/* Tablets portrait & landscape phones (768px - 1023px) */
-@media (max-width: 1023px) and (min-width: 768px) {
+/* Small phones (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
   .values-title {
-    font-size: 20px;
-    letter-spacing: 3px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.7rem 1.5rem;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    background: rgba(13, 27, 62, 0.85);
+    color: white;
+    z-index: 4;
+    text-align: center;
+    box-shadow: none;
+  }
+
+  .block-2,
+  .overlay {
+    display: none;
+  }
+  .block-1 {
+    width: 5%;
+  }
+  .block-3 {
+    width: 5%;
+  }
+
+  .text-slide h1 {
+    font-size: 30px !important;
+    letter-spacing: -0.5px;
+    padding-left: 5%;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .text-slider-wrapper {
+    top: 42% !important;
+  }
+  .slider-control {
+    left: 50%;
+    bottom: 6%;
+    transform: translateX(-50%);
+  }
+  .values-wrapper button {
+    padding: 16px;
+  }
+}
+
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .values-title {
+    font-size: 22px;
   }
   .block-2,
   .overlay {
@@ -305,94 +372,10 @@ export default function ValuesPage() {
   }
 }
 
-/* Large phones (480px - 767px) – same as existing 990px but refined */
-@media (max-width: 767px) and (min-width: 480px) {
-  .values-title {
-    top: 5%;
-    font-size: 18px;
-    letter-spacing: 2px;
-  }
-  .block-2,
-  .overlay {
-    display: none;
-  }
-  .block-1 {
-    width: 50%;
-  }
-  .block-3 {
-    width: 12%;
-  }
-  .slide-slick {
-    display: none !important;
-  }
-  .text-slide h1 {
-    font-size: 28px !important;
-    letter-spacing: -0.5px;
-    padding-left: 4%;
-  }
-  .text-slider-wrapper {
-    top: 45% !important;
-  }
-  .slider-control {
-    left: 22.5%;
-    bottom: 6%;
-  }
-  .values-wrapper button {
-    padding: 18px;
-  }
-}
 
-/* Small phones (< 480px) */
-@media (max-width: 479px) {
-  .values-title {
-    top: 4%;
-    font-size: 16px;
-    letter-spacing: 2px;
-  }
-  .block-2,
-  .overlay {
-    display: none;
-  }
-  .block-1 {
-    width: 60%;
-  }
-  .block-3 {
-    width: 8%;
-  }
-  .slide-slick {
-    display: none !important;
-  }
-  .text-slide h1 {
-    font-size: 22px !important;
-    letter-spacing: 0;
-    padding-left: 5%;
-    line-height: 120%;
-  }
-  .text-slider-wrapper {
-    top: 50% !important;
-  }
-  .slider-control {
-    left: 25%;
-    bottom: 5%;
-    gap: 0.3rem;
-  }
-  .values-wrapper button {
-    padding: 14px;
-    font-size: 14px;
-  }
-}
 
-/* Very small devices (< 360px) */
-@media (max-width: 359px) {
-  .text-slide h1 {
-    font-size: 18px !important;
-  }
-  .values-wrapper button {
-    padding: 10px;
-  }
-}
 
-/* Landscape orientation on short screens (e.g., mobile landscape) */
+/* Landscape orientation on short screens (mobile landscape) */
 @media (max-height: 500px) and (orientation: landscape) {
   .values-wrapper {
     height: auto;
@@ -410,6 +393,7 @@ export default function ValuesPage() {
     left: 15%;
   }
 }
+          
       `}</style>
 
       <div className="values-wrapper">
