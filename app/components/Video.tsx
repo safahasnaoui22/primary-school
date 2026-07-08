@@ -122,23 +122,19 @@ const Video: React.FC<VideoProps> = ({
         </div>
       )}
 
-   <style jsx>{`
+  <style jsx>{`
   .hero-section {
     position: relative !important;
     width: 100% !important;
-    height: 100vh !important;          /* fallback */
-    height: 100dvh !important;         /* dynamic viewport height */
+    min-height: 100vh !important;       /* always at least full screen, but can grow if needed */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     overflow: hidden !important;
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    visibility: visible !important;
-    opacity: 1 !important;
     z-index: 10 !important;
     margin: 0 !important;
     padding: 0 !important;
-    flex-shrink: 0 !important;
   }
 
   .background-container {
@@ -157,6 +153,8 @@ const Video: React.FC<VideoProps> = ({
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    /* keeps image still while content scrolls if needed */
+    background-attachment: scroll;
   }
 
   .overlay {
@@ -184,47 +182,37 @@ const Video: React.FC<VideoProps> = ({
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    visibility: visible !important;
-    opacity: 1 !important;
   }
 
   .content-wrapper {
-    margin-bottom: 40px;
-    visibility: visible !important;
-    opacity: 1 !important;
+    margin-bottom: 2rem;               /* relative spacing */
   }
 
   .hero-title {
-    font-size: clamp(32px, 6vw, 56px);
+    font-size: clamp(2rem, 6vw, 3.5rem);
     font-weight: 700;
     line-height: 1.2;
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     letter-spacing: -0.02em;
     color: #ffffff !important;
-    opacity: 1 !important;
-    visibility: visible !important;
     font-family: 'Poppins', sans-serif;
-    display: block !important;
   }
 
   .hero-subtitle {
-    font-size: clamp(16px, 3vw, 20px);
+    font-size: clamp(1rem, 3vw, 1.25rem);
     font-weight: 300;
     line-height: 1.5;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     color: #ffffff !important;
-    opacity: 1 !important;
-    visibility: visible !important;
     max-width: 600px;
     margin: 0 auto;
     font-family: 'Poppins', sans-serif;
-    display: block !important;
   }
 
   .play-btn {
-    width: 120px;
-    height: 120px;
+    width: clamp(70px, 15vw, 120px);
+    height: clamp(70px, 15vw, 120px);
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(8px);
@@ -237,10 +225,7 @@ const Video: React.FC<VideoProps> = ({
     justify-content: center;
     padding: 0;
     margin: 0 auto;
-    pointer-events: auto;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-    visibility: visible !important;
-    opacity: 1 !important;
   }
 
   .play-btn:hover {
@@ -315,160 +300,89 @@ const Video: React.FC<VideoProps> = ({
     border-radius: 8px;
   }
 
-  /* ---------- RESPONSIVE (clean, no conflicts) ---------- */
-  /* Extra small devices (phones < 480px) */
-  @media (max-width: 479px) {
-    .hero-section {
-      height: 100dvh;
-    }
+  /* ---------- RESPONSIVE FINE‑TUNING ---------- */
+  @media (max-width: 767px) {
     .content-wrapper {
-      margin-bottom: 24px;        /* tighter spacing */
+      margin-bottom: 1.5rem;
     }
     .hero-title {
-      font-size: 28px !important;
-      margin-bottom: 12px;
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+      margin-bottom: 0.8rem;
     }
     .hero-subtitle {
-      font-size: 14px !important;
-      padding: 0 16px;
+      font-size: clamp(0.9rem, 4vw, 1rem);
+      padding: 0 1rem;
     }
     .play-btn {
-      width: 80px;
-      height: 80px;
+      width: clamp(60px, 20vw, 90px);
+      height: clamp(60px, 20vw, 90px);
     }
     .play-icon {
-      border-left: 18px solid #ffffff;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      margin-left: 5px;
+      border-left-width: 22px;
+      border-top-width: 14px;
+      border-bottom-width: 14px;
+      margin-left: 6px;
     }
     .modal-close {
       top: -30px;
       right: 0;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .hero-section {
+      min-height: 100vh;      /* fallback */
+    }
+    .content-wrapper {
+      margin-bottom: 1.2rem;
+    }
+    .hero-title {
+      font-size: clamp(1.6rem, 9vw, 2rem);
+    }
+    .hero-subtitle {
+      font-size: 0.9rem;
+    }
+    .play-btn {
+      width: clamp(55px, 22vw, 80px);
+      height: clamp(55px, 22vw, 80px);
+    }
+    .play-icon {
+      border-left-width: 18px;
+      border-top-width: 12px;
+      border-bottom-width: 12px;
+      margin-left: 5px;
     }
     .modal-content {
       width: 95%;
       aspect-ratio: auto;
       max-height: 70vh;
     }
-    .video-element {
-      height: auto;
-      max-height: 70vh;
-    }
-  }
-
-  /* Small phones (480px - 767px) */
-  @media (min-width: 480px) and (max-width: 767px) {
-    .hero-section {
-      height: 100dvh;
-    }
-    .content-wrapper {
-      margin-bottom: 28px;
-    }
-    .hero-title {
-      font-size: 36px !important;
-    }
-    .hero-subtitle {
-      font-size: 16px !important;
-      padding: 0 24px;
-    }
-    .play-btn {
-      width: 90px;
-      height: 90px;
-    }
-    .play-icon {
-      border-left: 22px solid #ffffff;
-      border-top: 14px solid transparent;
-      border-bottom: 14px solid transparent;
-      margin-left: 6px;
-    }
-    .modal-close {
-      top: -35px;
-      right: 5px;
-    }
-  }
-
-  /* Tablets (768px - 1024px) */
-  @media (min-width: 768px) and (max-width: 1024px) {
-    .hero-title {
-      font-size: 48px !important;
-    }
-    .hero-subtitle {
-      font-size: 18px !important;
-    }
-    .play-btn {
-      width: 110px;
-      height: 110px;
-    }
-    .play-icon {
-      border-left: 26px solid #ffffff;
-      border-top: 17px solid transparent;
-      border-bottom: 17px solid transparent;
-      margin-left: 7px;
-    }
-  }
-
-  /* Large desktops (1025px - 1440px) */
-  @media (min-width: 1025px) and (max-width: 1440px) {
-    .content-container {
-      max-width: 1100px;
-    }
-  }
-
-  /* Extra large desktops (> 1440px) */
-  @media (min-width: 1441px) {
-    .hero-title {
-      font-size: 64px !important;
-    }
-    .hero-subtitle {
-      font-size: 24px !important;
-    }
-    .play-btn {
-      width: 140px;
-      height: 140px;
-    }
-    .play-icon {
-      border-left: 32px solid #ffffff;
-      border-top: 21px solid transparent;
-      border-bottom: 21px solid transparent;
-      margin-left: 10px;
-    }
   }
 
   /* Landscape on short screens */
   @media (max-height: 500px) and (orientation: landscape) {
     .hero-section {
-      height: auto;
       min-height: 100vh;
-      padding: 40px 0;
+      padding: 2rem 0;
     }
     .content-wrapper {
-      margin-bottom: 20px;
+      margin-bottom: 1rem;
     }
     .hero-title {
-      font-size: 28px !important;
-      margin-bottom: 10px;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
     }
     .hero-subtitle {
-      font-size: 14px !important;
+      font-size: 0.9rem;
     }
     .play-btn {
-      width: 70px;
-      height: 70px;
+      width: 60px;
+      height: 60px;
     }
     .play-icon {
-      border-left: 16px solid #ffffff;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-      margin-left: 4px;
-    }
-    .modal-content {
-      max-width: 80vw;
-      max-height: 80vh;
-      aspect-ratio: auto;
-    }
-    .video-element {
-      max-height: 80vh;
+      border-left-width: 16px;
+      border-top-width: 10px;
+      border-bottom-width: 10px;
     }
   }
 `}</style>
