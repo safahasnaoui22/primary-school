@@ -87,24 +87,26 @@ export default function ValuesPage() {
           transition: transform .7s cubic-bezier(.84, 0, .08, .99);
         }
 
-      .values-title {
+.values-title {
   position: absolute;
   top: 0;
   left: 0;
   transform: none;
   z-index: 3;
   width: 100%;
-  background: white;
-  color: var(--navy);
-  font-size: 24px;
-  font-family: "Inter", sans-serif;
+  background: rgba(13, 27, 62, 0.7);   /* navy with transparency – no more white */
+  backdrop-filter: blur(12px);         /* soft glass effect */
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-family: "Outfit", sans-serif;   /* or "Space Grotesk" / "Clash Display" */
+  font-size: clamp(2rem, 8vw, 3.5rem);
   font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  letter-spacing: 1.5px;
   text-align: center;
-  padding: 1rem 2rem;
+  padding: 1.2rem 2rem;
   margin: 0;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  text-transform: none;                /* normal case, not ALL CAPS */
 }
 
         .image-slider {

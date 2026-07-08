@@ -89,15 +89,12 @@ p {
   margin: 0 0 1.2em;
   color: #f0f0f0;
 }
-.container {
+.activities-page {
   isolation: isolate;
-}
-.container {
   width: 100%;
   padding: 0 2.5em 5em;
   margin: auto;
 }
-
 .main-header {
   text-align: center;
   padding: 2.8em 0 3.8em;
@@ -109,6 +106,7 @@ p {
   margin: 0 auto 5em;
   box-shadow: 0 25px 50px 10px rgba(0, 0, 0, 0.3);
   perspective: 1200px;
+  transform: translateZ(0);
 }
 
 .name {
@@ -150,8 +148,12 @@ p {
   width: 300px;
   height: 280px;
   transform-style: preserve-3d;
-  transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.3, 1.05);
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+}
+
+.cube-container:hover .photo-cube {
+  transform: rotateY(-270deg);
 }
 
 .front,

@@ -5,7 +5,7 @@ import "./Activities.css";
 
 export default function Activities() {
   return (
-    <div className="container">
+    <div className="activities-page">
       <header className="main-header clearfix">
         <h1 className="h1activities">
           our activities

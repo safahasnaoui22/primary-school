@@ -215,10 +215,10 @@ export default function MethodSection() {
         >
           Notre Méthode Pédagogique
         </h1>
-        <p style={{ fontSize: "18px", opacity: 0.8 }}>
-          Une approche moderne et bienveillante adaptée aux enfants du primaire
-          en Tunisie
-        </p>
+    <p style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}>
+  Une approche moderne et bienveillante adaptée aux enfants du primaire
+  en Tunisie
+</p>
       </div>
 
       <div className={styles.arch}>
