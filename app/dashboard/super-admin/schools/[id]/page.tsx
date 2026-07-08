@@ -2,6 +2,21 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 
+type SchoolUser = {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  createdAt: Date;
+};
+
+type SchoolWithUsers = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  users: SchoolUser[];
+};
+
 export default async function SchoolDetailPage({
   params,
 }: {
@@ -9,17 +24,17 @@ export default async function SchoolDetailPage({
 }) {
   const { id } = await params;
 
-  const school = await prisma.school.findUnique({
+  const school = (await prisma.school.findUnique({
     where: { id },
     include: {
       users: true,
     },
-  });
+  })) as unknown as SchoolWithUsers | null;
 
   if (!school) notFound();
 
-  const owner = school.users.find((u) => u.role === 'SCHOOL_OWNER');
-  const teachers = school.users.filter((u) => u.role === 'TEACHER');
+  const owner = school.users.find((u: SchoolUser) => u.role === 'SCHOOL_OWNER');
+  const teachers = school.users.filter((u: SchoolUser) => u.role === 'TEACHER');
 
   return (
     <div>
@@ -71,7 +86,7 @@ export default async function SchoolDetailPage({
                   <td style={tdStyle} colSpan={3}>No teachers yet.</td>
                 </tr>
               )}
-              {teachers.map((t) => (
+              {teachers.map((t: SchoolUser) => (
                 <tr key={t.id}>
                   <td style={tdStyle}>{t.username}</td>
                   <td style={tdStyle}>{t.email}</td>
