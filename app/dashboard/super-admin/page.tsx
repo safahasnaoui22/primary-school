@@ -2,6 +2,13 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
+type RecentSchool = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  users: { username: string }[];
+};
+
 export default async function SuperAdminDashboard() {
   const session = await auth();
 
@@ -15,7 +22,7 @@ export default async function SuperAdminDashboard() {
         orderBy: { createdAt: 'desc' },
         take: 5,
         include: { users: { where: { role: 'SCHOOL_OWNER' }, take: 1 } },
-      }),
+      }) as unknown as Promise<RecentSchool[]>,
       prisma.invoice.aggregate({
         _sum: { amount: true },
         where: { status: 'PAID' },
@@ -71,7 +78,7 @@ export default async function SuperAdminDashboard() {
                 </td>
               </tr>
             )}
-            {recentSchools.map((school) => (
+            {recentSchools.map((school: RecentSchool) => (
               <tr key={school.id}>
                 <td style={tdStyle}>{school.name}</td>
                 <td style={tdStyle}>{school.users[0]?.username ?? '—'}</td>
