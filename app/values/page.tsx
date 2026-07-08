@@ -15,18 +15,27 @@ export default function ValuesPage() {
       initialized.current = true;
       const $ = (window as any).jQuery;
       
-      const sickPrimary = {
-        autoplay: true,
-        autoplaySpeed: 2400,
-        slidesToShow: 2,
-        slidesToScroll: 1,
-        speed: 1800,
-        cssEase: 'cubic-bezier(.84, 0, .08, .99)',
-        asNavFor: '.text-slider',
-        centerMode: true,
-        prevArrow: $('.prev'),
-        nextArrow: $('.next')
-      };
+    const sickPrimary = {
+  autoplay: true,
+  autoplaySpeed: 2400,
+  slidesToShow: 2,               // default for desktop/tablet
+  slidesToScroll: 1,
+  speed: 1800,
+  cssEase: 'cubic-bezier(.84, 0, .08, .99)',
+  asNavFor: '.text-slider',
+  centerMode: true,
+  prevArrow: $('.prev'),
+  nextArrow: $('.next'),
+  responsive: [
+    {
+      breakpoint: 768,           // phones & small tablets
+      settings: {
+        slidesToShow: 1,
+        centerMode: false       // optional, removes the partial side slides
+      }
+    }
+  ]
+};
 
       const sickSecondary = {
         autoplay: true,
@@ -245,9 +254,19 @@ export default function ValuesPage() {
             left: 22.5%;
           }
         }
-        /* Extra small phones (< 480px) */
+        
+
+/* Extra small phones (< 480px) */
 @media (max-width: 479px) {
-  /* Make the title a slim, semi‑transparent strip at the very top */
+  .values-wrapper {
+    height: 70vh;           /* ← was 100vh, now shorter */
+  }
+
+  .image-slider,
+  .image-slide {
+    height: 70vh;           /* match wrapper */
+  }
+
   .values-title {
     position: absolute;
     top: 0;
@@ -256,14 +275,12 @@ export default function ValuesPage() {
     padding: 0.6rem 1rem;
     font-size: 16px;
     letter-spacing: 1px;
-    background: rgba(13, 27, 62, 0.85);   /* navy with transparency */
+    background: rgba(13, 27, 62, 0.85);
     color: white;
     z-index: 4;
     text-align: center;
-    box-shadow: none;
   }
 
-  /* Reduce the blue blocks to just a slim frame – image dominates */
   .block-2,
   .overlay {
     display: none;
@@ -275,16 +292,15 @@ export default function ValuesPage() {
     width: 4%;
   }
 
-  /* Text slider now sits comfortably over the image */
   .text-slide h1 {
     font-size: 24px !important;
     letter-spacing: 0;
     padding-left: 6%;
     line-height: 125%;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.6);   /* better readability */
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
   }
   .text-slider-wrapper {
-    top: 45% !important;
+    top: 45% !important;     /* adjust as needed */
   }
   .slider-control {
     left: 50%;
@@ -298,6 +314,15 @@ export default function ValuesPage() {
 
 /* Small phones (480px - 767px) */
 @media (min-width: 480px) and (max-width: 767px) {
+  .values-wrapper {
+    height: 75vh;           /* a little taller for slightly bigger screens */
+  }
+
+  .image-slider,
+  .image-slide {
+    height: 75vh;
+  }
+
   .values-title {
     position: absolute;
     top: 0;
@@ -310,7 +335,6 @@ export default function ValuesPage() {
     color: white;
     z-index: 4;
     text-align: center;
-    box-shadow: none;
   }
 
   .block-2,
@@ -342,8 +366,6 @@ export default function ValuesPage() {
     padding: 16px;
   }
 }
-
-
 /* Tablets (768px - 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .values-title {
