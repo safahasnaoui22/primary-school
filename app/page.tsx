@@ -10,6 +10,7 @@ import GalleryPage from "./gallery/page";
 import SectionDivider from "./SectionDivider";
 import Footer from "./components/Footer";
 import ValuesPage from "./values/page";
+import ContactPage from "./contact/page";
 
 
 
@@ -60,6 +61,7 @@ export default function Home() {
 
 
 <GalleryPage/>
+<ContactPage/>
 <Footer/>
 
 
