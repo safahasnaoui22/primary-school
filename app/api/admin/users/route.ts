@@ -58,18 +58,11 @@ export async function POST(req: Request) {
         return { owner: updatedOwner, school };
       });
 
-      // 👇 This is the part that was fixed — nested under "owner" and "school"
       return NextResponse.json({
-        owner: {
-          id: result.owner.id,
-          email: result.owner.email,
-          username: result.owner.username,
-          role: result.owner.role,
-        },
-        school: {
-          id: result.school.id,
-          name: result.school.name,
-        },
+        id: result.owner.id,
+        email: result.owner.email,
+        role: result.owner.role,
+        school: result.school,
       });
     }
 
@@ -87,11 +80,7 @@ export async function POST(req: Request) {
           schoolId: session.user.schoolId,
         },
       });
-      return NextResponse.json({
-        id: teacher.id,
-        email: teacher.email,
-        role: teacher.role,
-      });
+      return NextResponse.json({ id: teacher.id, email: teacher.email, role: teacher.role });
     }
 
     // Case 3: SUPER_ADMIN creating any role directly (with explicit schoolId, or none for PARENT)
@@ -105,11 +94,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    return NextResponse.json({ id: user.id, email: user.email, role: user.role });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
