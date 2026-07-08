@@ -363,6 +363,157 @@ const Video: React.FC<VideoProps> = ({
             margin-left: 5px;
           }
         }
+          /* ---------- Responsive Queries (add these inside <style jsx>) ---------- */
+
+/* Extra small devices (phones < 480px) */
+@media (max-width: 479px) {
+  .hero-section {
+    height: 100dvh; /* Better support for mobile browser bars */
+    min-height: -webkit-fill-available;
+  }
+  .hero-title {
+    font-size: 28px !important;
+  }
+  .hero-subtitle {
+    font-size: 14px !important;
+    padding: 0 16px;
+  }
+  .play-btn {
+    width: 80px;
+    height: 80px;
+  }
+  .play-icon {
+    border-left: 18px solid #ffffff;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    margin-left: 5px;
+  }
+  .modal-close {
+    top: -30px;
+    right: 0;
+  }
+  .modal-content {
+    width: 95%;
+    aspect-ratio: auto;
+    max-height: 70vh;
+  }
+  .video-element {
+    height: auto;
+    max-height: 70vh;
+  }
+}
+
+/* Small devices (landscape phones, 480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .hero-section {
+    height: 100dvh;
+  }
+  .hero-title {
+    font-size: 36px !important;
+  }
+  .hero-subtitle {
+    font-size: 16px !important;
+    padding: 0 24px;
+  }
+  .play-btn {
+    width: 90px;
+    height: 90px;
+  }
+  .play-icon {
+    border-left: 22px solid #ffffff;
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+    margin-left: 6px;
+  }
+  .modal-close {
+    top: -35px;
+    right: 5px;
+  }
+}
+
+/* Medium devices (tablets, 768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero-title {
+    font-size: 48px !important;
+  }
+  .hero-subtitle {
+    font-size: 18px !important;
+  }
+  .play-btn {
+    width: 110px;
+    height: 110px;
+  }
+  .play-icon {
+    border-left: 26px solid #ffffff;
+    border-top: 17px solid transparent;
+    border-bottom: 17px solid transparent;
+    margin-left: 7px;
+  }
+}
+
+/* Large desktops (1025px - 1440px) – base styles already work well, small refinements */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .content-container {
+    max-width: 1100px;
+  }
+}
+
+/* Extra large desktops (> 1440px) */
+@media (min-width: 1441px) {
+  .hero-title {
+    font-size: 64px !important;
+  }
+  .hero-subtitle {
+    font-size: 24px !important;
+  }
+  .play-btn {
+    width: 140px;
+    height: 140px;
+  }
+  .play-icon {
+    border-left: 32px solid #ffffff;
+    border-top: 21px solid transparent;
+    border-bottom: 21px solid transparent;
+    margin-left: 10px;
+  }
+}
+
+/* Landscape orientation on very short screens (mobile landscape, height < 500px) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    height: auto;
+    min-height: 100vh;
+    padding: 40px 0;
+  }
+  .content-wrapper {
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: 28px !important;
+    margin-bottom: 10px;
+  }
+  .hero-subtitle {
+    font-size: 14px !important;
+  }
+  .play-btn {
+    width: 70px;
+    height: 70px;
+  }
+  .play-icon {
+    border-left: 16px solid #ffffff;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    margin-left: 4px;
+  }
+  .modal-content {
+    max-width: 80vw;
+    max-height: 80vh;
+    aspect-ratio: auto;
+  }
+  .video-element {
+    max-height: 80vh;
+  }
+}
       `}</style>
     </>
   );

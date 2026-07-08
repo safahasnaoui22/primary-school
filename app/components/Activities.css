@@ -23,6 +23,8 @@ a {
 .h1activities {
   font-size: 48px;
   font-weight: 800;
+  text-align: center;
+  line-height: 1.2;
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 600% 600%;
   -webkit-background-clip: text;
@@ -30,6 +32,24 @@ a {
   animation: gradientMove 8s ease infinite;
 }
 
+@media (max-width: 992px) {
+  .h1activities {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .h1activities {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .h1activities {
+    font-size: 28px;
+    padding: 0 12px;
+  }
+}
 @keyframes gradientMove {
   0% {
     background-position: 0% 50%;

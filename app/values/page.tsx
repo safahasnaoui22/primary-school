@@ -239,6 +239,177 @@ export default function ValuesPage() {
             left: 22.5%;
           }
         }
+          /* ---------- RESPONSIVE QUERIES ---------- */
+
+/* Large desktops (≥1400px) – fine-tune if needed */
+@media (min-width: 1400px) {
+  .text-slide h1 {
+    font-size: 72px;
+    padding-left: 12%;
+  }
+  .values-title {
+    font-size: 28px;
+  }
+}
+
+/* Desktops & small laptops (1200px - 1399px) */
+@media (max-width: 1399px) and (min-width: 1200px) {
+  .text-slide h1 {
+    font-size: 58px;
+    padding-left: 9%;
+  }
+}
+
+/* Standard tablets landscape / small laptops (1024px - 1199px) */
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .text-slide h1 {
+    font-size: 48px;
+    letter-spacing: -1px;
+  }
+  .block-2 {
+    width: 20%;
+    left: 25%;
+  }
+  .overlay {
+    width: 15%;
+    left: 5%;
+  }
+}
+
+/* Tablets portrait & landscape phones (768px - 1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .values-title {
+    font-size: 20px;
+    letter-spacing: 3px;
+  }
+  .block-2,
+  .overlay {
+    display: none;
+  }
+  .block-1 {
+    width: 40%;
+  }
+  .block-3 {
+    width: 15%;
+  }
+  .text-slide h1 {
+    font-size: 36px !important;
+    letter-spacing: -1px;
+    padding-left: 5%;
+  }
+  .text-slider-wrapper {
+    top: 40% !important;
+  }
+  .slider-control {
+    left: 20%;
+  }
+}
+
+/* Large phones (480px - 767px) – same as existing 990px but refined */
+@media (max-width: 767px) and (min-width: 480px) {
+  .values-title {
+    top: 5%;
+    font-size: 18px;
+    letter-spacing: 2px;
+  }
+  .block-2,
+  .overlay {
+    display: none;
+  }
+  .block-1 {
+    width: 50%;
+  }
+  .block-3 {
+    width: 12%;
+  }
+  .slide-slick {
+    display: none !important;
+  }
+  .text-slide h1 {
+    font-size: 28px !important;
+    letter-spacing: -0.5px;
+    padding-left: 4%;
+  }
+  .text-slider-wrapper {
+    top: 45% !important;
+  }
+  .slider-control {
+    left: 22.5%;
+    bottom: 6%;
+  }
+  .values-wrapper button {
+    padding: 18px;
+  }
+}
+
+/* Small phones (< 480px) */
+@media (max-width: 479px) {
+  .values-title {
+    top: 4%;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  .block-2,
+  .overlay {
+    display: none;
+  }
+  .block-1 {
+    width: 60%;
+  }
+  .block-3 {
+    width: 8%;
+  }
+  .slide-slick {
+    display: none !important;
+  }
+  .text-slide h1 {
+    font-size: 22px !important;
+    letter-spacing: 0;
+    padding-left: 5%;
+    line-height: 120%;
+  }
+  .text-slider-wrapper {
+    top: 50% !important;
+  }
+  .slider-control {
+    left: 25%;
+    bottom: 5%;
+    gap: 0.3rem;
+  }
+  .values-wrapper button {
+    padding: 14px;
+    font-size: 14px;
+  }
+}
+
+/* Very small devices (< 360px) */
+@media (max-width: 359px) {
+  .text-slide h1 {
+    font-size: 18px !important;
+  }
+  .values-wrapper button {
+    padding: 10px;
+  }
+}
+
+/* Landscape orientation on short screens (e.g., mobile landscape) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .values-wrapper {
+    height: auto;
+    min-height: 100vh;
+  }
+  .image-slider,
+  .image-slide {
+    height: 100vh;
+  }
+  .text-slider-wrapper {
+    top: 35% !important;
+  }
+  .slider-control {
+    bottom: 5%;
+    left: 15%;
+  }
+}
       `}</style>
 
       <div className="values-wrapper">
