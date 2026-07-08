@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
   try {
     // Case 1: SUPER_ADMIN creating a SCHOOL_OWNER + new school together
     if (actingRole === 'SUPER_ADMIN' && role === 'SCHOOL_OWNER' && schoolName) {
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const owner = await tx.user.create({
           data: { username, email, password: hashed, role: 'SCHOOL_OWNER' },
         });
@@ -59,10 +60,16 @@ export async function POST(req: Request) {
       });
 
       return NextResponse.json({
-        id: result.owner.id,
-        email: result.owner.email,
-        role: result.owner.role,
-        school: result.school,
+        owner: {
+          id: result.owner.id,
+          email: result.owner.email,
+          username: result.owner.username,
+          role: result.owner.role,
+        },
+        school: {
+          id: result.school.id,
+          name: result.school.name,
+        },
       });
     }
 
@@ -80,7 +87,11 @@ export async function POST(req: Request) {
           schoolId: session.user.schoolId,
         },
       });
-      return NextResponse.json({ id: teacher.id, email: teacher.email, role: teacher.role });
+      return NextResponse.json({
+        id: teacher.id,
+        email: teacher.email,
+        role: teacher.role,
+      });
     }
 
     // Case 3: SUPER_ADMIN creating any role directly (with explicit schoolId, or none for PARENT)
@@ -94,7 +105,11 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ id: user.id, email: user.email, role: user.role });
+    return NextResponse.json({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
