@@ -1,6 +1,5 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
 
 export default async function SchoolOwnerDashboard() {
   const session = await auth();
@@ -34,7 +33,7 @@ export default async function SchoolOwnerDashboard() {
       <div style={{ marginTop: 32 }}>
         <h2>Teachers</h2>
         <ul>
-          {school?.users.map((t) => (
+          {school?.users.map((t: any) => (
             <li key={t.id}>{t.username} — {t.email}</li>
           ))}
         </ul>
