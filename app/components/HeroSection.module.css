@@ -931,3 +931,79 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
+@media (max-width: 480px) {
+  /* ── HERO IMAGE & FLOATS ── */
+  .heroVisual {
+    position: relative;
+  }
+  .heroImgFrame {
+    width: 220px;
+    height: 220px;
+  }
+  /* Hide the floating elements that cover the image on tiny screens */
+  .ratingsFloat,
+  .admissionsFloat {
+    display: none !important;
+  }
+
+  /* ── HERO TEXT ── */
+  .heroH1 {
+    font-size: 28px;
+  }
+  .heroBtns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btnHeroPrimary,
+  .btnHeroOutline {
+    justify-content: center;
+  }
+
+  /* ── STATS BAR ── */
+  .statCell {
+    flex: 1 1 100%;
+    padding: 16px 16px;
+    gap: 12px;
+  }
+  .statIco {
+    width: 36px;
+    height: 36px;
+  }
+  .statNum {
+    font-size: 24px;
+  }
+  .statLbl {
+    font-size: 11px;
+  }
+  .statsInner {
+    padding: 0 12px;
+  }
+
+  /* ── MOBILE DRAWER BUTTONS ── */
+  .mobileActions a,
+  .mobileActions button {
+    width: 100%;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 9px;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+    transition: var(--transition);
+    margin-bottom: 8px;
+  }
+  /* Override any inline styles that may interfere */
+  .mobileActions a:first-child {
+    background: var(--bg-blue) !important;
+    color: var(--navy) !important;
+  }
+  .mobileActions a:last-child {
+    background: var(--amber) !important;
+    color: #fff !important;
+  }
+  .mobileActions a:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+}

@@ -1,0 +1,276 @@
+/* ---------------------------------------------------------
+   Admissions section — "Le Chemin" (the path)
+   Prefixed with .adm- to avoid collisions in the larger app
+--------------------------------------------------------- */
+
+.adm-section {
+  --adm-indigo: #4f46e5;
+  --adm-ink: #241b3d;
+  --adm-marigold: #f6a821;
+  --adm-mist: #f5f4fc;
+  --adm-meadow: #2fae7a;
+  --adm-ink-soft: #5b5470;
+
+  background: var(--adm-mist);
+  padding: clamp(3.5rem, 7vw, 6.5rem) 1.5rem;
+  font-family: var(--adm-font-body), system-ui, sans-serif;
+  color: var(--adm-ink);
+  overflow: hidden;
+}
+
+.adm-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.adm-eyebrow {
+  display: inline-block;
+  font-family: var(--adm-font-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--adm-indigo);
+  background: color-mix(in srgb, var(--adm-indigo) 10%, transparent);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.adm-heading {
+  font-family: var(--adm-font-display), sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  line-height: 1.15;
+  margin: 0 0 0.9rem;
+  color: var(--adm-ink);
+}
+
+.adm-subheading {
+  max-width: 620px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--adm-ink-soft);
+}
+
+/* ---------- Path + steps (desktop) ---------- */
+
+.adm-path-wrap {
+  position: relative;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+.adm-path-svg {
+  width: 100%;
+  height: clamp(320px, 32vw, 420px);
+  display: block;
+}
+
+.adm-path-track {
+  stroke: color-mix(in srgb, var(--adm-indigo) 16%, transparent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 2 14;
+}
+
+.adm-path-line {
+  stroke: var(--adm-marigold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.adm-path-marker circle {
+  fill: var(--adm-marigold);
+}
+
+.adm-path-marker-dot {
+  fill: var(--adm-mist) !important;
+}
+
+.adm-steps {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  pointer-events: none;
+}
+
+.adm-step {
+  pointer-events: auto;
+  position: relative;
+  padding: 1.1rem 1.1rem 1.3rem;
+  text-align: left;
+  opacity: 0.4;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.adm-step-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.adm-step-top {
+  align-self: start;
+  margin-top: clamp(0.5rem, 4vw, 1.5rem);
+}
+
+.adm-step-bottom {
+  align-self: end;
+  margin-bottom: clamp(0.5rem, 4vw, 1.5rem);
+}
+
+.adm-step-number {
+  display: block;
+  font-family: var(--adm-font-mono), monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--adm-indigo);
+  margin-bottom: 0.5rem;
+}
+
+.adm-step-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.85rem;
+  background: #fff;
+  border: 1.5px solid color-mix(in srgb, var(--adm-indigo) 18%, transparent);
+  color: var(--adm-indigo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.7rem;
+}
+
+.adm-step-icon svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.adm-step-final .adm-step-icon {
+  color: var(--adm-meadow);
+  border-color: color-mix(in srgb, var(--adm-meadow) 25%, transparent);
+}
+
+.adm-step-title {
+  font-family: var(--adm-font-display), sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+  color: var(--adm-ink);
+}
+
+.adm-step-desc {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--adm-ink-soft);
+  margin: 0;
+}
+
+/* ---------- CTA ---------- */
+
+.adm-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding: 0.9rem 1.8rem;
+  background: var(--adm-indigo);
+  color: #fff;
+  font-family: var(--adm-font-body), sans-serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.adm-cta svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.adm-cta:hover {
+  background: #3d34c9;
+  transform: translateY(-1px);
+}
+
+.adm-cta:hover svg {
+  transform: translateX(3px);
+}
+
+.adm-cta:focus-visible {
+  outline: 3px solid var(--adm-marigold);
+  outline-offset: 3px;
+}
+
+/* ---------- Mobile: path becomes a vertical trail ---------- */
+
+@media (max-width: 860px) {
+  .adm-path-svg {
+    display: none;
+  }
+
+  .adm-path-wrap {
+    position: relative;
+    padding-left: 1.75rem;
+  }
+
+  .adm-path-wrap::before {
+    content: '';
+    position: absolute;
+    left: 0.4rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--adm-marigold) 0 8px,
+      transparent 8px 16px
+    );
+    border-radius: 999px;
+  }
+
+  .adm-steps {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .adm-step {
+    opacity: 1;
+    transform: none;
+    padding: 0;
+  }
+
+  .adm-step-top,
+  .adm-step-bottom {
+    margin: 0;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-path-line {
+    transition: none;
+  }
+
+  .adm-step {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .adm-cta,
+  .adm-cta svg {
+    transition: none;
+  }
+}
