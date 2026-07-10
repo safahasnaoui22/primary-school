@@ -3,37 +3,43 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './why.module.css';
 
-// ----- SLIDE DATA -----
+// ----- DONNÉES DES DIAPOSITIVES -----
 const slides = [
   {
-    img: 'https://i.pinimg.com/1200x/50/99/10/509910afe7c026ddee800eedcfe01bbc.jpg ',
-    title: 'Nurturing <span>Environment</span>',
-    caption: 'A warm, welcoming space where every child feels safe and valued.',
+    img: 'https://i.pinimg.com/1200x/50/99/10/509910afe7c026ddee800eedcfe01bbc.jpg',
+    title: 'Un environnement <span>bienveillant</span>',
+    caption: "Chez EduSmart, chaque enfant évolue dans un espace chaleureux où il se sent en sécurité et valorisé.",
+    alt: 'Salle de classe chaleureuse et accueillante à l\'école primaire EduSmart',
   },
   {
     img: 'https://i.pinimg.com/736x/f6/87/a3/f687a352d082d6f8368dacc5c28af009.jpg',
-    title: 'Play‑Based <span>Learning</span>',
-    caption: 'Hands‑on activities that spark curiosity and creativity.',
+    title: 'Apprentissage <span>par le jeu</span>',
+    caption: 'Des activités concrètes qui éveillent la curiosité et stimulent la créativité de nos élèves.',
+    alt: 'Enfants participant à des activités pédagogiques ludiques à EduSmart',
   },
   {
     img: 'https://i.pinimg.com/736x/f9/bf/3d/f9bf3db0089096ffbf3173952772dca4.jpg',
-    title: 'Qualified <span>Teachers</span>',
-    caption: 'Experienced educators passionate about early childhood development.',
+    title: 'Enseignants <span>qualifiés</span>',
+    caption: 'Une équipe pédagogique expérimentée, passionnée par le développement de la petite enfance.',
+    alt: 'Enseignante qualifiée avec des élèves à l\'école primaire EduSmart',
   },
   {
     img: 'https://i.pinimg.com/736x/99/c8/6b/99c86b3d855879076c52a0fba756dc20.jpg',
-    title: 'Small <span>Class Sizes</span>',
-    caption: 'Individual attention that helps every student thrive.',
+    title: 'Petits <span>effectifs</span>',
+    caption: 'Une attention individuelle qui permet à chaque élève de s\'épanouir pleinement.',
+    alt: 'Petite classe avec attention individualisée à EduSmart',
   },
   {
     img: 'https://i.pinimg.com/736x/40/ca/9d/40ca9d797fbee2833a2f45a0ab2ae8a0.jpg',
-    title: 'Safe <span>Facilities</span>',
-    caption: 'Modern classrooms and secure playgrounds you can trust.',
+    title: 'Infrastructures <span>sécurisées</span>',
+    caption: 'Des salles de classe modernes et des aires de jeux sécurisées, pensées pour votre tranquillité.',
+    alt: 'Cour de récréation sécurisée de l\'école primaire EduSmart',
   },
   {
     img: 'https://i.pinimg.com/736x/03/b1/b3/03b1b3bb3e4e088a24aba3b37c83bbeb.jpg',
-    title: 'Community <span>Spirit</span>',
-    caption: 'Strong family involvement and lasting friendships.',
+    title: 'Esprit de <span>communauté</span>',
+    caption: 'Une forte implication des familles et des amitiés durables au sein de la communauté EduSmart.',
+    alt: 'Événement communautaire réunissant familles et élèves à EduSmart',
   },
 ];
 
@@ -48,7 +54,7 @@ const Why = () => {
 
   const currentSlide = slides[indices[0]];
 
-  // ---- Helpers (same as original) ----
+  // ---- Fonctions utilitaires ----
   const preload = (src) =>
     new Promise((resolve) => {
       if (!src) return resolve();
@@ -148,7 +154,7 @@ const Why = () => {
   const handleNext = useCallback(() => slide('next'), [slide]);
   const handlePrev = useCallback(() => slide('prev'), [slide]);
 
-  // Initial image load
+  // Chargement initial des images
   useEffect(() => {
     imgOneRefs.current.forEach((imgOne, i) => {
       if (imgOne && indices[i] !== undefined) {
@@ -158,11 +164,29 @@ const Why = () => {
   }, []);
 
   return (
-    <section className={styles.whyUs}>
+    <section
+      className={styles.whyUs}
+      aria-label="Pourquoi choisir l'école primaire EduSmart"
+    >
+      {/* Données structurées pour le référencement (SEO) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'School',
+            name: 'EduSmart',
+            description:
+              "École primaire offrant un environnement bienveillant, un apprentissage par le jeu, des enseignants qualifiés et des infrastructures sécurisées.",
+            '@id': 'https://www.edusmart.fr/#ecole',
+          }),
+        }}
+      />
+
       <div className={styles.content}>
-        <p className={styles.sectionLabel}>Why Choose Us</p>
+        <p className={styles.sectionLabel}>Pourquoi choisir EduSmart</p>
         <div key={indices[0]}>
-          <h1
+          <h2
             className={`${styles.heading} ${styles.animateIn}`}
             dangerouslySetInnerHTML={{ __html: currentSlide.title }}
           />
@@ -176,14 +200,15 @@ const Why = () => {
         {[0, 1, 2].map((i) => (
           <figure className={styles.image} key={i}>
             <img
-              src="https://i.pinimg.com/736x/4a/59/d9/4a59d9d67f42a6687f5264860649fe42.jpg"
-              alt=""
+              src={slides[indices[i]]?.img}
+              alt={slides[indices[i]]?.alt ?? 'École primaire EduSmart'}
               className={styles.imgOne}
               ref={(el) => (imgOneRefs.current[i] = el)}
             />
             <img
-              src="https://i.pinimg.com/736x/4a/59/d9/4a59d9d67f42a6687f5264860649fe42.jpg"
+              src={slides[indices[i]]?.img}
               alt=""
+              aria-hidden="true"
               className={styles.imgTwo}
               ref={(el) => (imgTwoRefs.current[i] = el)}
               style={{ transform: 'translate(100%, 100%)', opacity: 0, zIndex: 2 }}
@@ -196,15 +221,17 @@ const Why = () => {
             className={styles.control}
             onClick={handlePrev}
             disabled={isAnimating}
+            aria-label="Diapositive précédente"
           >
-            Prev
+            Précédent
           </button>
           <button
             className={styles.control}
             onClick={handleNext}
             disabled={isAnimating}
+            aria-label="Diapositive suivante"
           >
-            Next
+            Suivant
           </button>
         </div>
       </div>

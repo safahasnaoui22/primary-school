@@ -16,6 +16,11 @@ model User {
   updatedAt DateTime @updatedAt
   schoolId  String?
   school    School?  @relation(fields: [schoolId], references: [id])
+
+  conversationsA Conversation[] @relation("ConversationUserA")
+  conversationsB Conversation[] @relation("ConversationUserB")
+  sentMessages   Message[]      @relation("SentMessages")
+  childLinks ParentStudent[] @relation("ParentLinks")
 }
 
 model School {
@@ -25,6 +30,9 @@ model School {
   createdAt DateTime  @default(now())
   invoices  Invoice[]
   users     User[]
+  enrollmentRequests EnrollmentRequest[]
+  conversations Conversation[]
+  students Student[]
 }
 
 model Invoice {
@@ -53,4 +61,76 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+enum EnrollmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model EnrollmentRequest {
+  id           String            @id @default(cuid())
+  schoolId     String
+  school       School            @relation(fields: [schoolId], references: [id])
+  parentName   String
+  parentEmail  String
+  parentPhone  String
+  city         String
+  street       String
+  childrenJson Json
+  medical      String?
+  consent      Boolean           @default(false)
+  status       EnrollmentStatus  @default(PENDING)
+  createdAt    DateTime          @default(now())
+  reviewedAt   DateTime?
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  userAId   String
+  userA     User     @relation("ConversationUserA", fields: [userAId], references: [id])
+  userBId   String
+  userB     User     @relation("ConversationUserB", fields: [userBId], references: [id])
+  createdAt DateTime @default(now())
+
+  messages Message[]
+
+  @@unique([userAId, userBId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id])
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+}
+model Student {
+  id         String   @id @default(cuid())
+  firstName  String
+  lastName   String
+  age        Int
+  className  String
+  schoolId   String
+  school     School   @relation(fields: [schoolId], references: [id])
+  createdAt  DateTime @default(now())
+
+  parents ParentStudent[]
+}
+
+model ParentStudent {
+  id        String   @id @default(cuid())
+  parentId  String
+  parent    User     @relation("ParentLinks", fields: [parentId], references: [id])
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([parentId, studentId])
 }

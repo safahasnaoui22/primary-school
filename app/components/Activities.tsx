@@ -7,9 +7,9 @@ export default function Activities() {
   return (
     <div className="activities-page">
       <header className="main-header clearfix">
-        <h1 className="h1activities">
-          our activities
-        </h1>
+       <h1 className="h1activities">
+  Vie Scolaire
+</h1>
       </header>
 
       <div className="content clearfix">
@@ -23,18 +23,17 @@ export default function Activities() {
               width={300}
               height={280}
             />
-
-            <div className="back photo-desc">
-              <h3>Earth from Space</h3>
-              <p>
-                Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus,
-                tellus ac cursus commodo.
-              </p>
-              <a href="#" className="button">
-                download
-              </a>
-            </div>
-
+<div className="back photo-desc">
+  <h3>Activités Pédagogiques</h3>
+  <p>
+    Des ateliers interactifs, des projets créatifs et des expériences
+    enrichissantes qui développent la curiosité, la confiance et le plaisir
+    d'apprendre.
+  </p>
+  <a href="#" className="button">
+    En savoir plus
+  </a>
+</div>
             <Image
               className="left"
               src="https://i.pinimg.com/1200x/59/63/0e/59630e6a631b0c095492bf4864cdaf62.jpg"
@@ -64,17 +63,16 @@ export default function Activities() {
               height={280}
             />
 
-            <div className="back photo-desc">
-              <h3>Space Images</h3>
-              <p>
-                Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus,
-                tellus ac cursus commodo.
-              </p>
-              <a href="#" className="button">
-                download
-              </a>
-            </div>
-
+         <div className="back photo-desc">
+  <h3>Sports & Loisirs</h3>
+  <p>
+    Des activités sportives et récréatives favorisent l’esprit d’équipe, le
+    bien-être, la discipline et l’épanouissement de chaque élève.
+  </p>
+  <a href="#" className="button">
+    En savoir plus
+  </a>
+</div>
             <Image
               className="left"
               src="https://i.pinimg.com/736x/aa/05/ff/aa05ff3ee00176c2ba2e19d4ab6e1ad9.jpg"
@@ -104,16 +102,16 @@ export default function Activities() {
               height={280}
             />
 
-            <div className="back photo-desc">
-              <h3>The Milky Way</h3>
-              <p>
-                Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus,
-                tellus ac cursus commodo.
-              </p>
-              <a href="#" className="button">
-                download
-              </a>
-            </div>
+           <div className="back photo-desc">
+  <h3>Sorties & Événements</h3>
+  <p>
+    Des sorties éducatives, des célébrations et des événements culturels qui
+    enrichissent les apprentissages et créent des souvenirs inoubliables.
+  </p>
+  <a href="#" className="button">
+    En savoir plus
+  </a>
+</div>
 
             <Image
               className="left"

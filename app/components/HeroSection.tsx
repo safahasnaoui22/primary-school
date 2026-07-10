@@ -236,15 +236,31 @@ export default function HeroSection() {
           <ul className={styles.navMenu}>
             <li>
               <a href="#" className={styles.active}>
-                Home
+                Accueil
               </a>
             </li>
-            <li>
-              <a href="#">About Us</a>
-            </li>
+            
             <li>
               <a href="#">
-                Academics
+                Programme Scolaire
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </a>
+            </li>
+           
+            <li>
+              <a href="#">
+                Vie Scolaire
                 <svg
                   width="12"
                   height="12"
@@ -260,30 +276,10 @@ export default function HeroSection() {
               </a>
             </li>
             <li>
-              <a href="#">Admissions</a>
+              <a href="#">Galerie</a>
             </li>
             <li>
-              <a href="#">
-                Activities
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a href="#">Gallery</a>
-            </li>
-            <li>
-              <a href="#">News</a>
+              <a href="#">Actualités</a>
             </li>
             <li>
               <a href="#">Contact</a>
@@ -291,7 +287,7 @@ export default function HeroSection() {
           </ul>
           <div className={styles.navActions}>
            <Link href="/authentification" className={styles.btnGhost}>
-  Parent Login
+ Espace Parents
 </Link>
             <Link href="/Inscription" className={styles.btnAmber}>
  Apply Now
@@ -419,18 +415,16 @@ export default function HeroSection() {
           <div className={styles.heroContent}>
             <div className={styles.heroEyebrow}>
               <span className={styles.heroEyebrowDot} />
-              Admissions Open · 2025–2026
+              Inscriptions Ouvertes • Année Scolaire 2026–2027
             </div>
-            <h1 className={styles.heroH1}>
-              Inspiring Young Minds,
-              <br />
-              <em>Shaping Bright Futures</em>
-            </h1>
-            <p className={styles.heroP}>
-              At EduSmart Primary School, we nurture curiosity, creativity and
-              character to help every child grow, learn and succeed in a safe
-              and joyful environment.
-            </p>
+       <h1 className={styles.heroH1}>
+  L'Excellence,
+  <br />
+  <em>Commence Ici</em>
+</h1>
+          <p className={styles.heroP}>
+  À EduSmart Primary School, nous offrons un environnement sûr, bienveillant et stimulant où chaque enfant apprend, grandit et développe pleinement son potentiel.
+</p>
             <div className={styles.heroBtns}>
               <a href="#" className={styles.btnHeroPrimary}>
                 <svg
@@ -446,7 +440,7 @@ export default function HeroSection() {
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="10 8 16 12 10 16 10 8" />
                 </svg>
-                Discover Our School
+               Découvrez Notre École
               </a>
               <a href="#" className={styles.btnHeroOutline}>
                 <svg
@@ -464,7 +458,7 @@ export default function HeroSection() {
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Schedule a Tour
+               Planifier une Visite
               </a>
             </div>
             <div className={styles.heroBadges}>
@@ -485,7 +479,7 @@ export default function HeroSection() {
                     <line x1="12" y1="17" x2="12" y2="21" />
                   </svg>
                 </div>
-                Modern Classrooms
+                Salles de Classe Modernes
               </div>
               <div className={styles.heroBadgeItem}>
                 <div className={`${styles.badgeIcon} ${styles.biGreen}`}>
@@ -503,7 +497,7 @@ export default function HeroSection() {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 </div>
-                Qualified Teachers
+                Enseignants Qualifiés
               </div>
               <div className={styles.heroBadgeItem}>
                 <div className={`${styles.badgeIcon} ${styles.biAmber}`}>
@@ -520,7 +514,7 @@ export default function HeroSection() {
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
                 </div>
-                Safe &amp; Secure Campus
+                Campus Scolaire Sûr et Sécurisé
               </div>
               <div className={styles.heroBadgeItem}>
                 <div className={`${styles.badgeIcon} ${styles.biPurple}`}>
@@ -539,27 +533,44 @@ export default function HeroSection() {
                     <path d="M2 12l10 5 10-5" />
                   </svg>
                 </div>
-                Holistic Development
+               Développement Global de l'Enfant
               </div>
             </div>
           </div>
+
+          {/* ── HERO VISUAL (asymmetric frame, matching the reference HTML design) ── */}
           <div className={styles.heroVisual}>
-            <div className={styles.heroImgFrame}>
-              <div className={styles.heroImgBg} />
-              <div className={styles.heroImgInner}>
-                <div className={styles.heroPhotoPlaceholder}>
-               <img
-  src="/ed.png"  
-  alt="Kids at EduSmart"
-  style={{
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    display: 'block',
-  }}
-/>
-                </div>
+            <div className={styles.heroFrameWrap}>
+
+              {/* hand-drawn dashed arrow doodle */}
+              <svg className={styles.doodleArrow} viewBox="0 0 150 110" fill="none">
+                <path
+                  d="M6 96 C 30 70, 20 30, 70 16 C 95 9, 110 14, 128 26"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeDasharray="1 9"
+                />
+                <g transform="translate(122,14) rotate(35)">
+                  <path d="M0 10 L18 0 L4 18 L2 12 Z" fill="currentColor" />
+                </g>
+              </svg>
+
+              <div className={styles.dotsDeco}></div>
+
+              <div className={styles.heroFrame}>
+                <img
+                  src="https://i.pinimg.com/1200x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg"
+                  alt="Kids at EduSmart"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
               </div>
+
               <div className={styles.admissionsFloat}>
                 <div className={styles.admTop}>
                   <div className={styles.admIcon}>
@@ -581,7 +592,7 @@ export default function HeroSection() {
                     <div className={styles.admTitle}>
                       Admissions Open
                       <br />
-                      2025 – 2026
+                      2026 – 2027
                     </div>
                     <span className={styles.admBadge}>Limited Seats</span>
                   </div>
@@ -603,57 +614,29 @@ export default function HeroSection() {
                   </svg>
                 </button>
               </div>
+
               <div className={styles.ratingsFloat}>
                 <div className={styles.stars}>
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="#F59E0B"
-                    stroke="none"
-                  >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="#F59E0B"
-                    stroke="none"
-                  >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="#F59E0B"
-                    stroke="none"
-                  >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="#F59E0B"
-                    stroke="none"
-                  >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="#F59E0B"
-                    stroke="none"
-                  >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
                 </div>
                 <span>4.9 / 5 Rating</span>
                 <small>Based on 200+ parent reviews</small>
               </div>
+
             </div>
           </div>
         </div>

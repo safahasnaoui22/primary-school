@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Inscription.css';
 import Link from 'next/link';
 
-// Types (same)
 interface ChildData {
   firstName: string;
   age: string;
@@ -12,9 +11,10 @@ interface ChildData {
 }
 
 interface FormData {
-  step1: { phone: string; city: string; street: string };
+  step1: { parentName: string; parentEmail: string; phone: string; city: string; street: string };
   children: ChildData[];
   medical: string;
+  consent: boolean;
   currentStep: number;
   lang: string;
 }
@@ -23,12 +23,14 @@ type Language = 'fr' | 'en' | 'ar';
 
 const translations: Record<Language, any> = {
   fr: {
-    schoolName: 'École Primaire EduSmart',      // ← changed
+    schoolName: 'École Primaire EduSmart',
     subtitle: 'Inscription 2026',
     step1: 'Parent',
     step2: 'Enfants',
     step3: 'Santé',
     step4: 'Final',
+    parentName: 'Nom complet',
+    parentEmail: 'Email',
     phone: 'Téléphone',
     city: 'Ville',
     street: 'Adresse',
@@ -41,13 +43,17 @@ const translations: Record<Language, any> = {
     medical: 'Remarques médicales',
     docs: 'Documents',
     upload: 'Cliquez pour télécharger',
+    consent: "J'accepte que ces informations soient utilisées par l'école dans le cadre du traitement de l'inscription.",
     prev: 'Précédent',
     next: 'Suivant',
     finish: 'Finaliser',
+    submitting: 'Envoi en cours...',
     thankYou: 'Merci !',
-    confirmed: 'Votre inscription a été enregistrée.',
+    confirmed: 'Votre inscription a été envoyée à l\'administration.',
     contact: 'Nous vous contacterons sous 48h.',
     backHome: 'Accueil',
+    parentNameTooltip: 'Ex: Amine Ben Salah',
+    parentEmailTooltip: 'Ex: amine@email.com',
     phoneTooltip: 'Ex: 55 123 456',
     cityTooltip: 'Ex: Tunis',
     streetTooltip: 'Rue et numéro',
@@ -55,18 +61,23 @@ const translations: Record<Language, any> = {
     saveIndicator: 'Brouillon sauvegardé',
     required: 'Champ obligatoire',
     invalidPhone: 'Numéro invalide (8 chiffres min)',
+    invalidEmail: 'Email invalide',
     childRequired: 'Prénom requis',
     ageRequired: 'Âge entre 1 et 18',
     atLeastOneChild: 'Ajoutez au moins un enfant',
     fileUploaded: 'Fichier sélectionné',
+    consentRequired: 'Vous devez accepter pour continuer',
+    submitError: "Une erreur s'est produite. Veuillez réessayer.",
   },
   en: {
-    schoolName: 'EduSmart Primary School',      // ← changed
+    schoolName: 'EduSmart Primary School',
     subtitle: 'Registration 2026',
     step1: 'Parent',
     step2: 'Children',
     step3: 'Health',
     step4: 'Final',
+    parentName: 'Full name',
+    parentEmail: 'Email',
     phone: 'Phone',
     city: 'City',
     street: 'Address',
@@ -79,13 +90,17 @@ const translations: Record<Language, any> = {
     medical: 'Medical notes',
     docs: 'Documents',
     upload: 'Click to upload',
+    consent: 'I agree that this information may be used by the school to process this registration.',
     prev: 'Previous',
     next: 'Next',
     finish: 'Finish',
+    submitting: 'Submitting...',
     thankYou: 'Thank you!',
-    confirmed: 'Your registration has been recorded.',
+    confirmed: 'Your registration has been sent to the school administration.',
     contact: 'We will contact you within 48h.',
     backHome: 'Home',
+    parentNameTooltip: 'e.g. John Smith',
+    parentEmailTooltip: 'e.g. john@email.com',
     phoneTooltip: 'e.g. 55 123 456',
     cityTooltip: 'e.g. Tunis',
     streetTooltip: 'Street and number',
@@ -93,18 +108,23 @@ const translations: Record<Language, any> = {
     saveIndicator: 'Draft saved',
     required: 'Required',
     invalidPhone: 'Invalid (min 8 digits)',
+    invalidEmail: 'Invalid email',
     childRequired: 'First name required',
     ageRequired: 'Age 1-18',
     atLeastOneChild: 'Add at least one child',
     fileUploaded: 'File selected',
+    consentRequired: 'You must agree to continue',
+    submitError: 'Something went wrong. Please try again.',
   },
   ar: {
-    schoolName: 'مدرسة إيدو سمارت الابتدائية',  // ← changed
+    schoolName: 'مدرسة إيدو سمارت الابتدائية',
     subtitle: 'تسجيل 2026',
     step1: 'ولي الأمر',
     step2: 'الأطفال',
     step3: 'الصحة',
     step4: 'النهائي',
+    parentName: 'الاسم الكامل',
+    parentEmail: 'البريد الإلكتروني',
     phone: 'الهاتف',
     city: 'المدينة',
     street: 'العنوان',
@@ -117,13 +137,17 @@ const translations: Record<Language, any> = {
     medical: 'ملاحظات طبية',
     docs: 'المستندات',
     upload: 'انقر للتحميل',
+    consent: 'أوافق على استخدام هذه المعلومات من قبل المدرسة لمعالجة التسجيل.',
     prev: 'السابق',
     next: 'التالي',
     finish: 'إنهاء',
+    submitting: 'جارٍ الإرسال...',
     thankYou: 'شكراً!',
-    confirmed: 'تم تسجيل طلبكم.',
+    confirmed: 'تم إرسال طلب التسجيل إلى إدارة المدرسة.',
     contact: 'سنتصل بكم خلال 48 ساعة.',
     backHome: 'الرئيسية',
+    parentNameTooltip: 'مثال: أمين بن صالح',
+    parentEmailTooltip: 'مثال: amine@email.com',
     phoneTooltip: 'مثال: 55 123 456',
     cityTooltip: 'مثال: تونس',
     streetTooltip: 'الشارع والرقم',
@@ -131,41 +155,50 @@ const translations: Record<Language, any> = {
     saveIndicator: 'تم حفظ المسودة',
     required: 'مطلوب',
     invalidPhone: 'رقم غير صالح (8 أرقام)',
+    invalidEmail: 'بريد إلكتروني غير صالح',
     childRequired: 'الاسم الأول مطلوب',
     ageRequired: 'العمر بين 1 و 18',
     atLeastOneChild: 'أضف طفلاً واحداً على الأقل',
     fileUploaded: 'تم اختيار الملف',
+    consentRequired: 'يجب الموافقة للمتابعة',
+    submitError: 'حدث خطأ. حاول مرة أخرى.',
   }
 };
 
-// ─── The rest of the component is unchanged ───
 export default function Inscription() {
   const [lang, setLang] = useState<Language>('fr');
   const [step, setStep] = useState(1);
+  const [parentName, setParentName] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [street, setStreet] = useState('');
   const [children, setChildren] = useState<ChildData[]>([{ firstName: '', age: '', class: 'CP1' }]);
   const [medical, setMedical] = useState('');
+  const [consent, setConsent] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showSave, setShowSave] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstRender = useRef(true);
 
   const t = translations[lang];
 
-  // Load draft
   useEffect(() => {
     const draft = localStorage.getItem('inscriptionDraft');
     if (draft) {
       const data: FormData = JSON.parse(draft);
       if (window.confirm(t.saveIndicator + ' – ' + (lang === 'fr' ? 'Restaurer ?' : 'Restore?'))) {
+        setParentName(data.step1.parentName || '');
+        setParentEmail(data.step1.parentEmail || '');
         setPhone(data.step1.phone || '');
         setCity(data.step1.city || '');
         setStreet(data.step1.street || '');
         setMedical(data.medical || '');
+        setConsent(data.consent || false);
         if (data.children.length) setChildren(data.children);
         setStep(data.currentStep || 1);
         if (data.lang) setLang(data.lang as Language);
@@ -173,32 +206,45 @@ export default function Inscription() {
     }
   }, []);
 
-  // Auto-save
   const autoSave = useCallback(() => {
     const data: FormData = {
-      step1: { phone, city, street },
+      step1: { parentName, parentEmail, phone, city, street },
       children,
       medical,
+      consent,
       currentStep: step,
       lang,
     };
     localStorage.setItem('inscriptionDraft', JSON.stringify(data));
     setShowSave(true);
     setTimeout(() => setShowSave(false), 2500);
-  }, [phone, city, street, children, medical, step, lang]);
+  }, [parentName, parentEmail, phone, city, street, children, medical, consent, step, lang]);
 
+  // Fixed: skip the very first run so opening the page (or just switching
+  // language/step with nothing typed yet) no longer triggers a phantom save.
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (saveTimeout.current) clearTimeout(saveTimeout.current);
     saveTimeout.current = setTimeout(autoSave, 1200);
     return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
-  }, [phone, city, street, children, medical, step, lang, autoSave]);
+  }, [parentName, parentEmail, phone, city, street, children, medical, consent, step, lang, autoSave]);
 
-  // Validation
   const validateStep = (s: number): boolean => {
     const newErrors: { [key: string]: string } = {};
     let valid = true;
 
     if (s === 1) {
+      if (!parentName.trim()) {
+        newErrors.parentName = t.required;
+        valid = false;
+      }
+      if (!parentEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail)) {
+        newErrors.parentEmail = t.invalidEmail;
+        valid = false;
+      }
       if (!phone.trim() || phone.length < 8) {
         newErrors.phone = t.invalidPhone;
         valid = false;
@@ -228,25 +274,103 @@ export default function Inscription() {
           }
         });
       }
+    } else if (s === 3) {
+      if (!consent) {
+        newErrors.consent = t.consentRequired;
+        valid = false;
+      }
     }
     setErrors(newErrors);
     return valid;
   };
 
+  const shakeCurrentPane = () => {
+    const pane = document.querySelector('.step-pane.active-pane');
+    if (pane) {
+      pane.animate([
+        { transform: 'translateX(-8px)' },
+        { transform: 'translateX(8px)' },
+        { transform: 'translateX(-4px)' },
+        { transform: 'translateX(4px)' },
+        { transform: 'translateX(0)' }
+      ], { duration: 300, easing: 'ease-in-out' });
+    }
+  };
+
+  const fireConfetti = () => {
+    if (typeof window === 'undefined') return;
+    const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
+    for (let i = 0; i < 100; i++) {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        position: fixed;
+        width: ${6 + Math.random() * 10}px;
+        height: ${6 + Math.random() * 10}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        left: ${Math.random() * 100}%;
+        top: -10px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        transform: rotate(${Math.random() * 360}deg);
+        z-index: 9999;
+        pointer-events: none;
+        animation: confettiFall ${2 + Math.random() * 3}s linear forwards;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+  };
+
+  // This now actually runs — previously nothing called handleSubmit at all,
+  // since the "Finish" button was type="button" and only called goNext.
+  const submitEnrollment = async () => {
+    if (!validateStep(3)) {
+      shakeCurrentPane();
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      const res = await fetch('/api/enrollment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentName,
+          parentEmail,
+          parentPhone: phone,
+          city,
+          street,
+          children,
+          medical,
+          consent,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t.submitError);
+
+      localStorage.removeItem('inscriptionDraft');
+      setSubmitted(true);
+      setStep(4);
+      fireConfetti();
+    } catch (err: any) {
+      setErrors({ submit: err.message || t.submitError });
+      shakeCurrentPane();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const goNext = () => {
+    if (step === 3) {
+      submitEnrollment();
+      return;
+    }
     if (validateStep(step)) {
       if (step < 4) setStep(step + 1);
     } else {
-      const pane = document.querySelector('.step-pane.active-pane');
-      if (pane) {
-        pane.animate([
-          { transform: 'translateX(-8px)' },
-          { transform: 'translateX(8px)' },
-          { transform: 'translateX(-4px)' },
-          { transform: 'translateX(4px)' },
-          { transform: 'translateX(0)' }
-        ], { duration: 300, easing: 'ease-in-out' });
-      }
+      shakeCurrentPane();
     }
   };
 
@@ -273,35 +397,6 @@ export default function Inscription() {
     }
   };
 
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (validateStep(3)) {
-    setSubmitted(true);
-    localStorage.removeItem('inscriptionDraft');
-    // Confetti effect – now uses the static keyframe from CSS
-    if (typeof window !== 'undefined') {
-      const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
-      for (let i = 0; i < 100; i++) {
-        const el = document.createElement('div');
-        el.style.cssText = `
-          position: fixed; 
-          width: ${6 + Math.random() * 10}px; 
-          height: ${6 + Math.random() * 10}px; 
-          background: ${colors[Math.floor(Math.random() * colors.length)]}; 
-          left: ${Math.random() * 100}%; 
-          top: -10px; 
-          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'}; 
-          transform: rotate(${Math.random() * 360}deg); 
-          z-index: 9999; 
-          pointer-events: none; 
-          animation: confettiFall ${2 + Math.random() * 3}s linear forwards;
-        `;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 5000);
-      }
-    }
-  }
-};
   const getStepClass = (s: number) => {
     if (step === s) return 'active';
     if (step > s) return 'completed';
@@ -309,7 +404,7 @@ const handleSubmit = (e: React.FormEvent) => {
   };
 
   return (
-    <div className="inscription-page">
+    <div className="inscription-page" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <div className="lang-bar">
         {(['fr', 'ar', 'en'] as Language[]).map(l => (
           <button
@@ -336,7 +431,6 @@ const handleSubmit = (e: React.FormEvent) => {
           </div>
         </div>
 
-        {/* Horizontal progress */}
         <div className="progress-horizontal">
           {[1, 2, 3, 4].map(s => (
             <div key={s} className={`progress-step ${getStepClass(s)}`}>
@@ -349,10 +443,32 @@ const handleSubmit = (e: React.FormEvent) => {
           <div className="progress-track" />
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           {/* Step 1 */}
           <div className={`step-pane ${step === 1 ? 'active-pane' : ''}`}>
             <div className="fields">
+              <div className="field full">
+                <label><i className="fas fa-user"></i> {t.parentName} <span className="required">*</span></label>
+                <input
+                  type="text"
+                  value={parentName}
+                  onChange={e => setParentName(e.target.value)}
+                  placeholder={t.parentNameTooltip}
+                  className={errors.parentName ? 'error' : ''}
+                />
+                {errors.parentName && <span className="error">{errors.parentName}</span>}
+              </div>
+              <div className="field full">
+                <label><i className="fas fa-envelope"></i> {t.parentEmail} <span className="required">*</span></label>
+                <input
+                  type="email"
+                  value={parentEmail}
+                  onChange={e => setParentEmail(e.target.value)}
+                  placeholder={t.parentEmailTooltip}
+                  className={errors.parentEmail ? 'error' : ''}
+                />
+                {errors.parentEmail && <span className="error">{errors.parentEmail}</span>}
+              </div>
               <div className="field">
                 <label><i className="fas fa-phone-alt"></i> {t.phone} <span className="required">*</span></label>
                 <input
@@ -475,11 +591,23 @@ const handleSubmit = (e: React.FormEvent) => {
                   rows={3}
                 />
               </div>
+              <div className="field full consent-field">
+                <label className="consent-label">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={e => setConsent(e.target.checked)}
+                  />
+                  <span>{t.consent}</span>
+                </label>
+                {errors.consent && <span className="error">{errors.consent}</span>}
+              </div>
+              {errors.submit && <div className="error-summary">{errors.submit}</div>}
             </div>
           </div>
 
           {/* Step 4 – Final */}
-          {step === 4 && (
+          {step === 4 && submitted && (
             <div className="step-pane active-pane final">
               <div className="thankyou">
                 <i className="fas fa-check-circle"></i>
@@ -493,21 +621,18 @@ const handleSubmit = (e: React.FormEvent) => {
             </div>
           )}
 
-          {/* Navigation */}
           {step !== 4 && (
             <div className="nav">
-              <button type="button" className="btn btn-secondary" onClick={goPrev} disabled={step === 1}>
+              <button type="button" className="btn btn-secondary" onClick={goPrev} disabled={step === 1 || isSubmitting}>
                 <i className="fas fa-arrow-left"></i> {t.prev}
               </button>
-              <button type="button" className="btn btn-primary" onClick={goNext}>
-                {step === 3 ? t.finish : t.next} <i className="fas fa-arrow-right"></i>
+              <button type="button" className="btn btn-primary" onClick={goNext} disabled={isSubmitting}>
+                {isSubmitting ? t.submitting : (step === 3 ? t.finish : t.next)} <i className="fas fa-arrow-right"></i>
               </button>
             </div>
           )}
         </form>
       </div>
-
-  
     </div>
   );
 }

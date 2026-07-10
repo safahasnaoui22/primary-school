@@ -94,10 +94,10 @@ export default function ValuesPage() {
   transform: none;
   z-index: 3;
   width: 100%;
-  background: rgba(13, 27, 62, 0.7);   /* navy with transparency – no more white */
+ background: linear-gradient(145deg, #e2f0fd, #d4eafc, #ffffff);
   backdrop-filter: blur(12px);         /* soft glass effect */
   -webkit-backdrop-filter: blur(12px);
-  color: #fff;
+  color: #0d1b3e;
   font-family: "Outfit", sans-serif;   /* or "Space Grotesk" / "Clash Display" */
   font-size: clamp(2rem, 8vw, 3.5rem);
   font-weight: 600;
@@ -439,17 +439,43 @@ export default function ValuesPage() {
           strategy="afterInteractive"
         />
 
-        <h2 className="values-title">Our Values</h2>
+        <h2 className="values-title">Nos Valeurs</h2>
 
-        <div className="text-slider-wrapper">
-          <div className="text-slider">
-            <div className="text-slide"><h1>A blessing for <br /> every skin.</h1></div>
-            <div className="text-slide"><h1>The perfect mix of <br /> old & new.</h1></div>
-            <div className="text-slide"><h1>A journey over borders <br /> & generations.</h1></div>
-            <div className="text-slide"><h1>Your are the <br /> stylist.</h1></div>
-            <div className="text-slide"><h1>To be on the <br /> forerfront.</h1></div>
-          </div>
-        </div>
+<div className="text-slider-wrapper">
+  <div className="text-slider">
+
+    <div className="text-slide">
+      <h1>
+        Excellence <br /> Académique
+      </h1>
+    </div>
+
+    <div className="text-slide">
+      <h1>
+        Respect, Bienveillance <br /> & Inclusion
+      </h1>
+    </div>
+
+    <div className="text-slide">
+      <h1>
+        Curiosité, Créativité <br /> & Innovation
+      </h1>
+    </div>
+
+    <div className="text-slide">
+      <h1>
+        Confiance en Soi <br /> & Autonomie
+      </h1>
+    </div>
+
+    <div className="text-slide">
+      <h1>
+        Réussite Scolaire <br /> & Épanouissement
+      </h1>
+    </div>
+
+  </div>
+</div>
 
         <div className="slider-control">
      <div className="prev">
