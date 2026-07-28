@@ -370,7 +370,7 @@
 .heroInner {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 0 32px;
+  
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -656,8 +656,7 @@
 /* the asymmetric image frame: rounded curve on the left, sharp corners on the right */
 .heroFrame {
   position: relative;
-  width: 700px;
-  height : 500px ;
+
   aspect-ratio: 16 / 10.5;
   border-radius: 130px 0 0 60px;
   overflow: hidden;
@@ -665,6 +664,24 @@
   animation: floatY 5s ease-in-out infinite;
  padding : 0 ;
  margin-right: calc(-50vw + 50%); 
+}
+
+
+
+.heroFrame {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;        /* garde l’image bien cadrée */
+  aspect-ratio: 4 / 3;     /* ratio par défaut (écrans larges) */
+  max-height: 500px;       /* hauteur max raisonnable */
+}
+
+/* Version mobile */
+@media (max-width: 768px) {
+  .heroFrame {
+    aspect-ratio: 16 / 9;  /* plus large que haut → image moins haute */
+    max-height: 280px;      /* ou la valeur qui vous convient */
+  }
 }
 .heroFrame img {
   width: 100%;
