@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Script from 'next/script';
 import { ArrowLeft, ArrowRight } from "lucide-react";
+
 export default function ValuesPage() {
   const initialized = useRef(false);
 
@@ -15,27 +16,27 @@ export default function ValuesPage() {
       initialized.current = true;
       const $ = (window as any).jQuery;
       
-    const sickPrimary = {
-  autoplay: true,
-  autoplaySpeed: 2400,
-  slidesToShow: 2,               // default for desktop/tablet
-  slidesToScroll: 1,
-  speed: 1800,
-  cssEase: 'cubic-bezier(.84, 0, .08, .99)',
-  asNavFor: '.text-slider',
-  centerMode: true,
-  prevArrow: $('.prev'),
-  nextArrow: $('.next'),
-  responsive: [
-    {
-      breakpoint: 768,           // phones & small tablets
-      settings: {
-        slidesToShow: 1,
-        centerMode: false       // optional, removes the partial side slides
-      }
-    }
-  ]
-};
+      const sickPrimary = {
+        autoplay: true,
+        autoplaySpeed: 2400,
+        slidesToShow: 2,
+        slidesToScroll: 1,
+        speed: 1800,
+        cssEase: 'cubic-bezier(.84, 0, .08, .99)',
+        asNavFor: '.text-slider',
+        centerMode: true,
+        prevArrow: $('.prev'),
+        nextArrow: $('.next'),
+        responsive: [
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 1,
+              centerMode: false
+            }
+          }
+        ]
+      };
 
       const sickSecondary = {
         autoplay: true,
@@ -87,27 +88,29 @@ export default function ValuesPage() {
           transition: transform .7s cubic-bezier(.84, 0, .08, .99);
         }
 
-.values-title {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: none;
-  z-index: 3;
-  width: 100%;
- background: linear-gradient(145deg, #e2f0fd, #d4eafc, #ffffff);
-  backdrop-filter: blur(12px);         /* soft glass effect */
-  -webkit-backdrop-filter: blur(12px);
-  color: #0d1b3e;
-  font-family: "Outfit", sans-serif;   /* or "Space Grotesk" / "Clash Display" */
-  font-size: clamp(2rem, 8vw, 3.5rem);
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-align: center;
-  padding: 1.2rem 2rem;
-  margin: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  text-transform: none;                /* normal case, not ALL CAPS */
-}
+        /* Titre principal – style original */
+        .values-title {
+        
+          position: absolute;
+          top: 0;
+          left: 0;
+          transform: none;
+          z-index: 3;
+          width: 100%;
+          background: linear-gradient(145deg, #e2f0fd, #d4eafc, #ffffff);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          color: #0d1b3e;
+          font-family: "Outfit", sans-serif;
+          font-size: clamp(2rem, 8vw, 3.5rem);
+          font-weight: 600;
+          letter-spacing: 1.5px;
+          text-align: center;
+          padding: 1.2rem 2rem;
+          margin: 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+          text-transform: none;
+        }
 
         .image-slider {
           z-index: 0;
@@ -209,17 +212,22 @@ export default function ValuesPage() {
           height: 100vh;
         }
 
+        /* Correction de visibilité pour les titres du slider */
         .text-slide h1 {
           color: var(--white);
           font-size: 64px;
-          font-family: "Inter";
-          font-weight: 400;
+          font-family: "Inter", sans-serif;
+          font-weight: 600;
           line-height: 110%;
           letter-spacing: -2px;
           padding-left: 10%;
+          text-shadow: 0 4px 20px rgba(0,0,0,0.7);   /* ← ajouté */
+          position: relative;
+          z-index: 5;                                /* ← au‑dessus de l'overlay */
         }
 
-        @media(max-width: 990px) {
+        /* Tablets */
+        @media (max-width: 990px) {
           .values-title {
             top: 5%;
             font-size: 18px;
@@ -256,168 +264,165 @@ export default function ValuesPage() {
             left: 22.5%;
           }
         }
-        
 
-/* Extra small phones (< 480px) */
-@media (max-width: 479px) {
-  .values-wrapper {
-    height: 70vh;           /* ← was 100vh, now shorter */
-  }
+        /* Extra small phones */
+        @media (max-width: 479px) {
+          .values-wrapper {
+            height: 70vh;
+          }
 
-  .image-slider,
-  .image-slide {
-    height: 70vh;           /* match wrapper */
-  }
+          .image-slider,
+          .image-slide {
+            height: 70vh;
+          }
 
-  .values-title {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 0.6rem 1rem;
-    font-size: 16px;
-    letter-spacing: 1px;
-    background: rgba(13, 27, 62, 0.85);
-    color: white;
-    z-index: 4;
-    text-align: center;
-  }
+          .values-title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 0.6rem 1rem;
+            font-size: 16px;
+            letter-spacing: 1px;
+            background: rgba(13, 27, 62, 0.85);
+            color: white;
+            z-index: 4;
+            text-align: center;
+            backdrop-filter: blur(4px);
+          }
 
-  .block-2,
-  .overlay {
-    display: none;
-  }
-  .block-1 {
-    width: 4%;
-  }
-  .block-3 {
-    width: 4%;
-  }
+          .block-2,
+          .overlay {
+            display: none;
+          }
+          .block-1 {
+            width: 4%;
+          }
+          .block-3 {
+            width: 4%;
+          }
 
-  .text-slide h1 {
-    font-size: 24px !important;
-    letter-spacing: 0;
-    padding-left: 6%;
-    line-height: 125%;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  }
-  .text-slider-wrapper {
-    top: 45% !important;     /* adjust as needed */
-  }
-  .slider-control {
-    left: 50%;
-    bottom: 6%;
-    transform: translateX(-50%);
-  }
-  .values-wrapper button {
-    padding: 14px;
-  }
-}
+          .text-slide h1 {
+            font-size: 24px !important;
+            letter-spacing: 0;
+            padding-left: 6%;
+            line-height: 125%;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+          }
+          .text-slider-wrapper {
+            top: 45% !important;
+          }
+          .slider-control {
+            left: 50%;
+            bottom: 6%;
+            transform: translateX(-50%);
+          }
+          .values-wrapper button {
+            padding: 14px;
+          }
+        }
 
-/* Small phones (480px - 767px) */
-@media (min-width: 480px) and (max-width: 767px) {
-  .values-wrapper {
-    height: 75vh;           /* a little taller for slightly bigger screens */
-  }
+        /* Small phones */
+        @media (min-width: 480px) and (max-width: 767px) {
+          .values-wrapper {
+            height: 75vh;
+          }
 
-  .image-slider,
-  .image-slide {
-    height: 75vh;
-  }
+          .image-slider,
+          .image-slide {
+            height: 75vh;
+          }
 
-  .values-title {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 0.7rem 1.5rem;
-    font-size: 18px;
-    letter-spacing: 1.5px;
-    background: rgba(13, 27, 62, 0.85);
-    color: white;
-    z-index: 4;
-    text-align: center;
-  }
+          .values-title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 0.7rem 1.5rem;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            background: rgba(13, 27, 62, 0.85);
+            color: white;
+            z-index: 4;
+            text-align: center;
+          }
 
-  .block-2,
-  .overlay {
-    display: none;
-  }
-  .block-1 {
-    width: 5%;
-  }
-  .block-3 {
-    width: 5%;
-  }
+          .block-2,
+          .overlay {
+            display: none;
+          }
+          .block-1 {
+            width: 5%;
+          }
+          .block-3 {
+            width: 5%;
+          }
 
-  .text-slide h1 {
-    font-size: 30px !important;
-    letter-spacing: -0.5px;
-    padding-left: 5%;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  }
-  .text-slider-wrapper {
-    top: 42% !important;
-  }
-  .slider-control {
-    left: 50%;
-    bottom: 6%;
-    transform: translateX(-50%);
-  }
-  .values-wrapper button {
-    padding: 16px;
-  }
-}
-/* Tablets (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .values-title {
-    font-size: 22px;
-  }
-  .block-2,
-  .overlay {
-    display: none;
-  }
-  .block-1 {
-    width: 40%;
-  }
-  .block-3 {
-    width: 15%;
-  }
-  .text-slide h1 {
-    font-size: 36px !important;
-    letter-spacing: -1px;
-    padding-left: 5%;
-  }
-  .text-slider-wrapper {
-    top: 40% !important;
-  }
-  .slider-control {
-    left: 20%;
-  }
-}
+          .text-slide h1 {
+            font-size: 30px !important;
+            letter-spacing: -0.5px;
+            padding-left: 5%;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+          }
+          .text-slider-wrapper {
+            top: 42% !important;
+          }
+          .slider-control {
+            left: 50%;
+            bottom: 6%;
+            transform: translateX(-50%);
+          }
+          .values-wrapper button {
+            padding: 16px;
+          }
+        }
 
+        /* Tablets (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .values-title {
+            font-size: 22px;
+          }
+          .block-2,
+          .overlay {
+            display: none;
+          }
+          .block-1 {
+            width: 40%;
+          }
+          .block-3 {
+            width: 15%;
+          }
+          .text-slide h1 {
+            font-size: 36px !important;
+            letter-spacing: -1px;
+            padding-left: 5%;
+          }
+          .text-slider-wrapper {
+            top: 40% !important;
+          }
+          .slider-control {
+            left: 20%;
+          }
+        }
 
-
-
-/* Landscape orientation on short screens (mobile landscape) */
-@media (max-height: 500px) and (orientation: landscape) {
-  .values-wrapper {
-    height: auto;
-    min-height: 100vh;
-  }
-  .image-slider,
-  .image-slide {
-    height: 100vh;
-  }
-  .text-slider-wrapper {
-    top: 35% !important;
-  }
-  .slider-control {
-    bottom: 5%;
-    left: 15%;
-  }
-}
-          
+        /* Landscape */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .values-wrapper {
+            height: auto;
+            min-height: 100vh;
+          }
+          .image-slider,
+          .image-slide {
+            height: 100vh;
+          }
+          .text-slider-wrapper {
+            top: 35% !important;
+          }
+          .slider-control {
+            bottom: 5%;
+            left: 15%;
+          }
+        }
       `}</style>
 
       <div className="values-wrapper">
@@ -441,54 +446,37 @@ export default function ValuesPage() {
 
         <h2 className="values-title">Nos Valeurs</h2>
 
-<div className="text-slider-wrapper">
-  <div className="text-slider">
-
-    <div className="text-slide">
-      <h1>
-        Excellence <br /> Académique
-      </h1>
-    </div>
-
-    <div className="text-slide">
-      <h1>
-        Respect, Bienveillance <br /> & Inclusion
-      </h1>
-    </div>
-
-    <div className="text-slide">
-      <h1>
-        Curiosité, Créativité <br /> & Innovation
-      </h1>
-    </div>
-
-    <div className="text-slide">
-      <h1>
-        Confiance en Soi <br /> & Autonomie
-      </h1>
-    </div>
-
-    <div className="text-slide">
-      <h1>
-        Réussite Scolaire <br /> & Épanouissement
-      </h1>
-    </div>
-
-  </div>
-</div>
+        <div className="text-slider-wrapper">
+          <div className="text-slider">
+            <div className="text-slide">
+              <h1>Excellence <br /> Académique</h1>
+            </div>
+            <div className="text-slide">
+              <h1>Respect, Bienveillance <br /> & Inclusion</h1>
+            </div>
+            <div className="text-slide">
+              <h1>Curiosité, Créativité <br /> & Innovation</h1>
+            </div>
+            <div className="text-slide">
+              <h1>Confiance en Soi <br /> & Autonomie</h1>
+            </div>
+            <div className="text-slide">
+              <h1>Réussite Scolaire <br /> & Épanouissement</h1>
+            </div>
+          </div>
+        </div>
 
         <div className="slider-control">
-     <div className="prev">
-  <button type="button">
-    <ArrowLeft size={20} />
-  </button>
-</div>
-
-<div className="next">
-  <button type="button">
-    <ArrowRight size={20} />
-  </button>
-</div>
+          <div className="prev">
+            <button type="button">
+              <ArrowLeft size={20} />
+            </button>
+          </div>
+          <div className="next">
+            <button type="button">
+              <ArrowRight size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="blocks">
