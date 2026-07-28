@@ -941,7 +941,94 @@
   }
 }
 
+
+
+@media (max-width: 768px) {
+  /* … vos règles existantes … */
+
+  /* Faire de la zone visuelle une colonne flexible */
+  .heroFrameWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Retirer le positionnement absolu des deux badges */
+  .ratingsFloat,
+  .admissionsFloat {
+    position: static !important;
+    margin: 14px 0 0;
+    width: 90%;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    animation: none;
+  }
+
+  /* Optionnel : placer le badge "Notes" au-dessus de l'image si souhaité,
+     sinon laissez-le en bas (supprimez la ligne order si vous le voulez en bas) */
+  .ratingsFloat {
+    order: -1; /* Affiche les étoiles au‑dessus de l'image */
+  }
+
+  /* Vous pouvez cacher les notes sur les très petits écrans (déjà fait dans 480px) */
+}
+
 @media (max-width: 480px) {
+  /* … vos règles existantes … */
+
+  /* On garde la même logique mais on ajuste la largeur */
+  .ratingsFloat,
+  .admissionsFloat {
+    max-width: 260px;
+  }
+}
+@media (max-width: 480px) {
+  /* ... vos autres règles ... */
+
+  /* Boutons : 2 colonnes */
+  .heroBtns {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  .heroBtns a {
+    flex: 0 0 calc(50% - 5px); /* 2 colonnes avec l'espace entre */
+    padding: 12px 10px;
+    font-size: 13px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Badges : 2 colonnes */
+  .heroBadges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .heroBadgeItem {
+    font-size: 12px;
+    padding: 8px 10px;
+    justify-content: center;
+  }
+}
+@media (max-width: 480px) {
+  
+   .admissionsFloat {
+    bottom: 0;
+    right: 0;
+    min-width: auto;
+    padding: 10px 14px;
+  }
+  .ratingsFloat {
+    top: 0;
+    right: 0;
+    padding: 8px 12px;
+  }
+  
+
+
+  
   .heroH1 {
     font-size: 28px;
   }
