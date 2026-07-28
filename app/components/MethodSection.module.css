@@ -2,75 +2,76 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap");
 
 .container {
-  width: 100%;
+width : 100% ;
   padding: 2rem;
   margin: 0 auto;
   color: #121212;
   font-family: "Outfit", sans-serif;
-}
 
+}
 .h1methode {
   font-weight: 800;
   margin-bottom: 0.5rem;
+
+  /* gradient + animation */
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
+
+  /* mobile first */
   font-size: 2rem;
-  text-align: center;
 }
 
 @media (min-width: 768px) {
-  .h1methode { font-size: 2.5rem; }
+  .h1methode {
+    font-size: 2.5rem;
+  }
 }
+
 @media (min-width: 1024px) {
-  .h1methode { font-size: 3rem; }
+  .h1methode {
+    font-size: 3rem; /* = 48px */
+  }
 }
 
 @keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
-
-/* ============ Same two-column layout on ALL devices ============ */
 
 .arch {
   display: flex;
-  gap: 20px;
+  gap: 60px;
   justify-content: space-between;
   max-width: 1100px;
   margin-inline: auto;
+
 }
 
 .arch__left {
   display: flex;
   flex-direction: column;
-  flex: 1 1 52%;
-  min-width: 0;
-  position: relative;
-  z-index: 10; /* ALWAYS above the images, at every breakpoint */
+  min-width: 400px;
 }
 
 .arch__info {
-  max-width: 100%;
+  max-width: 600px;
   height: 100vh;
   display: grid;
   place-items: center;
-  padding: 0 10px;
-  box-sizing: border-box;
-  overflow: hidden; /* never let text spill into neighboring section */
 }
-
-.content {
-  max-height: 100%;
-  overflow: hidden;
-}
-
 .arch__info .header {
   font-family: Outfit;
-  font-size: clamp(1.05rem, 3vw + 0.5rem, 2.625rem);
+  font-size: clamp(1.75rem, 4vw + 0.75rem, 2.625rem); /* 28px → 42px */
   font-weight: 800;
   letter-spacing: -0.84px;
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
@@ -78,28 +79,25 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
-  text-transform: none;
-  margin: 0 0 8px;
+   text-transform: none; 
 }
-
 .arch__info .desc {
   color: gray;
-  font-size: clamp(13px, 1.6vw + 8px, 18px);
-  letter-spacing: -0.2px;
-  margin-block: 0;
-  line-height: clamp(1.35rem, 2.2vw + 0.6rem, 2.4rem); /* fits inside 100vh, no runaway height */
+  font-size: 18px;
+  letter-spacing: -0.54px;
+  margin-block: 6px 28px;
+  line-height: 40px;
   font-family: "Playfair Display", serif;
 }
 
 .arch__right {
-  flex: 1 1 48%;
+  flex-shrink: 1;
   height: 100vh;
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   position: relative;
   display: flex;
   flex-direction: column;
-  z-index: 1; /* below the text column */
 }
 
 .imgWrapper {
@@ -107,7 +105,7 @@
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  height: 380px;
+  height: 400px;
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
@@ -120,26 +118,69 @@
   object-position: center;
 }
 
-/* ============ Scale sizes down on smaller screens, layout unchanged ============ */
-
 @media (max-width: 900px) {
-  .arch { gap: 16px; }
-  .arch__right { max-width: 44%; }
-  .imgWrapper { height: 300px; }
+  .arch {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .arch__info .header {
+  font-family: Outfit;
+  font-size: 20px ;
+  font-weight: 600;
+
+}
+  .arch__info .desc {
+      font-size: 15px;
+  letter-spacing: 0px;
+
+  line-height: 10px;
+
+  }
+    .hide-on-mobile {
+    display: none;
+  }
+  .arch {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .arch__left,
+  .arch__right {
+    display: contents;
+  }
+
+  .arch__right {
+    height: auto;
+    max-width: 100%;
+  }
+
+  .imgWrapper {
+    position: static;
+    transform: none;
+    height: 360px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .arch__info {
+    height: auto;
+    padding: 20px 0;
+  }
 }
 
 @media (max-width: 560px) {
-  .container { padding: 10px; }
-  .arch { gap: 10px; }
-  .arch__right { max-width: 42%; }
+  .arch {
+    gap: 12px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
   .imgWrapper {
     border-radius: 10px;
-    height: 220px;
-  }
-  .arch__info .desc {
-    -webkit-line-clamp: 8;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    height: 280px;
   }
 }
