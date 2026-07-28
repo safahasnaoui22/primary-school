@@ -559,16 +559,22 @@ export default function HeroSection() {
               <div className={styles.dotsDeco}></div>
 
               <div className={styles.heroFrame}>
-                <img
-                  src="https://i.pinimg.com/1200x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg"
-                  alt="Kids at EduSmart"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block',
-                  }}
-                />
+           <img
+  src="https://i.pinimg.com/1200x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg"
+  srcSet="
+    https://i.pinimg.com/474x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg 474w,
+    https://i.pinimg.com/736x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg 736w,
+    https://i.pinimg.com/1200x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg 1200w
+  "
+  sizes="(max-width: 768px) 100vw, 50vw"
+  alt="Kids at EduSmart"
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
+  }}
+/>
               </div>
 
               <div className={styles.admissionsFloat}>

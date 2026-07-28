@@ -21,6 +21,7 @@ model User {
   conversationsB Conversation[] @relation("ConversationUserB")
   sentMessages   Message[]      @relation("SentMessages")
   childLinks ParentStudent[] @relation("ParentLinks")
+  classesTaught String[] @default([])
 }
 
 model School {
