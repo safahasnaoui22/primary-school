@@ -33,9 +33,11 @@
 /* Scoped heading styles (replaces global h1, h2) */
 .whyUs h1,
 .whyUs h2 {
-  font-family: var(--font-heading);
+   font-family: 'DM Serif Display', serif;
   font-weight: 400;
+   text-transform: none;
 }
+
 
 .whyUs figure {
   margin: 0;

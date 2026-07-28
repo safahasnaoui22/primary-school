@@ -215,9 +215,9 @@ p {
 }
 
 .photo-desc h3 {
-  margin-top: 0.3em;
-  margin-bottom: 0.4em;
-  font-size: 1.6rem;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+  font-size: 1.2rem;
 }
 
 .photo-desc p {
@@ -233,6 +233,7 @@ p {
 }
 
 @media (min-width: 769px) {
+
   .content {
     max-width: 1300px;
     margin: 0 auto;
@@ -249,6 +250,7 @@ p {
     width: 300px;
     flex-shrink: 0;
   }
+
 }
 
 @media (min-width: 1400px) {

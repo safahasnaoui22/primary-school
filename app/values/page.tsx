@@ -102,7 +102,7 @@ export default function ValuesPage() {
           -webkit-backdrop-filter: blur(12px);
           color: #0d1b3e;
           font-family: "Outfit", sans-serif;
-          font-size: clamp(2rem, 8vw, 3.5rem);
+           font-size: 48px;
           font-weight: 600;
           letter-spacing: 1.5px;
           text-align: center;
@@ -111,7 +111,12 @@ export default function ValuesPage() {
           border-bottom: 1px solid rgba(255, 255, 255, 0.15);
           text-transform: none;
         }
-
+@media (max-width: 768px) {
+  .values-title  {
+    font-size: 30px !important;
+    line-height: 1.3;
+  }
+}
         .image-slider {
           z-index: 0;
           margin: 0 auto;

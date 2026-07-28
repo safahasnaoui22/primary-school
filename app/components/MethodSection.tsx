@@ -35,130 +35,64 @@ export default function MethodSection() {
       }
     });
 
-    // Mobile layout handler
-    function handleMobileLayout() {
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
-      const leftItems = gsap.utils.toArray(`.${styles.arch__info}`);
-      const rightItems = gsap.utils.toArray(`.${styles.imgWrapper}`);
-
-      if (isMobile) {
-        leftItems.forEach((item: any, i) => {
-          item.style.order = i * 2;
-        });
-        rightItems.forEach((item: any, i) => {
-          item.style.order = i * 2 + 1;
-        });
-      } else {
-        leftItems.forEach((item: any) => {
-          item.style.order = "";
-        });
-        rightItems.forEach((item: any) => {
-          item.style.order = "";
-        });
-      }
-    }
-
-    // Debounce resize
-    let resizeTimeout: NodeJS.Timeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(handleMobileLayout, 100);
-    });
-
-    handleMobileLayout();
-
     const imgs = gsap.utils.toArray(`.${styles.imgWrapper} img`);
     const bgColors = ["#EDF9FF", "#FFECF2", "#FFE8DB"];
 
-    // GSAP Animation with Media Query
-    let mm = gsap.matchMedia();
-
-    /* ================= DESKTOP ================= */
-    mm.add("(min-width: 769px)", () => {
-      const mainTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: `.${styles.arch}`,
-          start: "top top",
-          end: "bottom bottom",
-          pin: `.${styles.arch__right}`,
-          scrub: true,
-        },
-      });
-
-      gsap.set(imgs, {
-        clipPath: "inset(0)",
-        objectPosition: "0px 0%",
-      });
-
-      imgs.forEach((_: any, index: number) => {
-        const currentImage = imgs[index] as HTMLElement;
-        const nextImage = imgs[index + 1] || null;
-
-        if (!nextImage) return;
-
-        const sectionTimeline = gsap.timeline();
-
-        sectionTimeline
-          .to(
-            "body",
-            {
-              backgroundColor: bgColors[index],
-              duration: 1.5,
-              ease: "power2.inOut",
-            },
-            0
-          )
-          .to(
-            currentImage,
-            {
-              clipPath: "inset(0px 0px 100%)",
-              objectPosition: "0px 60%",
-              duration: 1.5,
-              ease: "none",
-            },
-            0
-          )
-          .to(
-            nextImage,
-            {
-              objectPosition: "0px 40%",
-              duration: 1.5,
-              ease: "none",
-            },
-            0
-          );
-
-        mainTimeline.add(sectionTimeline);
-      });
+    // Same pinned scroll animation on ALL devices (no matchMedia branching)
+    const mainTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: `.${styles.arch}`,
+        start: "top top",
+        end: "bottom bottom",
+        pin: `.${styles.arch__right}`,
+        scrub: true,
+      },
     });
 
-    /* ================= MOBILE ================= */
-    mm.add("(max-width: 768px)", () => {
-      gsap.set(imgs, {
-        objectPosition: "0px 60%",
-      });
+    gsap.set(imgs, {
+      clipPath: "inset(0)",
+      objectPosition: "0px 0%",
+    });
 
-      imgs.forEach((image: any, index: number) => {
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: image,
-              start: "top-=70% top+=50%",
-              end: "bottom+=200% bottom",
-              scrub: true,
-            },
-          })
-          .to(image, {
-            objectPosition: "0px 30%",
-            duration: 5,
-            ease: "none",
-          })
-          .to("body", {
+    imgs.forEach((_: any, index: number) => {
+      const currentImage = imgs[index] as HTMLElement;
+      const nextImage = imgs[index + 1] || null;
+
+      if (!nextImage) return;
+
+      const sectionTimeline = gsap.timeline();
+
+      sectionTimeline
+        .to(
+          "body",
+          {
             backgroundColor: bgColors[index],
             duration: 1.5,
             ease: "power2.inOut",
-          });
-      });
+          },
+          0
+        )
+        .to(
+          currentImage,
+          {
+            clipPath: "inset(0px 0px 100%)",
+            objectPosition: "0px 60%",
+            duration: 1.5,
+            ease: "none",
+          },
+          0
+        )
+        .to(
+          nextImage,
+          {
+            objectPosition: "0px 40%",
+            duration: 1.5,
+            ease: "none",
+          },
+          0
+        );
+
+      mainTimeline.add(sectionTimeline);
     });
 
     // Cleanup
@@ -209,16 +143,14 @@ export default function MethodSection() {
         <h1
           className={styles.h1methode}
           style={{
-           
             marginBottom: "10px",
           }}
         >
           Notre Méthode Pédagogique
         </h1>
-    <p style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}>
-  Une approche moderne et bienveillante adaptée aux enfants du primaire
-  en Tunisie
-</p>
+        <p style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}>
+          Une approche moderne et bienveillante adaptée aux enfants du primaire en Tunisie
+        </p>
       </div>
 
       <div className={styles.arch}>
