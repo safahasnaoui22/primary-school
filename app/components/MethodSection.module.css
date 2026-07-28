@@ -2,25 +2,26 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap");
 
 .container {
-  width: 100%;
+width : 100% ;
   padding: 2rem;
   margin: 0 auto;
   color: #121212;
   font-family: "Outfit", sans-serif;
-}
 
+}
 .h1methode {
   font-weight: 800;
   margin-bottom: 0.5rem;
 
+  /* gradient + animation */
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
 
+  /* mobile first */
   font-size: 2rem;
-  text-align: center;
 }
 
 @media (min-width: 768px) {
@@ -31,7 +32,7 @@
 
 @media (min-width: 1024px) {
   .h1methode {
-    font-size: 3rem;
+    font-size: 3rem; /* = 48px */
   }
 }
 
@@ -47,34 +48,30 @@
   }
 }
 
-/* ============ Same layout structure on ALL devices ============ */
-
 .arch {
   display: flex;
-  gap: 30px;
+  gap: 60px;
   justify-content: space-between;
   max-width: 1100px;
   margin-inline: auto;
+
 }
 
 .arch__left {
   display: flex;
   flex-direction: column;
-  flex: 1 1 50%;
-  min-width: 0; /* prevents overflow on small screens instead of fixed 400px */
+  min-width: 400px;
 }
 
 .arch__info {
-  max-width: 100%;
+  max-width: 600px;
   height: 100vh;
   display: grid;
   place-items: center;
-  padding: 0 12px;
 }
-
 .arch__info .header {
   font-family: Outfit;
-  font-size: clamp(1.1rem, 4vw + 0.4rem, 2.625rem); /* scales down gracefully on phones */
+  font-size: clamp(1.75rem, 4vw + 0.75rem, 2.625rem); /* 28px → 42px */
   font-weight: 800;
   letter-spacing: -0.84px;
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
@@ -82,20 +79,19 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
-  text-transform: none;
+   text-transform: none; 
 }
-
 .arch__info .desc {
   color: gray;
-  font-size: clamp(13px, 2vw + 8px, 18px);
-  letter-spacing: -0.3px;
+  font-size: 18px;
+  letter-spacing: -0.54px;
   margin-block: 6px 28px;
-  line-height: clamp(1.4rem, 3vw + 0.6rem, 2.5rem);
+  line-height: 40px;
   font-family: "Playfair Display", serif;
 }
 
 .arch__right {
-  flex: 1 1 50%;
+  flex-shrink: 1;
   height: 100vh;
   width: 100%;
   max-width: 540px;
@@ -122,37 +118,69 @@
   object-position: center;
 }
 
-/* ============ Purely cosmetic scaling — layout stays identical ============ */
-
 @media (max-width: 900px) {
   .arch {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .arch__info .header {
+  font-family: Outfit;
+  font-size: 20px ;
+  font-weight: 600;
+
+}
+  .arch__info .desc {
+      font-size: 15px;
+  letter-spacing: 0px;
+
+  line-height: 10px;
+
+  }
+    .hide-on-mobile {
+    display: none;
+  }
+  .arch {
+    flex-direction: column;
     gap: 20px;
   }
 
+  .arch__left,
   .arch__right {
-    max-width: 45%;
+    display: contents;
+  }
+
+  .arch__right {
+    height: auto;
+    max-width: 100%;
   }
 
   .imgWrapper {
-    height: 320px;
+    position: static;
+    transform: none;
+    height: 360px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .arch__info {
+    height: auto;
+    padding: 20px 0;
   }
 }
 
 @media (max-width: 560px) {
+  .arch {
+    gap: 12px;
+  }
+
   .container {
     padding: 10px;
   }
 
-  .arch {
-    gap: 10px;
-  }
-
-  .arch__right {
-    max-width: 42%;
-  }
-
   .imgWrapper {
     border-radius: 10px;
-    height: 220px;
+    height: 280px;
   }
 }
