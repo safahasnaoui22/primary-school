@@ -9,7 +9,7 @@ const About = () => {
   const titleAccentRef = useRef<HTMLSpanElement>(null);
   const dividerRef = useRef<HTMLHRElement>(null);
   const paragraphRef = useRef<HTMLParagraphElement>(null);
-  const connectorPathsRef = useRef<SVGPathElement[]>([]);
+ const connectorPathsRef = useRef<(SVGPathElement | null)[]>([]);
   const revealObserverRef = useRef<IntersectionObserver | null>(null);
   const sectionObserverRef = useRef<IntersectionObserver | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
