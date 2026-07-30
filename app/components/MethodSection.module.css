@@ -7,20 +7,25 @@ width : 100% ;
   margin: 0 auto;
   color: #121212;
   font-family: "Outfit", sans-serif;
-
+background: linear-gradient(
+ 135deg,
+ #fff9e6 0%,
+ #ffeeb8 45%,
+ #ffd87a 100%
+);
 }
 .h1methode {
   font-weight: 800;
   margin-bottom: 0.5rem;
 
-  /* gradient + animation */
-  background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
+background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
 
-  /* mobile first */
+  font-family: 'DM Serif Display', serif;
+
   font-size: 2rem;
 }
 

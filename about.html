@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>About Us — Bright Meadows Primary School</title>
+    <meta name="description" content="Why choose Bright Meadows Primary School: quality education, experienced teachers, a safe environment and creative learning." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        /* =========================================================
+           1. VARIABLES
+           ========================================================= */
+        :root {
+            --bg: #fafaf8;
+            --white: #ffffff;
+            --dark: #2c2625;
+            --orange: #f59a3d;
+            --orange-light: #f7b85d;
+            --orange-pale: #f9d7a0;
+            --text: #222222;
+            --muted: #666666;
+            --divider: #cfcfcf;
+            --badge: #f5d8ae;
+
+            --shadow-soft: 0 18px 40px -22px rgba(44, 38, 37, 0.28);
+            --shadow-hover: 0 24px 50px -20px rgba(44, 38, 37, 0.38);
+
+            --circle: 280px;
+            --donut: 400px;
+            --ring: 60px;
+            --ease: cubic-bezier(0.22, 0.68, 0.36, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+            --section-height: 100vh;
+        }
+
+        /* =========================================================
+           2. RESET & BASE
+           ========================================================= */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body,
+        html {
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--orange);
+            outline-offset: 4px;
+            border-radius: 4px;
+        }
+
+        /* =========================================================
+           3. SECTION LAYOUT
+           ========================================================= */
+        .about {
+            display: grid;
+            grid-template-columns: minmax(220px, 300px) minmax(150px, 240px) minmax(560px, 1fr);
+            align-items: center;
+            gap: 24px;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 0 48px;
+            height: var(--section-height);
+            min-height: 680px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            isolation: isolate;
+        }
+
+        /* =========================================================
+           4. ANIMATED BACKGROUND
+           ========================================================= */
+        .about__bg {
+            position: absolute;
+            inset: -80px;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* Dot grid pattern */
+        .about__bg-dots {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(44, 38, 37, 0.05) 1.2px, transparent 1.2px);
+            background-size: 34px 34px;
+            animation: bgDrift 28s linear infinite;
+        }
+
+        @keyframes bgDrift {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(8px, -6px);
+            }
+            50% {
+                transform: translate(-4px, 10px);
+            }
+            75% {
+                transform: translate(-10px, -4px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        /* Floating orbs */
+        .about__bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.35;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            will-change: transform;
+        }
+
+        .about__bg-orb--1 {
+            width: 340px;
+            height: 340px;
+            background: rgba(245, 154, 61, 0.25);
+            top: -8%;
+            left: -5%;
+            animation-name: orbFloat1;
+            animation-duration: 14s;
+        }
+
+        .about__bg-orb--2 {
+            width: 260px;
+            height: 260px;
+            background: rgba(247, 184, 93, 0.22);
+            bottom: -10%;
+            right: -4%;
+            animation-name: orbFloat2;
+            animation-duration: 18s;
+        }
+
+        .about__bg-orb--3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(249, 215, 160, 0.3);
+            top: 40%;
+            left: 55%;
+            animation-name: orbFloat3;
+            animation-duration: 16s;
+        }
+
+        .about__bg-orb--4 {
+            width: 180px;
+            height: 180px;
+            background: rgba(245, 154, 61, 0.18);
+            top: 25%;
+            right: 20%;
+            animation-name: orbFloat4;
+            animation-duration: 20s;
+        }
+
+        .about__bg-orb--5 {
+            width: 150px;
+            height: 150px;
+            background: rgba(247, 184, 93, 0.2);
+            bottom: 15%;
+            left: 30%;
+            animation-name: orbFloat5;
+            animation-duration: 15s;
+        }
+
+        @keyframes orbFloat1 {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(60px, -40px) scale(1.25);
+            }
+        }
+        @keyframes orbFloat2 {
+            0% {
+                transform: translate(0, 0) scale(0.9);
+            }
+            100% {
+                transform: translate(-50px, 35px) scale(1.3);
+            }
+        }
+        @keyframes orbFloat3 {
+            0% {
+                transform: translate(0, 0) scale(1.1);
+            }
+            100% {
+                transform: translate(-35px, -50px) scale(0.85);
+            }
+        }
+        @keyframes orbFloat4 {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(45px, 30px) scale(1.35);
+            }
+        }
+        @keyframes orbFloat5 {
+            0% {
+                transform: translate(0, 0) scale(0.95);
+            }
+            100% {
+                transform: translate(-40px, -25px) scale(1.2);
+            }
+        }
+
+        /* Subtle shimmer sweep */
+        .about__bg-shimmer {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 50%,
+                    rgba(255, 255, 255, 0.06) 0%,
+                    transparent 55%);
+            animation: shimmerSweep 22s ease-in-out infinite;
+        }
+
+        @keyframes shimmerSweep {
+            0% {
+                transform: translate(-30%, -30%) rotate(0deg);
+            }
+            33% {
+                transform: translate(15%, -15%) rotate(8deg);
+            }
+            66% {
+                transform: translate(-10%, 20%) rotate(-5deg);
+            }
+            100% {
+                transform: translate(-30%, -30%) rotate(0deg);
+            }
+        }
+
+        /* =========================================================
+           5. LEFT COLUMN
+           ========================================================= */
+        .about__left {
+            position: relative;
+            z-index: 2;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--badge);
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text);
+            transition: all 0.4s var(--ease-smooth);
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 154, 61, 0.3);
+        }
+
+        .about__title {
+            margin-top: 32px;
+            font-size: clamp(38px, 3.4vw, 62px);
+            white-space: nowrap;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            line-height: 1.1;
+            text-transform: uppercase;
+            color: var(--text);
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Title decorative accent line */
+        .about__title-accent {
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--orange), var(--orange-light), transparent);
+            width: 0;
+            transition: width 0.9s var(--ease-spring);
+            z-index: -1;
+        }
+
+        .about__title-accent.is-drawn {
+            width: 100%;
+        }
+
+        /* Typing cursor */
+        .about__title-cursor {
+            display: inline-block;
+            font-weight: 300;
+            color: var(--orange);
+            animation: cursorBlink 0.8s step-end infinite;
+            margin-left: 2px;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .about__title-cursor.is-done {
+            animation: cursorBlink 0.8s step-end 3;
+            opacity: 0;
+            transition: opacity 0.6s ease 2.4s;
+        }
+
+        @keyframes cursorBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid var(--divider);
+            margin: 24px 0 28px;
+            max-width: 300px;
+            transition: max-width 0.8s var(--ease-smooth);
+        }
+
+        .divider.is-extended {
+            max-width: 340px;
+        }
+
+        .about__text {
+            max-width: 340px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        /* Word-level stagger for paragraph */
+        .about__text .word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.5s var(--ease-smooth), transform 0.5s var(--ease-smooth);
+            will-change: opacity, transform;
+        }
+
+        .about__text .word.is-revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================================================
+           6. CENTER COLUMN (teacher)
+           ========================================================= */
+        .about__teacher {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: -50px;
+            align-self: center;
+            margin-top: -20px;
+            animation: teacherFloat 6s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes teacherFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-14px);
+            }
+            60% {
+                transform: translateY(-6px);
+            }
+            85% {
+                transform: translateY(-18px);
+            }
+        }
+
+        .about__teacher img {
+            height: 500px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 30px rgba(44, 38, 37, 0.18));
+            transition: filter 0.5s var(--ease-smooth);
+        }
+
+        .about__teacher:hover img {
+            filter: drop-shadow(0 16px 40px rgba(44, 38, 37, 0.3));
+        }
+
+        .about__teacher::after {
+            content: "";
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 210px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--badge);
+            opacity: 0.45;
+            z-index: -1;
+            animation: shadowPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes shadowPulse {
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.45;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.08);
+                opacity: 0.55;
+            }
+        }
+
+        /* =========================================================
+           7. INFOGRAPHIC WRAPPER
+           ========================================================= */
+        .info {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: var(--donut) 1fr;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ---------- Donut & white circle ---------- */
+        .donut {
+            position: relative;
+            width: var(--donut);
+            height: var(--donut);
+            display: grid;
+            place-items: center;
+        }
+
+        .donut__label {
+            position: relative;
+            z-index: 3;
+            display: grid;
+            place-items: center;
+            width: var(--circle);
+            height: var(--circle);
+            border-radius: 50%;
+            background: var(--white);
+            box-shadow: var(--shadow-soft);
+            font-size: 34px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: 0.04em;
+            text-align: center;
+            text-transform: uppercase;
+            color: var(--text);
+            transition: box-shadow 0.5s var(--ease-smooth), transform 0.4s var(--ease-spring);
+        }
+
+        .donut__label:hover {
+            box-shadow: var(--shadow-hover);
+            transform: scale(1.03);
+        }
+
+        .donut__seg {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            transform-origin: 50% 50%;
+            transition: transform 0.25s var(--ease), filter 0.25s var(--ease);
+            -webkit-mask: radial-gradient(circle at center,
+                    transparent 0 calc(var(--circle) / 2 - 8px),
+                    #000 calc(var(--circle) / 2 - 8px) 100%);
+            mask: radial-gradient(circle at center,
+                    transparent 0 calc(var(--circle) / 2 - 8px),
+                    #000 calc(var(--circle) / 2 - 8px) 100%);
+            cursor: pointer;
+        }
+
+        .donut__seg--1 {
+            background: conic-gradient(from 0deg, var(--dark) 0 45deg, transparent 45deg 360deg);
+        }
+        .donut__seg--2 {
+            background: conic-gradient(from 45deg, var(--orange) 0 45deg, transparent 45deg 360deg);
+        }
+        .donut__seg--3 {
+            background: conic-gradient(from 90deg, var(--orange-light) 0 45deg, transparent 45deg 360deg);
+        }
+        .donut__seg--4 {
+            background: conic-gradient(from 135deg, var(--orange-pale) 0 45deg, transparent 45deg 360deg);
+        }
+
+        .donut__seg:hover {
+            filter: brightness(1.15) saturate(1.3);
+            transform: scale(1.04);
+        }
+
+        /* Numbers on ring */
+        .donut__seg::after {
+            content: attr(data-num);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: var(--white);
+            transition: transform 0.25s var(--ease);
+        }
+
+        .donut__seg--1::after {
+            transform: translate(-50%, -50%) rotate(-67.5deg) translate(calc((var(--donut) - var(--ring)) / 2)) rotate(67.5deg);
+        }
+        .donut__seg--2::after {
+            transform: translate(-50%, -50%) rotate(-22.5deg) translate(calc((var(--donut) - var(--ring)) / 2)) rotate(22.5deg);
+        }
+        .donut__seg--3::after {
+            transform: translate(-50%, -50%) rotate(22.5deg) translate(calc((var(--donut) - var(--ring)) / 2)) rotate(-22.5deg);
+        }
+        .donut__seg--4::after {
+            transform: translate(-50%, -50%) rotate(67.5deg) translate(calc((var(--donut) - var(--ring)) / 2)) rotate(-67.5deg);
+            color: #b07d3a;
+        }
+
+        /* =========================================================
+           8. CARDS & CONNECTORS
+           ========================================================= */
+        .cards {
+            display: grid;
+            gap: 10px;
+            padding-left: 70px;
+            position: relative;
+        }
+
+        .card {
+            position: relative;
+            min-height: 88px;
+            padding: 8px 20px 24px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            --c: var(--dark);
+            cursor: default;
+        }
+
+        .card__title {
+            position: relative;
+            z-index: 2;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            color: var(--c);
+            margin-bottom: 4px;
+            transition: color 0.3s var(--ease-smooth);
+        }
+
+        .card--1 .card__title {
+            color: var(--dark);
+        }
+        .card--4 .card__title {
+            color: #c08a3e;
+        }
+
+        .card__text {
+            position: relative;
+            z-index: 2;
+            max-width: 220px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: var(--muted);
+            transition: color 0.3s var(--ease-smooth);
+        }
+
+        .card__connector {
+            position: absolute;
+            left: -70px;
+            right: 0;
+            bottom: 0;
+            height: 70px;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        .card__connector path {
+            fill: none;
+            stroke: var(--c);
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.25s var(--ease), filter 0.25s var(--ease),
+                stroke-dashoffset 0.8s var(--ease-smooth);
+            /* stroke-dasharray and stroke-dashoffset set via JS for line-draw animation */;
+        }
+
+        .card--1 {
+            --c: var(--dark);
+        }
+        .card--2 {
+            --c: var(--orange);
+        }
+        .card--3 {
+            --c: var(--orange-light);
+        }
+        .card--4 {
+            --c: var(--orange-pale);
+        }
+
+        .card--1 {
+            margin-left: -8px;
+        }
+        .card--2 {
+            margin-left: 34px;
+        }
+        .card--3 {
+            margin-left: 34px;
+        }
+        .card--4 {
+            margin-left: -8px;
+        }
+
+        .card:hover,
+        .card:focus-visible {
+            transform: translateX(6px);
+            transition: transform 0.3s var(--ease);
+        }
+
+        .card:hover .card__connector path,
+        .card:focus-visible .card__connector path {
+            stroke-width: 6.5;
+            filter: brightness(1.1) saturate(1.2);
+        }
+
+        .card:hover .card__title,
+        .card:focus-visible .card__title {
+            color: var(--orange);
+        }
+
+        /* Connector line-draw states */
+        .card__connector path.is-drawing {
+            stroke-dashoffset: 0 !important;
+        }
+
+        .card__connector path.is-reset {
+            stroke-dashoffset: var(--path-length) !important;
+            transition: stroke-dashoffset 0.01s ease !important;
+        }
+
+        /* =========================================================
+           9. SCROLL ANIMATIONS (fade in/out)
+           ========================================================= */
+        .reveal {
+            opacity: 0;
+            transition: opacity 0.65s var(--ease-smooth), transform 0.65s var(--ease-smooth),
+                filter 0.65s var(--ease-smooth);
+            will-change: opacity, transform, filter;
+        }
+
+        .reveal[data-reveal="up"] {
+            transform: translateY(36px);
+            filter: blur(3px);
+        }
+        .reveal[data-reveal="scale"] {
+            transform: translateY(36px) scale(0.94);
+            filter: blur(2px);
+        }
+        .reveal[data-reveal="pop"] {
+            transform: scale(0.75) rotate(-12deg);
+            filter: blur(4px);
+        }
+        .reveal[data-reveal="right"] {
+            transform: translateX(55px);
+            filter: blur(2px);
+        }
+
+        .reveal.is-visible {
+            opacity: 1;
+            transform: none;
+            filter: blur(0);
+        }
+
+        .reveal.is-hidden {
+            opacity: 0 !important;
+            filter: blur(3px) !important;
+            transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1;
+                transform: none;
+                filter: none;
+                transition: none;
+            }
+            .about__bg-orb,
+            .about__bg-dots,
+            .about__bg-shimmer,
+            .about__teacher,
+            .about__teacher::after {
+                animation: none !important;
+            }
+            .about__title-cursor {
+                display: none;
+            }
+        }
+
+        /* =========================================================
+           10. RESPONSIVE
+           ========================================================= */
+        @media (max-width: 1440px) {
+            :root {
+                --donut: 360px;
+                --circle: 250px;
+                --ring: 54px;
+            }
+            .about {
+                padding: 0 40px;
+                gap: 20px;
+            }
+            .about__teacher img {
+                height: 460px;
+            }
+            .about__teacher {
+                margin-right: -45px;
+            }
+            .cards {
+                padding-left: 60px;
+            }
+            .card__connector {
+                left: -60px;
+                height: 30px;
+            }
+        }
+
+        @media (max-width: 1280px) {
+            :root {
+                --donut: 320px;
+                --circle: 220px;
+                --ring: 48px;
+            }
+            .about {
+                grid-template-columns: minmax(180px, 250px) minmax(130px, 190px) minmax(500px, 1fr);
+                padding: 0 32px;
+            }
+            .about__teacher img {
+                height: 420px;
+            }
+            .donut__label {
+                font-size: 28px;
+            }
+            .card {
+                min-height: 80px;
+                padding: 6px 16px 20px 0;
+            }
+            .card__title {
+                font-size: 15px;
+            }
+            .card__text {
+                max-width: 190px;
+                font-size: 12.5px;
+            }
+            .cards {
+                padding-left: 52px;
+                gap: 8px;
+            }
+            .card__connector {
+                left: -52px;
+                height: 26px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .about {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+                gap: 32px;
+                padding: 48px 36px;
+                height: auto;
+                min-height: 100vh;
+            }
+            .about__left {
+                max-width: 520px;
+            }
+            .divider,
+            .about__text {
+                max-width: none;
+                margin-inline: auto;
+            }
+            .about__teacher {
+                margin-right: 0;
+                align-self: center;
+                margin-top: 0;
+            }
+            .info {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                gap: 44px;
+                width: 100%;
+            }
+            .cards {
+                width: 100%;
+                max-width: 600px;
+                text-align: left;
+                padding-left: 0;
+            }
+            .card,
+            .card--1,
+            .card--2,
+            .card--3,
+            .card--4 {
+                margin-left: 0;
+            }
+            .card {
+                padding-bottom: 18px;
+            }
+            .card__connector {
+                display: none;
+            }
+            .card__text {
+                max-width: none;
+            }
+            .about__title {
+                white-space: normal;
+            }
+            .about__title-accent {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .about {
+                padding: 52px 28px;
+                gap: 36px;
+            }
+            .about__teacher img {
+                height: 380px;
+            }
+            .about__bg-orb--1 {
+                width: 200px;
+                height: 200px;
+            }
+            .about__bg-orb--2 {
+                width: 160px;
+                height: 160px;
+            }
+            .about__bg-orb--3 {
+                width: 130px;
+                height: 130px;
+            }
+            .about__bg-orb--4 {
+                width: 110px;
+                height: 110px;
+            }
+            .about__bg-orb--5 {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --donut: 270px;
+                --circle: 195px;
+                --ring: 42px;
+            }
+            .about {
+                padding: 44px 20px;
+                gap: 32px;
+            }
+            .about__title {
+                margin-top: 24px;
+            }
+            .about__teacher img {
+                height: 320px;
+            }
+            .about__teacher::after {
+                width: 160px;
+                height: 40px;
+            }
+            .donut__label {
+                font-size: 24px;
+            }
+            .donut__seg::after {
+                font-size: 19px;
+            }
+            .card {
+                padding: 14px 12px 18px 0;
+            }
+            .about__bg-orb {
+                filter: blur(35px);
+                opacity: 0.25;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="about" id="about-section" aria-labelledby="about-title">
+        <!-- ANIMATED BACKGROUND LAYER -->
+        <div class="about__bg" aria-hidden="true">
+            <div class="about__bg-dots"></div>
+            <div class="about__bg-shimmer"></div>
+            <div class="about__bg-orb about__bg-orb--1"></div>
+            <div class="about__bg-orb about__bg-orb--2"></div>
+            <div class="about__bg-orb about__bg-orb--3"></div>
+            <div class="about__bg-orb about__bg-orb--4"></div>
+            <div class="about__bg-orb about__bg-orb--5"></div>
+        </div>
+
+        <!-- LEFT COLUMN -->
+        <div class="about__left reveal" data-reveal="up">
+            <p class="badge">About Us</p>
+            <h2 class="about__title" id="about-title">
+                <span class="about__title-text">About Us</span>
+                <span class="about__title-cursor" aria-hidden="true">|</span>
+                <span class="about__title-accent" aria-hidden="true"></span>
+            </h2>
+            <hr class="divider" />
+            <p class="about__text" id="about-paragraph">
+                We are dedicated to providing a nurturing and inspiring environment where children
+                can learn, grow, and thrive. Our mission is to build a strong foundation for lifelong
+                learning through values, creativity, and excellence.
+            </p>
+        </div>
+
+        <!-- CENTER COLUMN (teacher image) -->
+        <figure class="about__teacher reveal" data-reveal="scale">
+            <img src="teacher.png" alt="Teacher welcoming pupils to the school" />
+        </figure>
+
+        <!-- RIGHT COLUMN : INFOGRAPHIC -->
+        <div class="info">
+            <div class="donut reveal" data-reveal="pop">
+                <span class="donut__seg donut__seg--1" data-num="01" tabindex="0" aria-label="Segment 1 - Quality"></span>
+                <span class="donut__seg donut__seg--2" data-num="02" tabindex="0" aria-label="Segment 2 - Experience"></span>
+                <span class="donut__seg donut__seg--3" data-num="03" tabindex="0" aria-label="Segment 3 - Safety"></span>
+                <span class="donut__seg donut__seg--4" data-num="04" tabindex="0" aria-label="Segment 4 - Creativity"></span>
+                <p class="donut__label">Why<br />Choose<br />Us</p>
+            </div>
+
+            <ul class="cards">
+                <li>
+                    <article class="card card--1 reveal" data-reveal="right" tabindex="0">
+                        <h3 class="card__title">Quality Education</h3>
+                        <p class="card__text">We provide a strong academic foundation with engaging and effective teaching methods.</p>
+                        <svg class="card__connector" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
+                            <path d="M0 30 L90 170 L900 170 L865 145 L900 170 L865 195" />
+                        </svg>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card--2 reveal" data-reveal="right" tabindex="0">
+                        <h3 class="card__title">Experienced Teachers</h3>
+                        <p class="card__text">Our experienced and passionate teachers support each child's individual growth.</p>
+                        <svg class="card__connector" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
+                            <path d="M0 30 L90 170 L900 170 L865 145 L900 170 L865 195" />
+                        </svg>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card--3 reveal" data-reveal="right" tabindex="0">
+                        <h3 class="card__title">Safe Environment</h3>
+                        <p class="card__text">We ensure a safe, inclusive, and welcoming space for every child to learn and play.</p>
+                        <svg class="card__connector" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
+                            <path d="M0 190 L90 170 L900 170 L865 145 L900 170 L865 195" />
+                        </svg>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card--4 reveal" data-reveal="right" tabindex="0">
+                        <h3 class="card__title">Creative Learning</h3>
+                        <p class="card__text">We focus on academic, social, emotional, and physical development.</p>
+                        <svg class="card__connector" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
+                            <path d="M0 190 L90 170 L900 170 L865 145 L900 170 L865 195" />
+                        </svg>
+                    </article>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <script>
+        (function() {
+            "use strict";
+
+            const section = document.getElementById('about-section');
+            const items = document.querySelectorAll('.reveal');
+            if (!items.length || !section) return;
+
+            // =====================================================
+            // REDUCED MOTION CHECK
+            // =====================================================
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                items.forEach(el => el.classList.add('is-visible'));
+                const accent = document.querySelector('.about__title-accent');
+                if (accent) accent.classList.add('is-drawn');
+                const divider = document.querySelector('.divider');
+                if (divider) divider.classList.add('is-extended');
+                revealAllWords();
+                return;
+            }
+
+            // =====================================================
+            // SVG CONNECTOR PATH SETUP
+            // =====================================================
+            const connectorPaths = document.querySelectorAll('.card__connector path');
+            connectorPaths.forEach(path => {
+                const length = path.getTotalLength();
+                path.style.setProperty('--path-length', length);
+                path.style.strokeDasharray = length;
+                path.style.strokeDashoffset = length;
+                path.classList.add('is-reset');
+            });
+
+            // =====================================================
+            // PARAGRAPH WORD SPLITTING
+            // =====================================================
+            const paragraph = document.getElementById('about-paragraph');
+            let wordSpans = [];
+
+            function splitParagraphIntoWords() {
+                if (!paragraph) return;
+                const text = paragraph.textContent.trim();
+                const words = text.split(/\s+/);
+                paragraph.textContent = '';
+                wordSpans = [];
+                words.forEach((word, i) => {
+                    const span = document.createElement('span');
+                    span.classList.add('word');
+                    span.textContent = word;
+                    span.style.transitionDelay = i * 0.06 + 's';
+                    paragraph.appendChild(span);
+                    wordSpans.push(span);
+                    // Add space after each word except the last
+                    if (i < words.length - 1) {
+                        paragraph.appendChild(document.createTextNode(' '));
+                    }
+                });
+            }
+            splitParagraphIntoWords();
+
+            function revealAllWords() {
+                wordSpans.forEach(span => span.classList.add('is-revealed'));
+            }
+
+            function hideAllWords() {
+                wordSpans.forEach(span => span.classList.remove('is-revealed'));
+            }
+
+            // =====================================================
+            // TYPING ANIMATION
+            // =====================================================
+            const titleTextSpan = document.querySelector('.about__title-text');
+            const titleCursor = document.querySelector('.about__title-cursor');
+            const titleAccent = document.querySelector('.about__title-accent');
+            const divider = document.querySelector('.divider');
+            const originalTitleText = titleTextSpan ? titleTextSpan.textContent.trim() : 'About Us';
+            let typingTimeout = null;
+            let typingInProgress = false;
+
+            function resetTitleForTyping() {
+                if (!titleTextSpan) return;
+                titleTextSpan.textContent = '';
+                if (titleCursor) {
+                    titleCursor.classList.remove('is-done');
+                    titleCursor.style.opacity = '1';
+                }
+                if (titleAccent) {
+                    titleAccent.classList.remove('is-drawn');
+                }
+                if (divider) {
+                    divider.classList.remove('is-extended');
+                }
+                typingInProgress = false;
+                if (typingTimeout) clearTimeout(typingTimeout);
+            }
+
+            function startTypingAnimation() {
+                if (!titleTextSpan || typingInProgress) return;
+                typingInProgress = true;
+                titleTextSpan.textContent = '';
+                if (titleCursor) {
+                    titleCursor.classList.remove('is-done');
+                    titleCursor.style.opacity = '1';
+                }
+                if (titleAccent) {
+                    titleAccent.classList.remove('is-drawn');
+                }
+                if (divider) {
+                    divider.classList.remove('is-extended');
+                }
+
+                const chars = originalTitleText.split('');
+                let charIndex = 0;
+
+                function typeNextChar() {
+                    if (charIndex < chars.length) {
+                        titleTextSpan.textContent += chars[charIndex];
+                        charIndex++;
+                        // Slightly varied typing speed for realism
+                        const delay = 70 + Math.random() * 90;
+                        typingTimeout = setTimeout(typeNextChar, delay);
+                    } else {
+                        // Typing complete
+                        typingInProgress = false;
+                        if (titleCursor) {
+                            titleCursor.classList.add('is-done');
+                        }
+                        // Draw accent line after typing
+                        setTimeout(() => {
+                            if (titleAccent) {
+                                titleAccent.classList.add('is-drawn');
+                            }
+                            if (divider) {
+                                divider.classList.add('is-extended');
+                            }
+                        }, 400);
+                    }
+                }
+
+                typingTimeout = setTimeout(typeNextChar, 120);
+            }
+
+            // =====================================================
+            // INTERSECTION OBSERVER FOR REVEAL ELEMENTS
+            // =====================================================
+            const revealObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        const el = entry.target;
+                        if (entry.isIntersecting) {
+                            el.classList.add('is-visible');
+                            el.classList.remove('is-hidden');
+
+                            // Trigger connector line drawing for cards
+                            if (el.classList.contains('card')) {
+                                const connectorPath = el.querySelector('.card__connector path');
+                                if (connectorPath) {
+                                    // Small delay so the card starts sliding first
+                                    const cardDelay = parseFloat(el.style.transitionDelay) || 0;
+                                    setTimeout(() => {
+                                        connectorPath.classList.remove('is-reset');
+                                        connectorPath.classList.add('is-drawing');
+                                    }, cardDelay * 1000 + 100);
+                                }
+                            }
+                        } else {
+                            el.classList.remove('is-visible');
+                            el.classList.add('is-hidden');
+
+                            // Reset connector lines
+                            if (el.classList.contains('card')) {
+                                const connectorPath = el.querySelector('.card__connector path');
+                                if (connectorPath) {
+                                    connectorPath.classList.remove('is-drawing');
+                                    connectorPath.classList.add('is-reset');
+                                }
+                            }
+                        }
+                    });
+                }, { threshold: 0.18, rootMargin: "0px 0px -50px 0px" }
+            );
+
+            items.forEach((el, i) => {
+                if (el.dataset.reveal === 'right') {
+                    el.style.transitionDelay = i * 0.09 + 's';
+                }
+                revealObserver.observe(el);
+            });
+
+            // =====================================================
+            // SECTION OBSERVER (typing + words + full reset)
+            // =====================================================
+            const sectionObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Section entered viewport
+                            resetTitleForTyping();
+                            hideAllWords();
+                            // Start typing after a short delay
+                            setTimeout(() => {
+                                startTypingAnimation();
+                            }, 350);
+                            // Reveal paragraph words after typing starts
+                            setTimeout(() => {
+                                revealAllWords();
+                            }, 900);
+                        } else {
+                            // Section left viewport — full reset
+                            resetTitleForTyping();
+                            hideAllWords();
+                            // Reset all connector paths
+                            connectorPaths.forEach(path => {
+                                path.classList.remove('is-drawing');
+                                path.classList.add('is-reset');
+                            });
+                            if (titleAccent) titleAccent.classList.remove('is-drawn');
+                            if (divider) divider.classList.remove('is-extended');
+                        }
+                    });
+                }, { threshold: 0.08 }
+            );
+            sectionObserver.observe(section);
+
+            // =====================================================
+            // INITIAL STATE: If section is already in view on load
+            // =====================================================
+            const sectionRect = section.getBoundingClientRect();
+            const isInitiallyVisible = sectionRect.top < window.innerHeight && sectionRect.bottom > 0;
+            if (isInitiallyVisible) {
+                setTimeout(() => {
+                    resetTitleForTyping();
+                    startTypingAnimation();
+                    setTimeout(() => revealAllWords(), 900);
+                }, 400);
+            }
+
+            // =====================================================
+            // DONUT SEGMENT CLICK — HIGHLIGHT CORRESPONDING CARD
+            // =====================================================
+            const donutSegs = document.querySelectorAll('.donut__seg');
+            const cards = document.querySelectorAll('.card');
+            donutSegs.forEach((seg, index) => {
+                seg.addEventListener('click', () => {
+                    if (cards[index]) {
+                        cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        cards[index].focus({ preventScroll: true });
+                        // Brief highlight pulse
+                        cards[index].style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+                        cards[index].style.transform = 'translateX(10px) scale(1.02)';
+                        cards[index].style.boxShadow = '0 0 0 6px rgba(245,154,61,0.35)';
+                        setTimeout(() => {
+                            cards[index].style.transform = '';
+                            cards[index].style.boxShadow = '';
+                            cards[index].style.transition = '';
+                        }, 600);
+                    }
+                });
+
+                // Keyboard support
+                seg.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        seg.click();
+                    }
+                });
+            });
+
+            // =====================================================
+            // CARD CLICK — HIGHLIGHT DONUT SEGMENT
+            // =====================================================
+            cards.forEach((card, index) => {
+                card.addEventListener('click', () => {
+                    if (donutSegs[index]) {
+                        donutSegs[index].style.transition = 'transform 0.15s ease, filter 0.15s ease';
+                        donutSegs[index].style.transform = 'scale(1.08)';
+                        donutSegs[index].style.filter = 'brightness(1.4) saturate(1.5)';
+                        setTimeout(() => {
+                            donutSegs[index].style.transform = '';
+                            donutSegs[index].style.filter = '';
+                            donutSegs[index].style.transition = '';
+                        }, 600);
+                    }
+                });
+            });
+
+            console.log(
+                '%c✨ Bright Meadows — About Section Ready %c| %cTyping • Connectors • Floating Bg • Scroll Reveals',
+                'color: #f59a3d; font-weight: bold; font-size: 14px;',
+                '',
+                'color: #666; font-size: 12px;'
+            );
+        })();
+    </script>
+</body>
+</html>

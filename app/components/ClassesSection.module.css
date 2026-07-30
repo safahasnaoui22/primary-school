@@ -2,7 +2,12 @@
 .classsection {
   font-family: 'Lato', sans-serif;
   padding: 0px;
-  background: var(--bodycolor);
+background: linear-gradient(
+  135deg,
+  #dff2ff 0%,
+  #bfe5ff 50%,
+  #8fd0ff 100%
+);
 }
 
 .headerclasses {
@@ -11,6 +16,7 @@
   color: white;
 }
 .h1classes {
+   font-family: 'DM Serif Display', serif;
   font-size: 48px;
   font-weight: 800;
   line-height: 1.2;

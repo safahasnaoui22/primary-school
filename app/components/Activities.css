@@ -6,7 +6,7 @@ body {
   font: 1em/1.5 "Open Sans", sans-serif;
   color: #373737;
   margin: 0;
-  background: #eef2f7;
+background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 40%, var(--navy-soft) 70%, var(--amber-dark) 100%);
 }
 .container {
   isolation: isolate;
@@ -25,7 +25,15 @@ a {
   font-weight: 800;
   text-align: center;
   line-height: 1.2;
-  background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
+
+  background: linear-gradient(
+    270deg,
+    #ffffff,
+    #ffe7b3,
+    #f59e0b,
+    #ffffff
+  );
+
   background-size: 600% 600%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
