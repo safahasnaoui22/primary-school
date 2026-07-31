@@ -323,8 +323,8 @@ const Video: React.FC<VideoProps> = ({
         /* Base mobile styles - Extra small devices (phones < 480px) */
         @media (max-width: 479px) {
           .hero-section {
-            height: 100vh;
-            height: 100dvh;
+            height: 60vh;
+          
           }
           
           .content-container {
@@ -382,8 +382,8 @@ const Video: React.FC<VideoProps> = ({
         /* Small phones (480px - 767px) */
         @media (min-width: 480px) and (max-width: 767px) {
           .hero-section {
-            height: 100vh;
-            height: 100dvh;
+            height: 60vh;
+           
           }
           
           .content-wrapper {
