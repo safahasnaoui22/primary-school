@@ -9,7 +9,7 @@ const About = () => {
   const titleAccentRef = useRef<HTMLSpanElement>(null);
   const dividerRef = useRef<HTMLHRElement>(null);
   const paragraphRef = useRef<HTMLParagraphElement>(null);
- const connectorPathsRef = useRef<(SVGPathElement | null)[]>([]);
+  const connectorPathsRef = useRef<(SVGPathElement | null)[]>([]);
   const revealObserverRef = useRef<IntersectionObserver | null>(null);
   const sectionObserverRef = useRef<IntersectionObserver | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -79,7 +79,7 @@ const About = () => {
     if (titleAccentRef.current) titleAccentRef.current.classList.remove('is-drawn');
     if (dividerRef.current) dividerRef.current.classList.remove('is-extended');
 
-    const chars = 'About Us'.split('');
+    const chars = 'Notre école'.split(''); // <-- French title
     let charIndex = 0;
 
     const typeNextChar = () => {
@@ -269,17 +269,15 @@ const About = () => {
 
       {/* LEFT COLUMN */}
       <div className="about__left reveal" data-reveal="up">
-        <p className="badge">About Us</p>
+        <p className="badge">À propos de nous</p>
         <h2 className="about__title" id="about-title">
-          <span className="about__title-text" ref={titleTextRef}>About Us</span>
+          <span className="about__title-text" ref={titleTextRef}>Notre école </span>
           <span className="about__title-cursor" ref={titleCursorRef} aria-hidden="true">|</span>
           <span className="about__title-accent" ref={titleAccentRef} aria-hidden="true" />
         </h2>
         <hr className="divider" ref={dividerRef} />
         <p className="about__text" ref={paragraphRef}>
-          We are dedicated to providing a nurturing and inspiring environment where children
-          can learn, grow, and thrive. Our mission is to build a strong foundation for lifelong
-          learning through values, creativity, and excellence.
+          Nous nous engageons à offrir un environnement stimulant et bienveillant où les enfants peuvent apprendre, grandir et s'épanouir. Notre mission est de bâtir une base solide pour un apprentissage tout au long de la vie, fondé sur des valeurs, la créativité et l'excellence.
         </p>
       </div>
 
@@ -287,7 +285,7 @@ const About = () => {
       <figure className="about__teacher reveal" data-reveal="scale">
         <img
           src="/teacher.png"
-          alt="Teacher welcoming pupils to the school"
+          alt="Enseignant accueillant les élèves à l'école"
         />
       </figure>
 
@@ -312,16 +310,32 @@ const About = () => {
             />
           ))}
           <p className="donut__label">
-            Why<br />Choose<br />Us
+            Nos <br />avantages<br />
           </p>
         </div>
 
         <ul className="cards">
           {[
-            { title: 'Quality Education', text: 'We provide a strong academic foundation with engaging and effective teaching methods.', d: 'M0 30 L90 170 L900 170 L865 145 L900 170 L865 195' },
-            { title: 'Experienced Teachers', text: 'Our experienced and passionate teachers support each child\'s individual growth.', d: 'M0 30 L90 170 L900 170 L865 145 L900 170 L865 195' },
-            { title: 'Safe Environment', text: 'We ensure a safe, inclusive, and welcoming space for every child to learn and play.', d: 'M0 190 L90 170 L900 170 L865 145 L900 170 L865 195' },
-            { title: 'Creative Learning', text: 'We focus on academic, social, emotional, and physical development.', d: 'M0 190 L90 170 L900 170 L865 145 L900 170 L865 195' },
+            {
+              title: 'Éducation de qualité',
+              text: "Nous offrons une base académique solide avec des méthodes d'enseignement engageantes et efficaces.",
+              d: 'M0 30 L90 170 L900 170 L865 145 L900 170 L865 195'
+            },
+            {
+              title: 'Enseignants expérimentés',
+              text: 'Nos enseignants passionnés et expérimentés soutiennent la croissance individuelle de chaque enfant.',
+              d: 'M0 30 L90 170 L900 170 L865 145 L900 170 L865 195'
+            },
+            {
+              title: 'Environnement sécurisé',
+              text: 'Nous garantissons un espace sûr, inclusif et accueillant pour que chaque enfant apprenne et joue.',
+              d: 'M0 190 L90 170 L900 170 L865 145 L900 170 L865 195'
+            },
+            {
+              title: 'Apprentissage créatif',
+              text: 'Nous mettons l’accent sur le développement scolaire, social, émotionnel et physique.',
+              d: 'M0 190 L90 170 L900 170 L865 145 L900 170 L865 195'
+            },
           ].map((card, i) => (
             <li key={i}>
               <article
@@ -345,7 +359,7 @@ const About = () => {
       <style jsx>{`
         /* ----- Variables (scoped inside .about) ----- */
         .about {
-          --bg: transparent; /* dark gradient applied externally */
+          --bg: transparent;
           --white: #ffffff;
           --dark: #2c2625;
           --orange: #f59a3d;
@@ -466,7 +480,6 @@ const About = () => {
         }
         .badge:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,154,61,0.3); }
 
-        /* Title: white‑to‑light‑blue gradient */
         .about__title {
           margin-top: 32px;
           font-size: clamp(38px, 3.4vw, 62px);
@@ -535,7 +548,7 @@ const About = () => {
         }
         .about__text :global(.word.is-revealed) { opacity: 1; transform: translateY(0); }
 
-        /* ----- Center column (teacher) – unchanged, but shadow slightly darker ----- */
+        /* ----- Center column (teacher) ----- */
         .about__teacher {
           position: relative; z-index: 2; display: flex; justify-content: center;
           align-items: center; margin-right: -50px; align-self: center; margin-top: -20px;
@@ -567,7 +580,6 @@ const About = () => {
         .info { position: relative; z-index: 2; display: grid; grid-template-columns: var(--donut) 1fr; align-items: center; gap: 12px; }
         .donut { position: relative; width: var(--donut); height: var(--donut); display: grid; place-items: center; }
 
-        /* White circle with dark text – stays readable */
         .donut__label {
           position: relative; z-index: 3; display: grid; place-items: center;
           width: var(--circle); height: var(--circle); border-radius: 50%; background: #ffffff;
@@ -577,7 +589,6 @@ const About = () => {
         }
         .donut__label:hover { box-shadow: var(--shadow-hover); transform: scale(1.03); }
 
-        /* Donut segments – lighten the dark one for contrast */
         .donut__seg {
           position: absolute; inset: 0; border-radius: 50%; transform-origin: 50% 50%;
           transition: transform 0.25s var(--ease), filter 0.25s var(--ease); cursor: pointer;
@@ -609,7 +620,7 @@ const About = () => {
           position: relative; z-index: 2; font-size: 16px; font-weight: 700; letter-spacing: 0.01em;
           color: #ffffff; margin-bottom: 4px; transition: color 0.3s var(--ease-smooth);
         }
-        .card--4 .card__title { color: #f9d7a0; }  /* keep card 4 a bit amber */
+        .card--4 .card__title { color: #f9d7a0; }
         .card__text {
           position: relative; z-index: 2; max-width: 220px; font-size: 13px; line-height: 1.45;
           color: rgba(255,255,255,0.7); transition: color 0.3s var(--ease-smooth);
@@ -619,7 +630,6 @@ const About = () => {
           fill: none; stroke: var(--c); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
           transition: stroke-width 0.25s var(--ease), filter 0.25s var(--ease), stroke-dashoffset 0.8s var(--ease-smooth);
         }
-        /* Individual connector colors (lighter than original) */
         .card--1 { --c: #90a4c4; }
         .card--2 { --c: var(--orange); }
         .card--3 { --c: var(--orange-light); }
@@ -638,7 +648,7 @@ const About = () => {
         .card__connector path.is-drawing { stroke-dashoffset: 0 !important; }
         .card__connector path.is-reset { stroke-dashoffset: var(--path-length) !important; transition: stroke-dashoffset 0.01s ease !important; }
 
-        /* ----- Scroll animations (same logic) ----- */
+        /* ----- Scroll animations ----- */
         .reveal {
           opacity: 0;
           transition: opacity 0.65s var(--ease-smooth), transform 0.65s var(--ease-smooth), filter 0.65s var(--ease-smooth);

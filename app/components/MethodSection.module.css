@@ -136,13 +136,7 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   font-weight: 600;
 
 }
-  .arch__info .desc {
-      font-size: 15px;
-  letter-spacing: 0px;
 
-  line-height: 10px;
-
-  }
     .hide-on-mobile {
     display: none;
   }
