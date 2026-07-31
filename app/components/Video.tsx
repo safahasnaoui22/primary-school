@@ -126,8 +126,8 @@ const Video: React.FC<VideoProps> = ({
         .hero-section {
           position: relative !important;
           width: 100% !important;
-          height: 100vh !important;
-          height: 100dvh !important;
+         
+          
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
@@ -421,8 +421,8 @@ const Video: React.FC<VideoProps> = ({
         /* Tablets (768px - 1024px) */
         @media (min-width: 768px) and (max-width: 1024px) {
           .hero-section {
-            height: 100vh;
-            height: 100dvh;
+            height: 60vh;
+           
           }
           
           .hero-title {
@@ -448,6 +448,13 @@ const Video: React.FC<VideoProps> = ({
 
         /* Large desktops (1025px - 1440px) */
         @media (min-width: 1025px) and (max-width: 1440px) {
+         .hero-section {
+          
+          width: 100% !important;
+          height: 100vh !important;
+          
+       
+        }
           .content-container {
             max-width: 1100px;
           }
@@ -455,6 +462,13 @@ const Video: React.FC<VideoProps> = ({
 
         /* Extra large desktops (> 1440px) */
         @media (min-width: 1441px) {
+           .hero-section {
+          
+          width: 100% !important;
+          height: 100vh !important;
+          
+       
+        }
           .hero-title {
             font-size: 64px !important;
           }
@@ -479,9 +493,8 @@ const Video: React.FC<VideoProps> = ({
         /* Landscape mode for mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .hero-section {
-            height: auto;
-            min-height: 100vh;
-            min-height: 100dvh;
+            height: 60vh;
+         
             padding: 60px 20px;
           }
           
