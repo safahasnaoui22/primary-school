@@ -386,7 +386,10 @@ const Video: React.FC<VideoProps> = ({
            
           }
           
-     
+          .content-wrapper {
+            margin-bottom: 60px;
+          }
+          
           .hero-title {
             font-size: 36px !important;
             padding: 0 16px;
