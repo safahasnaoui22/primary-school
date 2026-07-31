@@ -132,7 +132,7 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
 @media (max-width: 768px) {
   .arch__info .header {
   font-family: Outfit;
-  font-size: 20px ;
+
   font-weight: 600;
 
 }

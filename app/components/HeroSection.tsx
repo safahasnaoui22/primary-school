@@ -560,11 +560,11 @@ export default function HeroSection() {
 
               <div className={styles.heroFrame}>
            <img
-  src="https://i.pinimg.com/1200x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg"
+  src="hero.png"
   srcSet="
-    https://i.pinimg.com/474x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg 474w,
-    https://i.pinimg.com/736x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg 736w,
-    https://i.pinimg.com/1200x/6e/53/fc/6e53fc77fac9eb359c7d991e17ed1f0c.jpg 1200w
+    hero.png 474w,
+    hero.png 736w,
+    hero.png 1200w
   "
   sizes="(max-width: 768px) 100vw, 50vw"
   alt="Kids at EduSmart"
