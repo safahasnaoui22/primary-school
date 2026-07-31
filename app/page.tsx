@@ -28,11 +28,13 @@ export default function Home() {
    <HeroSection />
    <About/>
    <ClassesSection />
+   <Why/>
+    <Video />
    <MethodSection />
-   <Video />
+  
    <Activities />
    <Avis />
-   <Why/>
+   
 
 
 <GalleryPage/>

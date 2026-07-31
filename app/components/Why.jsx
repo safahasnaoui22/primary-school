@@ -6,43 +6,48 @@ import styles from './why.module.css';
 // ----- DONNÉES DES DIAPOSITIVES -----
 const slides = [
   {
-    img: 'https://i.pinimg.com/1200x/50/99/10/509910afe7c026ddee800eedcfe01bbc.jpg',
-    title: 'Un environnement <span>bienveillant</span>',
-    caption: "Chez EduSmart, chaque enfant évolue dans un espace chaleureux où il se sent en sécurité et valorisé.",
-    alt: 'Salle de classe chaleureuse et accueillante à l\'école primaire EduSmart',
+    img: 'https://i.pinimg.com/1200x/93/5a/7c/935a7c5d2efaac6267c22be0a37a454d.jpg',
+    title: 'Un cadre <span>bienveillant</span>',
+    caption:
+      "Chaque enfant évolue dans un environnement sécurisé, chaleureux et respectueux, où il se sent écouté, accompagné et encouragé à grandir en toute confiance.",
+    alt: "Environnement bienveillant dans une école primaire moderne",
   },
   {
-    img: 'https://i.pinimg.com/736x/f6/87/a3/f687a352d082d6f8368dacc5c28af009.jpg',
-    title: 'Apprentissage <span>par le jeu</span>',
-    caption: 'Des activités concrètes qui éveillent la curiosité et stimulent la créativité de nos élèves.',
-    alt: 'Enfants participant à des activités pédagogiques ludiques à EduSmart',
+    img: 'https://i.pinimg.com/736x/8b/3e/b3/8b3eb335df526d626ab21c4601b22b78.jpg',
+    title: 'Apprendre avec <span>plaisir</span>',
+    caption:
+      "Des méthodes pédagogiques modernes, des ateliers interactifs et des activités variées permettent aux élèves d'apprendre avec curiosité, enthousiasme et motivation.",
+    alt: "Enfants apprenant à travers des activités interactives",
   },
   {
-    img: 'https://i.pinimg.com/736x/f9/bf/3d/f9bf3db0089096ffbf3173952772dca4.jpg',
-    title: 'Enseignants <span>qualifiés</span>',
-    caption: 'Une équipe pédagogique expérimentée, passionnée par le développement de la petite enfance.',
-    alt: 'Enseignante qualifiée avec des élèves à l\'école primaire EduSmart',
+    img: 'https://i.pinimg.com/736x/3c/87/4e/3c874e2e8d3c1803066e4e4b4a308394.jpg',
+    title: 'Une équipe <span>engagée</span>',
+    caption:
+      "Nos enseignants qualifiés accompagnent chaque élève avec attention, bienveillance et exigence afin de favoriser sa réussite scolaire et son épanouissement.",
+    alt: "Enseignants qualifiés accompagnant les élèves",
   },
   {
-    img: 'https://i.pinimg.com/736x/99/c8/6b/99c86b3d855879076c52a0fba756dc20.jpg',
-    title: 'Petits <span>effectifs</span>',
-    caption: 'Une attention individuelle qui permet à chaque élève de s\'épanouir pleinement.',
-    alt: 'Petite classe avec attention individualisée à EduSmart',
+    img: 'https://i.pinimg.com/736x/ad/3e/88/ad3e886939172f2ff068ce513dbd0a42.jpg',
+    title: 'Grandir avec <span>confiance</span>',
+    caption:
+      "Au-delà des apprentissages, nous développons l'autonomie, la créativité, l'esprit d'équipe et les valeurs qui préparent les enfants aux défis de demain.",
+    alt: "Élèves développant leur confiance et leur autonomie",
   },
   {
     img: 'https://i.pinimg.com/736x/40/ca/9d/40ca9d797fbee2833a2f45a0ab2ae8a0.jpg',
-    title: 'Infrastructures <span>sécurisées</span>',
-    caption: 'Des salles de classe modernes et des aires de jeux sécurisées, pensées pour votre tranquillité.',
-    alt: 'Cour de récréation sécurisée de l\'école primaire EduSmart',
+    title: 'Des espaces <span>adaptés</span>',
+    caption:
+      "Des salles de classe lumineuses, des équipements modernes et des espaces de vie sécurisés offrent aux élèves les meilleures conditions pour apprendre et s'épanouir.",
+    alt: "Espaces modernes et sécurisés d'une école primaire",
   },
   {
     img: 'https://i.pinimg.com/736x/03/b1/b3/03b1b3bb3e4e088a24aba3b37c83bbeb.jpg',
-    title: 'Esprit de <span>communauté</span>',
-    caption: 'Une forte implication des familles et des amitiés durables au sein de la communauté EduSmart.',
-    alt: 'Événement communautaire réunissant familles et élèves à EduSmart',
+    title: 'Une école <span>ouverte aux familles</span>',
+    caption:
+      "Nous construisons une relation de confiance avec les parents grâce à une communication régulière et un accompagnement fondé sur l'écoute et la collaboration.",
+    alt: "Parents et enseignants échangeant dans une école primaire",
   },
 ];
-
 const totalSlides = slides.length;
 
 const Why = () => {
@@ -184,7 +189,7 @@ const Why = () => {
       />
 
       <div className={styles.content}>
-        <p className={styles.sectionLabel}>Pourquoi choisir EduSmart</p>
+        <p className={styles.sectionLabel}>Notre Univers</p>
         <div key={indices[0]}>
           <h2
             className={`${styles.heading} ${styles.animateIn}`}

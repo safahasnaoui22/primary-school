@@ -168,40 +168,40 @@ export default function MethodSection() {
     };
   }, []);
 
-  const methods = [
-    {
-      id: "green",
-      title: "Apprentissage Ludique",
-      description:
-        "Nous croyons que chaque enfant apprend mieux lorsqu'il se sent motivé, valorisé et impliqué. Notre approche pédagogique repose sur un apprentissage ludique et interactif combinant jeux éducatifs, ateliers créatifs, travaux de groupe et outils numériques adaptés à l'âge des élèves. Cette méthode stimule la curiosité naturelle des enfants, développe leur esprit critique et renforce leur autonomie tout en rendant l'école agréable et motivante.",
-      image:
-        "https://i.pinimg.com/1200x/af/ab/5b/afab5ba8d0099e903260235d13cfbbba.jpg",
-    },
-    {
-      id: "blue",
-      title: "Excellence Académique",
-      description:
-        "Nous suivons rigoureusement le programme officiel tunisien tout en l'enrichissant par des méthodes pédagogiques modernes et innovantes. Nos enseignants qualifiés accompagnent chaque élève afin de consolider les bases fondamentales en arabe, français, mathématiques et sciences. Un suivi régulier, des évaluations constructives et un encadrement personnalisé permettent d'assurer la réussite scolaire et la progression continue de chaque enfant.",
-      image:
-        "https://i.pinimg.com/1200x/08/46/9d/08469d77ca5bd335a9e5b5ebe6741961.jpg",
-    },
-    {
-      id: "pink",
-      title: "Développement Personnel",
-      description:
-        "Au-delà des apprentissages académiques, nous accordons une grande importance au développement personnel et social de nos élèves. À travers des activités sportives, artistiques et culturelles, nous cultivons la confiance en soi, le respect des autres, l'esprit d'équipe et le sens des responsabilités. Notre objectif est de former des enfants épanouis, équilibrés et prêts à relever les défis de demain.",
-      image:
-        "https://i.pinimg.com/736x/90/63/86/9063869ee7d203627958bcccbf004a5c.jpg",
-    },
-    {
-      id: "orange",
-      title: "Environnement Sécurisé",
-      description:
-        "La sécurité, le bien-être et l'épanouissement des enfants sont au cœur de nos priorités. Notre établissement offre un environnement propre, organisé et entièrement sécurisé, avec une surveillance constante et une équipe pédagogique attentive. Nous favorisons un climat de confiance entre l'école, les élèves et les parents afin de garantir un cadre rassurant et propice à l'apprentissage.",
-      image:
-        "https://i.pinimg.com/736x/6e/f1/55/6ef155e25a6a517d8c89a46ebba37d71.jpg",
-    },
-  ];
+ const methods = [
+  {
+    id: "green",
+    title: "Apprentissage Moderne",
+    description:
+      "Notre école primaire en Tunisie privilégie un apprentissage interactif où jeux éducatifs, ateliers créatifs et activités collaboratives permettent à chaque enfant d'apprendre avec plaisir et confiance.",
+    image:
+      "https://i.pinimg.com/1200x/dd/c2/1f/ddc21f7f791460cf26ee45033c5c7710.jpg",
+  },
+  {
+    id: "blue",
+    title: "Enseignement de Qualité",
+    description:
+      "Nous suivons le programme officiel tunisien avec des enseignants qualifiés, un accompagnement personnalisé et des méthodes modernes favorisant la réussite scolaire de chaque élève.",
+    image:
+      "https://i.pinimg.com/1200x/03/d1/71/03d171ab20f7868c006e5bab42339b46.jpg",
+  },
+  {
+    id: "pink",
+    title: "Épanouissement de l'Enfant",
+    description:
+      "À travers des activités sportives, artistiques et culturelles, nous développons la confiance en soi, l'autonomie, la créativité et l'esprit d'équipe pour former des enfants équilibrés.",
+    image:
+      "https://i.pinimg.com/736x/d1/1c/21/d11c21182a955a542fd863c4a6d1d8b9.jpg",
+  },
+  {
+    id: "orange",
+    title: "Cadre Sûr et Bienveillant",
+    description:
+      "Notre établissement offre un environnement sécurisé, propre et accueillant où chaque enfant évolue sereinement grâce à une équipe attentive et un climat de confiance avec les familles.",
+    image:
+      "https://i.pinimg.com/736x/81/59/27/815927097111fd8f1c4b7f0096c4f1bf.jpg",
+  },
+];
 
   return (
     <div className={styles.container} ref={sectionRef}>
@@ -213,10 +213,13 @@ export default function MethodSection() {
             marginBottom: "10px",
           }}
         >
-          Notre Méthode Pédagogique
+         Pourquoi Nous Choisir
         </h1>
-  <p className="hide-on-mobile" style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}>
-  Une approche moderne et bienveillante adaptée aux enfants du primaire en Tunisie
+<p
+  className="hide-on-mobile"
+  style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}
+>
+  Les valeurs qui font de notre école un choix de confiance pour votre enfant.
 </p>
       </div>
 
