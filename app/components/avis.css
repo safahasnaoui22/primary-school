@@ -125,26 +125,37 @@
 .swiper-scrollbar {
     display: none !important;
 }
+
+.h1methode {
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+
+background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
+  background-size: 600% 600%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 8s ease infinite;
+
+  font-family: 'DM Serif Display', serif;
+
+  font-size: 2rem;
+}
+
 .avis-title{
       text-align: center;
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: 'DM Serif Display', serif;
   font-size: clamp(2.2rem, 8vw, 3.5rem);
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   margin: 0;
   padding: 2.5rem 1rem 0.5rem;
-  background: linear-gradient(
-    135deg,
-    #0b1e3f 0%,
-    #2c4b7d 40%,
-    #f5a623 100%
-  );
+background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 300% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmerTitle 8s ease-in-out infinite;
-text-transform: lowercase;
+
 
 }
 

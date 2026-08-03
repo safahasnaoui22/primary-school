@@ -54,7 +54,7 @@ export default function Avis() {
   return (
     <div className="avissection">
       {/* ---------- Modern Title ---------- */}
-      <h2 className="avis-title">What Our Parents Say</h2>
+      <h2 className="avis-title">Ce que disent nos parents</h2>
 
       <div className="avislider">
         <div className="swiper swiper-containeravis" ref={swiperRef}>

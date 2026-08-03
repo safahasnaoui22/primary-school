@@ -232,6 +232,14 @@
   background: var(--amber-dark);
   box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
 }
+.navToggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--navy);
+}
 
 /* ── MOBILE DRAWER ── */
 .mobileOverlay {
