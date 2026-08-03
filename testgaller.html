@@ -1,384 +1,880 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>About Us &amp; Why Choose Us — Primary School</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    /* ---- brand palette: matches the 4 ring/arrow colors ---- */
-    --color-1: #2a1f17; /* dark brown  - segment 01 */
-    --color-2: #dd7e3b; /* orange      - segment 02 */
-    --color-3: #d9a94e; /* gold        - segment 03 */
-    --color-4: #d2bd93; /* tan         - segment 04 */
-    --bg: #f1eee8;
-    --ink: #2a1f17;
-    --muted: #7a7168;
-    --tag-bg: #f3dfa6;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MERIDIAN — The Atlas Edition | Premium Travel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --navy: #0d1b3e;
+      --navy-mid: #1b2f5e;
+      --navy-soft: #2a4080;
+      --amber: #f59e0b;
+      --amber-dark: #d97706;
+      --amber-light: #fef3c7;
+      --white: #ffffff;
+      --bg: #fafbff;
+      --bg-blue: #eef4ff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      
+      --display: 'Bodoni Moda', serif;
+      --body: 'Manrope', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      
+      --glass-bg: rgba(255,255,255,0.65);
+      --glass-border: rgba(255,255,255,0.5);
+      --shadow-sm: 0 8px 30px rgba(0,0,0,0.05);
+      --shadow-md: 0 20px 45px rgba(0,0,0,0.08);
+    }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-  }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      font-family: var(--body);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  /* ============================================================
-     SECTION SHELL
-  ============================================================ */
-  .showcase {
-    position: relative;
-    padding: 100px 5vw 120px;
-    overflow: hidden;
-  }
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg-blue);
+    }
 
-  .showcase-inner {
-    max-width: 1440px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.2fr;
-    align-items: center;
-    gap: 50px;
-  }
+    /* Fullscreen image background */
+    .hero-image-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
 
-  [data-animate] {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity .7s ease, transform .7s ease;
-  }
-  [data-animate].in-view { opacity: 1; transform: translateY(0); }
+    .hero-image-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.05);
+      will-change: transform, opacity, filter;
+      transition: filter 0.2s ease;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
-    [data-animate] { transition: none; opacity: 1; transform: none; }
-  }
+    /* Soft light overlay instead of dark */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(125deg, 
+        rgba(250, 251, 255, 0.7) 0%, 
+        rgba(238, 244, 255, 0.4) 35%, 
+        rgba(255,255,255,0.15) 70%, 
+        rgba(13, 27, 62, 0.15) 100%);
+      pointer-events: none;
+    }
 
-  /* ============================================================
-     LEFT COLUMN — ABOUT US
-  ============================================================ */
-  .col-about {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    /* Very subtle grain */
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+      z-index: 3;
+    }
 
-  .tag {
-    display: inline-block;
-    background: var(--tag-bg);
-    color: var(--ink);
-    font-weight: 700;
-    font-size: 12.5px;
-    letter-spacing: 1.5px;
-    padding: 9px 22px;
-    border-radius: 30px;
-    margin-bottom: 26px;
-  }
+    /* ---------- TOP BAR (light glass) ---------- */
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 48px;
+      z-index: 20;
+    }
 
-  /* Change to h2/h3 if this section is dropped into a page that already has its own h1 */
-  .headline {
-    font-size: 52px;
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 0 0 26px;
-  }
+    .logo {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 0.28em;
+      font-weight: 500;
+      color: var(--navy);
+      text-shadow: 0 2px 10px rgba(255,255,255,0.6);
+    }
 
-  .rule {
-    width: 64px;
-    height: 3px;
-    background: var(--ink);
-    margin-bottom: 26px;
-  }
+    .logo span {
+      color: var(--amber);
+    }
 
-  .about-text {
-    font-size: 15.5px;
-    line-height: 1.85;
-    color: var(--muted);
-    max-width: 360px;
-    margin: 0;
-  }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--navy-mid);
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(14px);
+      padding: 10px 22px;
+      border-radius: 40px;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: var(--shadow-sm);
+    }
 
-  /* ============================================================
-     MIDDLE COLUMN — TEACHER PHOTO + COLOR RING
-  ============================================================ */
-  .col-visual {
-    position: relative;
-    width: 100%;
-    max-width: 420px;
-    aspect-ratio: 1 / 1;
-    margin: 0 auto;
-  }
+    .topbar-right .divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+    }
 
-  .ring { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+    /* ---------- HUGE BACKGROUND TITLE (behind image but visible) ---------- */
+    .bg-title-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
 
-  .seg { stroke: var(--bg); stroke-width: 3; }
-  .seg-1 { fill: var(--color-1); }
-  .seg-2 { fill: var(--color-2); }
-  .seg-3 { fill: var(--color-3); }
-  .seg-4 { fill: var(--color-4); }
+    .bg-title {
+      position: absolute;
+      left: 3vw;
+      font-family: var(--display);
+      font-weight: 600;
+      font-style: italic;
+      text-transform: uppercase;
+      font-size: clamp(120px, 18vw, 300px);
+      line-height: 0.8;
+      color: var(--navy);
+      opacity: 0.06;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      will-change: transform, opacity;
+    }
 
-  .num {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 800;
-    font-size: 30px;
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-  .num-1, .num-2, .num-3 { fill: #fff; }
-  .num-4 { fill: var(--color-1); }
+    .bg-title .ch {
+      display: inline-block;
+      will-change: transform, opacity;
+    }
 
-  /* Photo slot: click the placeholder to preview your own photo, or set
-     #teacherImg's src directly and delete the placeholder div for production.
-     Tweak width/left below to control how much it tucks behind the circle. */
-  .teacher-photo {
-    position: absolute;
-    left: 1%;
-    top: 5%;
-    width: 46%;
-    height: 90%;
-    z-index: 2;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 14px 30px rgba(42, 31, 23, .12);
-  }
+    /* ---------- FLOATING CLOUD (elegant white smoke) ---------- */
+    .cloud-layer {
+      position: absolute;
+      left: -2%;
+      top: 8%;
+      width: 48vw;
+      height: 70vh;
+      z-index: 3;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+      filter: blur(50px);
+      opacity: 0.5;
+    }
 
-  .teacher-img {
-    display: none;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 30% center;
-  }
+    .cloud-blob {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(220,225,240,0.4) 45%, transparent 80%);
+    }
 
-  .teacher-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    border: 2px dashed #c9a876;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, .45);
-    color: #a5754a;
-    cursor: pointer;
-    text-align: center;
-    padding: 20px;
-    transition: background .2s ease, border-color .2s ease;
-  }
-  .teacher-placeholder:hover,
-  .teacher-placeholder:focus-visible {
-    background: rgba(255, 255, 255, .75);
-    border-color: var(--color-2);
-    outline: none;
-  }
-  .user-icon { width: 44px; height: 44px; }
-  .teacher-placeholder span {
-    font-size: 13px;
-    font-weight: 600;
-    max-width: 140px;
-    line-height: 1.4;
-  }
+    .cb1 { width: 400px; height: 360px; top: 5%; left: 3%; }
+    .cb2 { width: 320px; height: 300px; top: 40%; left: 26%; background: radial-gradient(circle at 40% 40%, rgba(255,255,250,0.8) 0%, rgba(180,190,210,0.3) 60%, transparent 85%); }
+    .cb3 { width: 380px; height: 280px; top: 62%; left: 0%; background: radial-gradient(circle at 20% 30%, rgba(255,252,245,0.75) 0%, rgba(200,200,220,0.2) 70%, transparent 90%); }
 
-  .center-circle-wrap {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 57.5%;
-    height: 57.5%;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 18px 40px rgba(42, 31, 23, .15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3;
-    text-align: center;
-  }
+    /* ---------- FOREGROUND TEXT (elegant & bright) ---------- */
+    .foreground {
+      position: absolute;
+      left: 7vw;
+      bottom: 12vh;
+      z-index: 10;
+      max-width: 38vw;
+    }
 
-  .center-label { font-weight: 800; font-size: 22px; line-height: 1.3; letter-spacing: .3px; }
+    .category {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 18px;
+      opacity: 0;
+      display: inline-block;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(6px);
+      padding: 5px 14px;
+      border-radius: 30px;
+      font-weight: 500;
+    }
 
-  /* ============================================================
-     RIGHT COLUMN — WHY CHOOSE US / BENEFITS
-  ============================================================ */
-  .col-benefits { display: flex; flex-direction: column; gap: 30px; }
+    .category::before {
+      content: '—— ';
+      color: var(--muted);
+    }
 
-  .benefit-row { display: flex; align-items: center; gap: 22px; }
-  .row-1 { margin-left: 0; }
-  .row-2 { margin-left: 26px; }
-  .row-3 { margin-left: 52px; }
-  .row-4 { margin-left: 78px; }
+    .heading {
+      font-family: var(--display);
+      font-size: clamp(44px, 4.5vw, 72px);
+      line-height: 1.05;
+      font-weight: 500;
+      margin: 0 0 22px 0;
+      overflow: hidden;
+      color: var(--navy);
+      text-shadow: 0 10px 25px rgba(255,255,255,0.7);
+    }
 
-  .arrow {
-    flex-shrink: 0;
-    width: 130px;
-    height: 52px;
-    clip-path: polygon(0 0, 78% 0, 100% 50%, 78% 100%, 0 100%);
-    transition: transform .25s ease;
-  }
-  .benefit-row:hover .arrow { transform: translateX(6px); }
+    .heading .word-wrap {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: top;
+    }
 
-  .arrow-1 { background: var(--color-1); }
-  .arrow-2 { background: var(--color-2); }
-  .arrow-3 { background: var(--color-3); }
-  .arrow-4 { background: var(--color-4); }
+    .heading .word {
+      display: inline-block;
+      transform: translateY(110%);
+      will-change: transform;
+      color: var(--navy);
+    }
 
-  .benefit-text h3 { font-size: 18.5px; font-weight: 700; margin: 0 0 4px; }
-  .benefit-text p { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 240px; margin: 0; }
+    .paragraph {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 460px;
+      margin: 0 0 34px 0;
+      opacity: 0;
+      transform: translateY(16px);
+      letter-spacing: 0.01em;
+      text-shadow: 0 4px 15px rgba(255,255,255,0.8);
+    }
 
-  /* ============================================================
-     BRAND BADGE (bottom right) — swap for your own school name/logo
-  ============================================================ */
-  .brand-badge { position: absolute; right: 5vw; bottom: 26px; text-align: right; }
-  .brand-name { display: block; font-size: 20px; font-weight: 800; }
-  .brand-sub { display: block; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--amber);
+      border: none;
+      padding: 18px 32px;
+      border-radius: 100px;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: background 0.3s ease, box-shadow 0.4s ease, transform 0.3s ease;
+      box-shadow: 0 18px 40px rgba(245, 158, 11, 0.35);
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+    }
 
-  /* ============================================================
-     RESPONSIVE
-  ============================================================ */
-  @media (max-width: 1080px) {
-    .showcase-inner { grid-template-columns: 1fr; gap: 70px; }
-    .col-about { align-items: center; text-align: center; }
-    .about-text { margin: 0 auto; }
-    .col-benefits { align-items: center; }
-    .benefit-row { flex-direction: column; margin-left: 0 !important; text-align: center; gap: 14px; }
-    .arrow { transform: rotate(90deg); }
-    .benefit-row:hover .arrow { transform: rotate(90deg) translateX(6px); }
-    .benefit-text p { max-width: 300px; }
-    .brand-badge { position: static; text-align: center; margin-top: 50px; }
-  }
+    .cta:hover {
+      background: var(--amber-dark);
+      box-shadow: 0 22px 50px rgba(217, 119, 6, 0.5);
+      transform: translateY(-3px);
+    }
 
-  @media (max-width: 560px) {
-    .headline { font-size: 38px; }
-    .showcase { padding: 70px 24px 90px; }
-  }
-</style>
+    .cta svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    /* ---------- THUMB RAIL (circular images, light style) ---------- */
+    .thumb-rail {
+      position: absolute;
+      right: 2.5vw;
+      top: 0;
+      bottom: 0;
+      width: 170px;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .thumb-slot {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+    }
+
+    .thumb {
+      position: relative;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 16px 35px rgba(0,0,0,0.15), 0 0 0 2px rgba(245,158,11,0.2);
+      cursor: pointer;
+      will-change: width, height, transform;
+      background: #fff;
+      transition: border-color 0.2s ease;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,0.5) 0%, transparent 55%, rgba(0,0,0,0.05) 100%);
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
+
+    .orbit-svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ---------- CONNECTOR + LABEL (light) ---------- */
+    .connector {
+      position: absolute;
+      right: 14.5vw;
+      z-index: 14;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .connector-line {
+      height: 1px;
+      width: 140px;
+      background: linear-gradient(90deg, transparent, var(--amber) 95%);
+      transform: scaleX(0);
+      transform-origin: right center;
+      will-change: transform;
+    }
+
+    .dest-label {
+      position: absolute;
+      right: calc(14.5vw + 155px);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 14;
+      text-align: right;
+      width: 270px;
+    }
+
+    .dest-name {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 24px;
+      margin: 0 0 6px 0;
+      font-weight: 500;
+      color: var(--navy);
+    }
+
+    .dest-desc {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .dest-coord {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--amber);
+      margin-top: 8px;
+    }
+
+    /* ---------- NAV ARROWS (light) ---------- */
+    .nav-arrows {
+      position: absolute;
+      left: 7vw;
+      bottom: 3.5vh;
+      z-index: 20;
+      display: flex;
+      gap: 16px;
+    }
+
+    .arrow-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--navy);
+      transition: transform 0.35s cubic-bezier(.2,.8,.2,1), box-shadow 0.35s, background 0.35s, border-color 0.35s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .arrow-btn:hover {
+      transform: scale(1.1);
+      background: rgba(255,255,255,0.9);
+      border-color: var(--amber);
+      box-shadow: 0 0 35px rgba(245,158,11,0.3);
+    }
+
+    .arrow-btn svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .progress {
+      position: absolute;
+      left: 7vw;
+      bottom: 1.2vh;
+      z-index: 20;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .progress b {
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .wave-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    @media (max-width: 980px) {
+      .foreground { max-width: 85vw; left: 5vw; bottom: 8vh; }
+      .thumb-rail { display: none; }
+      .connector, .dest-label { display: none; }
+      .bg-title { font-size: 19vw; opacity: 0.05; }
+      .topbar { padding: 20px 24px; }
+    }
+  </style>
 </head>
 <body>
-
-<section class="showcase">
-  <div class="showcase-inner">
-
-    <!-- LEFT COLUMN: ABOUT US -->
-    <div class="col-about" data-animate>
-      <span class="tag">ABOUT US</span>
-      <h1 class="headline">LEARN &amp;<br>GROW</h1>
-      <div class="rule"></div>
-      <p class="about-text">
-        We provide a caring and inspiring environment where every child can thrive. Our modern classrooms are built for hands-on learning, while our outdoor playground and creative arts studio help students explore beyond the standard curriculum.
-      </p>
-    </div>
-
-    <!-- MIDDLE COLUMN: TEACHER PHOTO + COLOR RING -->
-    <div class="col-visual" data-animate>
-
-      <div class="teacher-photo">
-        <img id="teacherImg" class="teacher-img" alt="Teacher" />
-        <div class="teacher-placeholder" id="teacherPlaceholder" role="button" tabindex="0" aria-label="Add teacher photo">
-          <svg class="user-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-9.8 1.8-9.8 5.3v2.1h19.6v-2.1c0-3.5-6.2-5.3-9.8-5.3z"/>
-          </svg>
-          <span>Click to add teacher photo</span>
-        </div>
-      </div>
-      <input type="file" id="photoInput" accept="image/*" hidden>
-
-      <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
-        <path class="seg seg-1" d="M200,10 A190,190 0 0,1 334.35,65.65 L281.32,118.68 A115,115 0 0,0 200,85 Z"></path>
-        <path class="seg seg-2" d="M334.35,65.65 A190,190 0 0,1 390,200 L315,200 A115,115 0 0,0 281.32,118.68 Z"></path>
-        <path class="seg seg-3" d="M390,200 A190,190 0 0,1 334.35,334.35 L281.32,281.32 A115,115 0 0,0 315,200 Z"></path>
-        <path class="seg seg-4" d="M334.35,334.35 A190,190 0 0,1 200,390 L200,315 A115,115 0 0,0 281.32,281.32 Z"></path>
-        <text x="258.37" y="59.06" class="num num-1">01</text>
-        <text x="340.94" y="141.63" class="num num-2">02</text>
-        <text x="340.94" y="258.37" class="num num-3">03</text>
-        <text x="258.37" y="340.94" class="num num-4">04</text>
-      </svg>
-
-      <div class="center-circle-wrap">
-        <div class="center-label">WHY CHOOSE<br>US</div>
-      </div>
-    </div>
-
-    <!-- RIGHT COLUMN: WHY CHOOSE US / BENEFITS -->
-    <div class="col-benefits" data-animate>
-      <div class="benefit-row row-1">
-        <div class="arrow arrow-1"></div>
-        <div class="benefit-text">
-          <h3>Expert Teachers</h3>
-          <p>Certified, caring educators dedicated to every child's success.</p>
-        </div>
-      </div>
-      <div class="benefit-row row-2">
-        <div class="arrow arrow-2"></div>
-        <div class="benefit-text">
-          <h3>Modern Classrooms</h3>
-          <p>Bright, well-equipped spaces designed for young learners.</p>
-        </div>
-      </div>
-      <div class="benefit-row row-3">
-        <div class="arrow arrow-3"></div>
-        <div class="benefit-text">
-          <h3>Fun Curriculum</h3>
-          <p>Engaging lessons that make learning exciting every day.</p>
-        </div>
-      </div>
-      <div class="benefit-row row-4">
-        <div class="arrow arrow-4"></div>
-        <div class="benefit-text">
-          <h3>Safe &amp; Caring</h3>
-          <p>A secure, nurturing environment where children love to learn.</p>
-        </div>
-      </div>
-    </div>
-
+<div class="hero" id="hero">
+  <!-- Fullscreen image background -->
+  <div class="hero-image-bg" id="heroImageBg">
+    <img id="heroMainImage" src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" alt="destination">
   </div>
 
-  <div class="brand-badge">
-    <span class="brand-name">Little Scholars</span>
-    <span class="brand-sub">Primary School</span>
+  <!-- Soft light overlay -->
+  <div class="hero-overlay"></div>
+
+  <svg class="grain" width="100%" height="100%">
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+
+  <div class="topbar">
+    <div class="logo">MERIDIAN<span>.</span></div>
+    <div class="topbar-right">
+      <span>The Atlas Edition</span>
+      <div class="divider"></div>
+      <span id="slideCounter">01 / 03</span>
+    </div>
   </div>
-</section>
+
+  <div class="bg-title-layer">
+    <div class="bg-title" id="bgTitle"></div>
+  </div>
+
+  <div class="cloud-layer" id="cloud">
+    <div class="cloud-blob cb1"></div>
+    <div class="cloud-blob cb2"></div>
+    <div class="cloud-blob cb3"></div>
+  </div>
+
+  <svg class="wave-layer" id="waveLayer"></svg>
+
+  <div class="foreground">
+    <div class="category" id="category"></div>
+    <h1 class="heading" id="heading"></h1>
+    <p class="paragraph" id="paragraph"></p>
+    <button class="cta" id="ctaBtn">
+      <span id="ctaText">Reserve the Journey</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+
+  <div class="connector" id="connectorWrap">
+    <div class="connector-line" id="connectorLine"></div>
+  </div>
+  <div class="dest-label" id="destLabel">
+    <div class="dest-name" id="destName"></div>
+    <div class="dest-desc" id="destDesc"></div>
+    <div class="dest-coord" id="destCoord"></div>
+  </div>
+
+  <div class="thumb-rail" id="thumbRail"></div>
+
+  <div class="nav-arrows">
+    <div class="arrow-btn" id="prevBtn" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="arrow-btn" id="nextBtn" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+  </div>
+  <div class="progress"><b id="progIndex">01</b> — 03</div>
+</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Staggered entrance for the 3 columns
-    document.querySelectorAll('[data-animate]').forEach((el, i) => {
-      setTimeout(() => el.classList.add('in-view'), 150 * i + 100);
-    });
+  (function() {
+    const PLACEHOLDER_IMAGES = {
+      kyoto: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop',
+      santorini: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?q=80&w=2070&auto=format&fit=crop',
+      patagonia: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=2070&auto=format&fit=crop'
+    };
 
-    // Teacher photo: click (or press Enter/Space on) the placeholder to preview an image
-    const placeholder = document.getElementById('teacherPlaceholder');
-    const photoInput = document.getElementById('photoInput');
-    const teacherImg = document.getElementById('teacherImg');
-
-    const openPicker = () => photoInput.click();
-    placeholder.addEventListener('click', openPicker);
-    placeholder.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openPicker();
+    const SLIDES = [
+      {
+        title: 'KYOTO',
+        image: PLACEHOLDER_IMAGES.kyoto,
+        category: 'ASIA · HONSHU',
+        heading: 'The Quiet Architecture of Autumn',
+        paragraph: 'Maple corridors, temple bells, and a stillness that has outlived a thousand years. Travel privately through Kyoto’s inner gardens.',
+        name: 'Kyoto, Japan',
+        desc: 'Higashiyama District',
+        coord: '35.0116° N · 135.7681° E'
+      },
+      {
+        title: 'SANTORINI',
+        image: PLACEHOLDER_IMAGES.santorini,
+        category: 'AEGEAN · CYCLADES',
+        heading: 'Where the Caldera Meets the Sky',
+        paragraph: 'Whitewashed cliffs suspended above a volcanic sea, lit gold at the hour when the ferries have gone quiet.',
+        name: 'Santorini, Greece',
+        desc: 'Oia, Cycladic Islands',
+        coord: '36.3932° N · 25.4615° E'
+      },
+      {
+        title: 'PATAGONIA',
+        image: PLACEHOLDER_IMAGES.patagonia,
+        category: 'SOUTH AMERICA · CHILE',
+        heading: 'Silence at the Edge of the World',
+        paragraph: 'Granite towers cut from glacial wind, a horizon with no fence in sight. Torres del Paine, slowly and alone.',
+        name: 'Torres del Paine',
+        desc: 'Magallanes, Chile',
+        coord: '50.9423° S · 73.4068° W'
       }
+    ];
+
+    let active = 0;
+    let isAnimating = false;
+
+    const heroMainImage = document.getElementById('heroMainImage');
+    const bgTitle = document.getElementById('bgTitle');
+    const thumbRail = document.getElementById('thumbRail');
+    const waveLayer = document.getElementById('waveLayer');
+    const category = document.getElementById('category');
+    const heading = document.getElementById('heading');
+    const paragraph = document.getElementById('paragraph');
+    const ctaBtn = document.getElementById('ctaBtn');
+    const connectorLine = document.getElementById('connectorLine');
+    const destName = document.getElementById('destName');
+    const destDesc = document.getElementById('destDesc');
+    const destCoord = document.getElementById('destCoord');
+    const slideCounter = document.getElementById('slideCounter');
+    const progIndex = document.getElementById('progIndex');
+
+    function pad(n) { return (n + 1).toString().padStart(2, '0'); }
+
+    function splitChars(el, text) {
+      el.innerHTML = '';
+      [...text].forEach(ch => {
+        const span = document.createElement('span');
+        span.className = 'ch';
+        span.textContent = ch === ' ' ? '\u00A0' : ch;
+        el.appendChild(span);
+      });
+      return el.querySelectorAll('.ch');
+    }
+
+    function splitWords(el, text) {
+      el.innerHTML = '';
+      text.split(' ').forEach((w, i, arr) => {
+        const wrap = document.createElement('span');
+        wrap.className = 'word-wrap';
+        const word = document.createElement('span');
+        word.className = 'word';
+        word.textContent = w + (i < arr.length - 1 ? '\u00A0' : '');
+        wrap.appendChild(word);
+        el.appendChild(wrap);
+      });
+      return el.querySelectorAll('.word');
+    }
+
+    // Initial background title
+    let bgChars = splitChars(bgTitle, SLIDES[0].title);
+    gsap.set(bgChars, { y: 0, opacity: 1 });
+
+    // Initial image
+    heroMainImage.src = SLIDES[0].image;
+
+    // Thumbnails
+    const SIZES = { prev: 70, active: 140, next: 92 };
+    const slotOrder = ['next', 'active', 'prev'];
+
+    function buildThumbs() {
+      thumbRail.innerHTML = '';
+      slotOrder.forEach((role) => {
+        const idx = role === 'active' ? active : role === 'next' ? (active + 1) % 3 : (active + 2) % 3;
+        const slot = document.createElement('div');
+        slot.className = 'thumb-slot';
+        const size = SIZES[role];
+        slot.style.zIndex = role === 'active' ? 3 : 1;
+
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        thumb.style.width = size + 'px';
+        thumb.style.height = size + 'px';
+        thumb.style.opacity = role === 'active' ? '1' : '0.7';
+        thumb.dataset.index = idx;
+        thumb.innerHTML = `<img src="${SLIDES[idx].image}" alt="thumb">`;
+        thumb.addEventListener('click', () => { if (idx !== active) goTo(idx); });
+        slot.appendChild(thumb);
+
+        if (role === 'active') {
+          const svgNS = 'http://www.w3.org/2000/svg';
+          const svg = document.createElementNS(svgNS, 'svg');
+          svg.setAttribute('class', 'orbit-svg');
+          svg.setAttribute('width', size + 70);
+          svg.setAttribute('height', size + 70);
+          svg.innerHTML = [
+            { dash: 'none', opacity: 0.3, width: 1.2 },
+            { dash: '3 9', opacity: 0.45, width: 1 },
+            { dash: 'none', opacity: 0.2, width: 0.8 }
+          ].map((style, i) => {
+            const r = size / 2 + 16 + i * 14;
+            return `<circle cx="${(size + 70) / 2}" cy="${(size + 70) / 2}" r="${r}" fill="none" 
+                    stroke="var(--amber)" stroke-width="${style.width}" 
+                    stroke-dasharray="${style.dash}" class="orbit-ring" data-r="${r}"/>`;
+          }).join('');
+          slot.appendChild(svg);
+          gsap.to(svg, { rotation: 360, duration: 38, repeat: -1, ease: 'none', transformOrigin: '50% 50%' });
+        }
+
+        gsap.to(slot, { y: role === 'active' ? -7 : 7, duration: 5 + Math.random(), repeat: -1, yoyo: true, ease: 'sine.inOut' });
+        thumbRail.appendChild(slot);
+      });
+    }
+    buildThumbs();
+
+    function fillForeground(i, animate) {
+      category.textContent = SLIDES[i].category;
+      const words = splitWords(heading, SLIDES[i].heading);
+      paragraph.textContent = SLIDES[i].paragraph;
+      destName.textContent = SLIDES[i].name;
+      destDesc.textContent = SLIDES[i].desc;
+      destCoord.textContent = SLIDES[i].coord;
+      slideCounter.textContent = pad(i) + ' / 03';
+      progIndex.textContent = pad(i);
+
+      if (!animate) {
+        gsap.set(category, { opacity: 1 });
+        gsap.set(words, { y: 0, opacity: 1 });
+        gsap.set(paragraph, { opacity: 1, y: 0 });
+        gsap.set(ctaBtn, { opacity: 1, y: 0 });
+        gsap.set(connectorLine, { scaleX: 1 });
+        gsap.set([destName, destDesc, destCoord], { opacity: 1, y: 0 });
+        return;
+      }
+      return words;
+    }
+    fillForeground(0, false);
+
+    // Parallax
+    const heroEl = document.getElementById('hero');
+    const qx = gsap.quickTo(bgTitle, 'x', { duration: 1.2, ease: 'power3.out' });
+    heroEl.addEventListener('mousemove', (e) => {
+      const px = (e.clientX / window.innerWidth - 0.5);
+      qx(px * -35);
     });
 
-    photoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        teacherImg.src = ev.target.result;
-        teacherImg.style.display = 'block';
-        placeholder.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
+    function fireWave(originX, originY) {
+      const svgNS = 'http://www.w3.org/2000/svg';
+      for (let i = 0; i < 4; i++) {
+        const c = document.createElementNS(svgNS, 'circle');
+        c.setAttribute('cx', originX);
+        c.setAttribute('cy', originY);
+        c.setAttribute('r', 15);
+        c.setAttribute('fill', 'none');
+        c.setAttribute('stroke', i % 2 === 0 ? 'var(--amber)' : 'rgba(245,158,11,0.5)');
+        c.setAttribute('stroke-width', i === 0 ? 1.8 : 0.9);
+        waveLayer.appendChild(c);
+        gsap.fromTo(c, { attr: { r: 15 }, opacity: 0.8 }, {
+          attr: { r: 600 + i * 110 },
+          opacity: 0,
+          duration: 1.0 + i * 0.12,
+          delay: i * 0.07,
+          ease: 'power2.out',
+          onComplete: () => c.remove()
+        });
+      }
+    }
+
+    function goTo(nextIndex) {
+      if (isAnimating || nextIndex === active) return;
+      isAnimating = true;
+      const prevIndex = active;
+      active = nextIndex;
+
+      const activeThumbSlot = thumbRail.querySelector('.thumb-slot:nth-child(2)');
+      const rect = activeThumbSlot ? activeThumbSlot.getBoundingClientRect() : { left: window.innerWidth - 160, top: window.innerHeight/2, width: 140, height: 140 };
+      const originX = rect.left + rect.width/2;
+      const originY = rect.top + rect.height/2;
+
+      const master = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+
+      // Background title animation
+      const oldChars = bgTitle.querySelectorAll('.ch');
+      master.to(oldChars, { y: -110, opacity: 0, duration: 0.6, ease: 'power3.in', stagger: { each: 0.012, from: 'start' } }, 0);
+      master.call(() => {
+        bgChars = splitChars(bgTitle, SLIDES[active].title);
+        gsap.set(bgChars, { y: 130, opacity: 0 });
+      }, null, 0.5);
+      master.add(() => {
+        gsap.to(bgTitle.querySelectorAll('.ch'), { y: 0, opacity: 1, duration: 0.7, ease: 'power4.out', stagger: { each: 0.015, from: 'start' } });
+      }, 0.55);
+
+      // Fullscreen image transition (reveal via clip-path)
+      master.to(heroMainImage, { scale: 1.12, filter: 'blur(6px)', opacity: 0.6, duration: 0.7, ease: 'power3.in' }, 0);
+      master.call(() => {
+        heroMainImage.src = SLIDES[active].image;
+        gsap.set(heroMainImage, { scale: 1.18, filter: 'blur(10px)', opacity: 0, clipPath: `circle(0% at ${((originX - heroEl.getBoundingClientRect().left)/window.innerWidth)*100}% ${((originY - heroEl.getBoundingClientRect().top)/window.innerHeight)*100}%)` });
+      }, null, 0.65);
+      master.to(heroMainImage, {
+        scale: 1.05,
+        filter: 'blur(0px)',
+        opacity: 1,
+        clipPath: 'circle(150% at 50% 50%)',
+        duration: 1.3,
+        ease: 'power4.out'
+      }, 0.7);
+
+      // Wave ripple
+      master.call(() => fireWave(originX, originY), null, 0.05);
+
+      // Orbit burst
+      const rings = thumbRail.querySelectorAll('.orbit-ring');
+      master.to(rings, { scale: 1.7, opacity: 0, duration: 0.35, ease: 'power2.in' }, 0.05);
+
+      // Thumbnail morph
+      master.call(() => { buildThumbs(); }, null, 0.32);
+      master.call(() => {
+        gsap.from(thumbRail.querySelectorAll('.thumb'), { scale: 0.7, opacity: 0, duration: 0.75, ease: 'elastic.out(1,0.8)', stagger: 0.07 });
+        gsap.fromTo(thumbRail.querySelectorAll('.orbit-ring'), { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.65, ease: 'power3.out' });
+      }, null, 0.34);
+
+      // Connector
+      master.to(connectorLine, { scaleX: 0, duration: 0.3, ease: 'power2.in' }, 0);
+      master.set(connectorLine, { scaleX: 0 }, 0.32);
+      master.to(connectorLine, { scaleX: 1, duration: 0.65, ease: 'power3.out' }, 0.38);
+
+      // Destination label
+      master.to([destName, destDesc, destCoord], { y: -16, opacity: 0, duration: 0.3, ease: 'power2.in' }, 0);
+      master.call(() => {
+        destName.textContent = SLIDES[active].name;
+        destDesc.textContent = SLIDES[active].desc;
+        destCoord.textContent = SLIDES[active].coord;
+        gsap.set([destName, destDesc, destCoord], { y: 16, opacity: 0 });
+      }, null, 0.36);
+      master.to([destName, destDesc, destCoord], { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.06 }, 0.52);
+
+      // Foreground text
+      master.to(category, { opacity: 0, y: -10, duration: 0.25 }, 0);
+      master.to(paragraph, { opacity: 0, y: -10, duration: 0.25 }, 0);
+      master.to(ctaBtn, { opacity: 0, y: -10, duration: 0.25 }, 0);
+      const oldWords = heading.querySelectorAll('.word');
+      master.to(oldWords, { y: '-110%', duration: 0.4, ease: 'power3.in', stagger: 0.02 }, 0);
+
+      master.call(() => {
+        category.textContent = SLIDES[active].category;
+        paragraph.textContent = SLIDES[active].paragraph;
+        const words = splitWords(heading, SLIDES[active].heading);
+        gsap.set(words, { y: '110%' });
+        gsap.set(category, { opacity: 0, y: 10 });
+        gsap.set(paragraph, { opacity: 0, y: 14 });
+        gsap.set(ctaBtn, { opacity: 0, y: 14 });
+      }, null, 0.42);
+
+      master.to(category, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.45);
+      master.call(() => {
+        gsap.to(heading.querySelectorAll('.word'), { y: '0%', duration: 0.6, ease: 'power4.out', stagger: 0.04 });
+      }, null, 0.52);
+      master.to(paragraph, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.7);
+      master.to(ctaBtn, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.82);
+
+      master.call(() => {
+        slideCounter.textContent = pad(active) + ' / 03';
+        progIndex.textContent = pad(active);
+      }, null, 0.4);
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', () => goTo((active + 1) % 3));
+    document.getElementById('prevBtn').addEventListener('click', () => goTo((active + 2) % 3));
+
+    // Cloud drift
+    gsap.utils.toArray('.cloud-blob').forEach((b, i) => {
+      gsap.to(b, {
+        x: (i % 2 === 0 ? 1 : -1) * (40 + i * 14),
+        y: (i % 2 === 0 ? -1 : 1) * (28 + i * 12),
+        scale: 1.18,
+        duration: 11 + i * 2.8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
     });
-  });
+
+    gsap.to('.arrow-btn', { boxShadow: '0 0 0 1px rgba(245,158,11,0.25)', duration: 3.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  })();
 </script>
-
 </body>
 </html>

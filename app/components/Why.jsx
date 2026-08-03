@@ -49,13 +49,17 @@ const slides = [
   },
 ];
 const totalSlides = slides.length;
+const AUTOPLAY_DELAY = 4000; // 4 secondes
 
 const Why = () => {
   const [indices, setIndices] = useState([0, 1, 2]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const imgOneRefs = useRef([]);
   const imgTwoRefs = useRef([]);
+  const sectionRef = useRef(null);
+  const autoplayRef = useRef(null);
 
   const currentSlide = slides[indices[0]];
 
@@ -166,12 +170,60 @@ const Why = () => {
         imgOne.src = slides[indices[i]].img;
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ---- Détection de visibilité au scroll (fade in / fade out) ----
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.25, // se déclenche dès que 25% de la section est visible
+      }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  // ---- Autoplay : change de diapositive toutes les 4 secondes ----
+  useEffect(() => {
+    // On ne lance l'autoplay que si la section est visible à l'écran
+    // et qu'aucune transition n'est déjà en cours.
+    if (!isVisible || isAnimating) return;
+
+    autoplayRef.current = setTimeout(() => {
+      handleNext();
+    }, AUTOPLAY_DELAY);
+
+    return () => clearTimeout(autoplayRef.current);
+  }, [isVisible, isAnimating, indices, handleNext]);
+
+  // Relance le minuteur d'autoplay depuis zéro après une action manuelle
+  const restartAutoplay = () => {
+    if (autoplayRef.current) clearTimeout(autoplayRef.current);
+  };
+
+  const onManualNext = () => {
+    restartAutoplay();
+    handleNext();
+  };
+
+  const onManualPrev = () => {
+    restartAutoplay();
+    handlePrev();
+  };
 
   return (
     <section
-      className={styles.whyUs}
+      className={`${styles.whyUs} ${isVisible ? styles.inView : styles.outOfView}`}
       aria-label="Pourquoi choisir l'école primaire EduSmart"
+      ref={sectionRef}
     >
       {/* Données structurées pour le référencement (SEO) */}
       <script
@@ -224,7 +276,7 @@ const Why = () => {
         <div className={styles.controls}>
           <button
             className={styles.control}
-            onClick={handlePrev}
+            onClick={onManualPrev}
             disabled={isAnimating}
             aria-label="Diapositive précédente"
           >
@@ -232,7 +284,7 @@ const Why = () => {
           </button>
           <button
             className={styles.control}
-            onClick={handleNext}
+            onClick={onManualNext}
             disabled={isAnimating}
             aria-label="Diapositive suivante"
           >
