@@ -382,7 +382,7 @@ const About = () => {
           grid-template-columns: minmax(220px, 300px) minmax(150px, 240px) minmax(560px, 1fr);
           align-items: center;
           gap: 24px;
-          max-width: 1500px;
+         
           margin: 0 auto;
           padding: 0 48px;
           height: var(--section-height);
@@ -392,7 +392,10 @@ const About = () => {
           position: relative;
           isolation: isolate;
         }
+.about{
+background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 40%, var(--navy-soft) 70%, var(--amber-dark) 100%);
 
+}
         /* ----- Animated background (keep subtle) ----- */
         .about__bg {
           position: absolute;

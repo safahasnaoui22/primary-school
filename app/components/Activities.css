@@ -2,7 +2,7 @@
   box-sizing: border-box;
 }
 
-body {
+.activities-page {
   font: 1em/1.5 "Open Sans", sans-serif;
   color: #373737;
   margin: 0;
