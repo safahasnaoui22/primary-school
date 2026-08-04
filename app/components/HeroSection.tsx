@@ -54,8 +54,7 @@ export default function HeroSection() {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.5,
-      normalizeWheel: true,
-      infinite: false,
+      // REMOVED: normalizeWheel and infinite (not valid options in this version)
     });
 
     // Update ScrollTrigger on Lenis scroll
