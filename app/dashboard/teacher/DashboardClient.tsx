@@ -8,7 +8,6 @@ interface StudentEntry {
   firstName: string;
   lastName: string;
   className: string;
-  age: number;
   parentNames: string[];
 }
 
@@ -21,7 +20,6 @@ interface ConversationPreview {
 
 interface Props {
   teacherName: string;
-  classesTaught: string[];
   classGroups: { className: string; count: number }[];
   students: StudentEntry[];
   recentConversations: ConversationPreview[];
@@ -36,12 +34,13 @@ const roleLabel: Record<string, string> = {
 
 export default function TeacherDashboardClient({
   teacherName,
-  classesTaught,
   classGroups,
   students,
   recentConversations,
   unreadCount,
 }: Props) {
+  const classNames = classGroups.map((g) => g.className);
+
   return (
     <div style={{ maxWidth: 1080, margin: '0 auto', fontFamily: 'Inter, sans-serif', paddingBottom: 60 }}>
       <link
@@ -118,14 +117,14 @@ export default function TeacherDashboardClient({
             Bonjour, {teacherName}
           </h1>
           <p style={{ color: '#5A6A7A', fontSize: 15, margin: 0 }}>
-            {classesTaught.length > 0
-              ? `Vous encadrez ${classesTaught.length} classe${classesTaught.length > 1 ? 's' : ''} : ${classesTaught.join(', ')}.`
+            {classNames.length > 0
+              ? `Vous encadrez ${classNames.length} classe${classNames.length > 1 ? 's' : ''} : ${classNames.join(', ')}.`
               : "Aucune classe ne vous a encore été assignée — contactez votre chef d'établissement."}
           </p>
         </div>
       </Reveal>
 
-      {classesTaught.length === 0 ? (
+      {classNames.length === 0 ? (
         <Reveal delay={0.1}>
           <div className="t-card" style={{ padding: 24, borderLeft: '4px solid #FFB400' }}>
             <p style={{ margin: 0, color: '#5A6A7A', fontSize: 14 }}>
@@ -135,7 +134,6 @@ export default function TeacherDashboardClient({
         </Reveal>
       ) : (
         <>
-          {/* Stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
             <Reveal delay={0}>
               <div className="t-card t-stat-card">
@@ -145,7 +143,7 @@ export default function TeacherDashboardClient({
             </Reveal>
             <Reveal delay={0.08}>
               <div className="t-card t-stat-card">
-                <div className="t-stat-value">{classesTaught.length}</div>
+                <div className="t-stat-value">{classNames.length}</div>
                 <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Classes encadrées</div>
               </div>
             </Reveal>
@@ -159,7 +157,6 @@ export default function TeacherDashboardClient({
             </Reveal>
           </div>
 
-          {/* Class breakdown tabs */}
           <Reveal delay={0.1}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
               {classGroups.map((g) => (
@@ -170,7 +167,6 @@ export default function TeacherDashboardClient({
             </div>
           </Reveal>
 
-          {/* Roster */}
           <Reveal delay={0.1}>
             <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -185,7 +181,6 @@ export default function TeacherDashboardClient({
                       <tr style={{ background: '#FAFAFA', textAlign: 'left' }}>
                         <th style={thStyle}>Élève</th>
                         <th style={thStyle}>Classe</th>
-                        <th style={thStyle}>Âge</th>
                         <th style={thStyle}>Parent(s)</th>
                       </tr>
                     </thead>
@@ -199,7 +194,6 @@ export default function TeacherDashboardClient({
                             </div>
                           </td>
                           <td style={tdStyle}>{s.className}</td>
-                          <td style={tdStyle}>{s.age} ans</td>
                           <td style={tdStyle}>
                             {s.parentNames.length > 0 ? s.parentNames.join(', ') : <span style={{ color: '#C0392B' }}>Aucun parent lié</span>}
                           </td>
@@ -214,7 +208,6 @@ export default function TeacherDashboardClient({
         </>
       )}
 
-      {/* Messages preview */}
       <Reveal delay={0.1}>
         <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -249,13 +242,12 @@ export default function TeacherDashboardClient({
         </div>
       </Reveal>
 
-      {/* Quick actions */}
       <Reveal delay={0.1}>
         <h2 className="t-heading" style={{ fontSize: 18, marginBottom: 14 }}>Actions rapides</h2>
       </Reveal>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
         {[
-          { href: '/dashboard/teacher/attendance', label: 'Faire l\'appel', sub: 'Non encore connecté aux données' },
+          { href: '/dashboard/teacher/attendance', label: "Faire l'appel", sub: 'Non encore connecté aux données' },
           { href: '/dashboard/teacher/grades', label: 'Saisir les notes', sub: 'Non encore connecté aux données' },
           { href: '/dashboard/messages', label: 'Messagerie', sub: 'Contacter parents et direction' },
         ].map((a, i) => (

@@ -13,20 +13,35 @@ export default async function TeacherDashboard() {
     );
   }
 
-  const teacher = await prisma.user.findUnique({ where: { id: session.user.id } });
-  const classesTaught: string[] = teacher?.classesTaught ?? [];
-
-  const students = classesTaught.length
-    ? await prisma.student.findMany({
-        where: { schoolId: session.user.schoolId, className: { in: classesTaught } },
-        orderBy: [{ className: 'asc' }, { lastName: 'asc' }],
+  const classes = await prisma.class.findMany({
+    where: { teacherId: session.user.id },
+    orderBy: { name: 'asc' },
+    include: {
+      students: {
+        orderBy: { lastName: 'asc' },
         include: {
           parents: {
             include: { parent: { select: { id: true, username: true, email: true } } },
           },
         },
-      })
-    : [];
+      },
+    },
+  });
+
+  const allStudents = classes.flatMap((c: any) =>
+    c.students.map((s: any) => ({
+      id: s.id,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      className: c.name,
+      parentNames: s.parents.map((p: any) => p.parent.username),
+    }))
+  );
+
+  const classGroups = classes.map((c: any) => ({
+    className: c.name,
+    count: c.students.length,
+  }));
 
   const conversations = await prisma.conversation.findMany({
     where: { OR: [{ userAId: session.user.id }, { userBId: session.user.id }] },
@@ -47,24 +62,11 @@ export default async function TeacherDashboard() {
     },
   });
 
-  const classGroups = classesTaught.map((className) => ({
-    className,
-    count: students.filter((s: any) => s.className === className).length,
-  }));
-
   return (
     <TeacherDashboardClient
       teacherName={session.user.name ?? ''}
-      classesTaught={classesTaught}
       classGroups={classGroups}
-      students={students.map((s: any) => ({
-        id: s.id,
-        firstName: s.firstName,
-        lastName: s.lastName,
-        className: s.className,
-        age: s.age,
-        parentNames: s.parents.map((p: any) => p.parent.username),
-      }))}
+      students={allStudents}
       recentConversations={conversations.map((c: any) => {
         const other = c.userAId === session.user.id ? c.userB : c.userA;
         return {
