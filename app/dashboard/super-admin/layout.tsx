@@ -171,7 +171,7 @@ export default async function SuperAdminLayout({
             animation: none !important;
           }
         }
-      `}</script>
+      `}</style>
 
       <div className="sa-bg" aria-hidden="true">
         <div className="sa-blob sa-blob-1" />
@@ -195,26 +195,30 @@ export default async function SuperAdminLayout({
         <div className="sa-content">{children}</div>
       </div>
 
-      <script>{`
-        (function () {
-          function setActiveNav() {
-            var path = window.location.pathname;
-            var links = document.querySelectorAll('.sa-nav-link');
-            var bestMatch = null;
-            var bestLen = -1;
-            links.forEach(function (link) {
-              var href = link.getAttribute('data-href');
-              link.classList.remove('active');
-              if (href && path.indexOf(href) === 0 && href.length > bestLen) {
-                bestMatch = link;
-                bestLen = href.length;
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              function setActiveNav() {
+                var path = window.location.pathname;
+                var links = document.querySelectorAll('.sa-nav-link');
+                var bestMatch = null;
+                var bestLen = -1;
+                links.forEach(function (link) {
+                  var href = link.getAttribute('data-href');
+                  link.classList.remove('active');
+                  if (href && path.indexOf(href) === 0 && href.length > bestLen) {
+                    bestMatch = link;
+                    bestLen = href.length;
+                  }
+                });
+                if (bestMatch) bestMatch.classList.add('active');
               }
-            });
-            if (bestMatch) bestMatch.classList.add('active');
-          }
-          setActiveNav();
-        })();
-      `}</script>
+              setActiveNav();
+            })();
+          `,
+        }}
+      />
     </div>
   );
 }

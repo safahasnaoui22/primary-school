@@ -125,10 +125,6 @@ export default async function SuperAdminDashboard() {
           font-size: 18px;
         }
 
-        .sa-reveal {
-          opacity: 1;
-          transform: none;
-        }
         .sa-reveal.sa-pending {
           opacity: 0;
           transform: translateY(24px);
@@ -219,7 +215,7 @@ export default async function SuperAdminDashboard() {
           }
           .sa-reveal.sa-pending { opacity: 1; transform: none; }
         }
-      `}</script>
+      `}</style>
 
       <h1 className="sa-h1">Platform Overview</h1>
       <p className="sa-intro">
@@ -281,65 +277,67 @@ export default async function SuperAdminDashboard() {
         <Link href="/dashboard/super-admin/payments" className="sa-btn-outline">View Payments</Link>
       </div>
 
-      <script>{`
-        (function () {
-          // Scroll-triggered reveal for sections below the fold
-          var revealEls = document.querySelectorAll('[data-reveal]');
-          revealEls.forEach(function (el) { el.classList.add('sa-pending'); });
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              var revealEls = document.querySelectorAll('[data-reveal]');
+              revealEls.forEach(function (el) { el.classList.add('sa-pending'); });
 
-          if ('IntersectionObserver' in window) {
-            var observer = new IntersectionObserver(
-              function (entries) {
-                entries.forEach(function (entry) {
-                  if (entry.isIntersecting) {
-                    entry.target.classList.remove('sa-pending');
-                    entry.target.classList.add('sa-in-view');
-                    observer.unobserve(entry.target);
-                  }
-                });
-              },
-              { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
-            );
-            revealEls.forEach(function (el) { observer.observe(el); });
-          } else {
-            revealEls.forEach(function (el) { el.classList.remove('sa-pending'); });
-          }
+              if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(
+                  function (entries) {
+                    entries.forEach(function (entry) {
+                      if (entry.isIntersecting) {
+                        entry.target.classList.remove('sa-pending');
+                        entry.target.classList.add('sa-in-view');
+                        observer.unobserve(entry.target);
+                      }
+                    });
+                  },
+                  { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+                );
+                revealEls.forEach(function (el) { observer.observe(el); });
+              } else {
+                revealEls.forEach(function (el) { el.classList.remove('sa-pending'); });
+              }
 
-          // Count-up animation for stat values, triggered once visible
-          var statEls = document.querySelectorAll('.sa-stat-value[data-value]');
-          function animateCount(el) {
-            var target = parseFloat(el.getAttribute('data-value') || '0');
-            var prefix = el.getAttribute('data-prefix') || '';
-            var duration = 900;
-            var start = null;
-            function step(ts) {
-              if (start === null) start = ts;
-              var progress = Math.min((ts - start) / duration, 1);
-              var eased = 1 - Math.pow(1 - progress, 3);
-              var current = Math.round(target * eased);
-              el.textContent = prefix + current.toLocaleString();
-              if (progress < 1) window.requestAnimationFrame(step);
-              else el.textContent = prefix + target.toLocaleString();
-            }
-            window.requestAnimationFrame(step);
-          }
+              var statEls = document.querySelectorAll('.sa-stat-value[data-value]');
+              function animateCount(el) {
+                var target = parseFloat(el.getAttribute('data-value') || '0');
+                var prefix = el.getAttribute('data-prefix') || '';
+                var duration = 900;
+                var start = null;
+                function step(ts) {
+                  if (start === null) start = ts;
+                  var progress = Math.min((ts - start) / duration, 1);
+                  var eased = 1 - Math.pow(1 - progress, 3);
+                  var current = Math.round(target * eased);
+                  el.textContent = prefix + current.toLocaleString();
+                  if (progress < 1) window.requestAnimationFrame(step);
+                  else el.textContent = prefix + target.toLocaleString();
+                }
+                window.requestAnimationFrame(step);
+              }
 
-          if ('IntersectionObserver' in window) {
-            var statObserver = new IntersectionObserver(
-              function (entries) {
-                entries.forEach(function (entry) {
-                  if (entry.isIntersecting) {
-                    animateCount(entry.target);
-                    statObserver.unobserve(entry.target);
-                  }
-                });
-              },
-              { threshold: 0.4 }
-            );
-            statEls.forEach(function (el) { statObserver.observe(el); });
-          }
-        })();
-      `}</script>
+              if ('IntersectionObserver' in window) {
+                var statObserver = new IntersectionObserver(
+                  function (entries) {
+                    entries.forEach(function (entry) {
+                      if (entry.isIntersecting) {
+                        animateCount(entry.target);
+                        statObserver.unobserve(entry.target);
+                      }
+                    });
+                  },
+                  { threshold: 0.4 }
+                );
+                statEls.forEach(function (el) { statObserver.observe(el); });
+              }
+            })();
+          `,
+        }}
+      />
     </div>
   );
 }
