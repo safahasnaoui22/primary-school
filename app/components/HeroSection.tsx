@@ -15,6 +15,7 @@ export default function HeroSection() {
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   // ── Refs for GSAP targets ──
   const rootRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,7 @@ export default function HeroSection() {
   const logoMarkRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
 
-  const heroContentRef = useRef<HTMLDivElement>(null);   // NEW
+  const heroContentRef = useRef<HTMLDivElement>(null);
   const heroEyebrowRef = useRef<HTMLDivElement>(null);
   const heroH1Ref = useRef<HTMLHeadingElement>(null);
   const heroPRef = useRef<HTMLParagraphElement>(null);
@@ -39,43 +40,67 @@ export default function HeroSection() {
   const btnPrimaryRef = useRef<HTMLAnchorElement>(null);
   const btnOutlineRef = useRef<HTMLAnchorElement>(null);
 
-  // ── Lenis smooth scroll, synced with GSAP ticker + ScrollTrigger ──
+  // ── Mark component as mounted ──
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // ── Lenis smooth scroll ──
+  useEffect(() => {
+    if (!isMounted) return;
+
     const lenis = new Lenis({
       duration: 1.15,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.5,
+      normalizeWheel: true,
+      infinite: false,
     });
 
-    lenis.on('scroll', ScrollTrigger.update);
+    // Update ScrollTrigger on Lenis scroll
+    lenis.on('scroll', () => {
+      ScrollTrigger.update();
+    });
 
-    const tickerFn = (time: number) => {
+    // Proper GSAP ticker integration
+    const update = (time: number) => {
       lenis.raf(time * 1000);
     };
-    gsap.ticker.add(tickerFn);
+    
+    gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
 
+    // Force initial render
+    requestAnimationFrame((time) => {
+      lenis.raf(time);
+    });
+
     return () => {
-      gsap.ticker.remove(tickerFn);
+      gsap.ticker.remove(update);
       lenis.destroy();
+      ScrollTrigger.getAll().forEach(t => t.kill());
     };
-  }, []);
+  }, [isMounted]);
 
   // ── Scroll progress bar + navbar shrink trigger ──
   useEffect(() => {
+    if (!isMounted) return;
+
     const handleScroll = () => {
-      const winScroll = document.documentElement.scrollTop;
+      const winScroll = window.pageYOffset || document.documentElement.scrollTop;
       const height =
         document.documentElement.scrollHeight -
         document.documentElement.clientHeight;
       setProgress(height > 0 ? (winScroll / height) * 100 : 0);
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMounted]);
 
   // ── Navbar shrink polish ──
   useEffect(() => {
@@ -92,9 +117,10 @@ export default function HeroSection() {
     });
   }, [scrolled]);
 
-  // ── Big GSAP setup: SplitText, stagger reveals, parallax, floating badges,
-  //     animated counters, image zoom, magnetic buttons, and now ScrollTrigger fade‑out/‑in ──
+  // ── Big GSAP setup ──
   useLayoutEffect(() => {
+    if (!isMounted) return;
+
     let split: SplitText | null = null;
     let ctx: gsap.Context | undefined;
     let cleanupFns: Array<() => void> = [];
@@ -138,7 +164,7 @@ export default function HeroSection() {
             0.3
           );
 
-        // ── NEW: Scroll‑triggered fade‑out of hero content ──
+        // ── Scroll‑triggered fade‑out of hero content ──
         if (heroContentRef.current) {
           gsap.to(heroContentRef.current, {
             opacity: 0,
@@ -153,54 +179,67 @@ export default function HeroSection() {
           });
         }
 
-        // ── Parallax on scroll (already present) ──
-        gsap.to(heroFrameRef.current, {
-          yPercent: -8,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: rootRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
-        gsap.to(doodleArrowRef.current, {
-          yPercent: 40,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: rootRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
-        gsap.to(heroEyebrowRef.current, {
-          yPercent: -60,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: rootRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
+        // ── Parallax on scroll ──
+        if (heroFrameRef.current) {
+          gsap.to(heroFrameRef.current, {
+            yPercent: -8,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: rootRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+        
+        if (doodleArrowRef.current) {
+          gsap.to(doodleArrowRef.current, {
+            yPercent: 40,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: rootRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+        
+        if (heroEyebrowRef.current) {
+          gsap.to(heroEyebrowRef.current, {
+            yPercent: -60,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: rootRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
 
         // ── Continuous floating badges ──
-        gsap.to(admissionsFloatRef.current, {
-          y: -8,
-          duration: 2.4,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        });
-        gsap.to(ratingsFloatRef.current, {
-          y: 7,
-          duration: 2.8,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: 0.3,
-        });
+        if (admissionsFloatRef.current) {
+          gsap.to(admissionsFloatRef.current, {
+            y: -8,
+            duration: 2.4,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          });
+        }
+        
+        if (ratingsFloatRef.current) {
+          gsap.to(ratingsFloatRef.current, {
+            y: 7,
+            duration: 2.8,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            delay: 0.3,
+          });
+        }
 
         // ── Animated counters with ScrollTrigger ──
         const counters = gsap.utils.toArray<HTMLElement>('[data-target]');
@@ -224,7 +263,7 @@ export default function HeroSection() {
           });
         });
 
-        // ── NEW: Scroll‑triggered fade‑in for the stats bar ──
+        // ── Stats bar fade-in ──
         if (statsRef.current) {
           gsap.fromTo(
             statsRef.current,
@@ -301,11 +340,16 @@ export default function HeroSection() {
       split?.revert();
       ctx?.revert();
     };
-  }, []);
+  }, [isMounted]);
 
   // ── Drawer ──
   const openDrawer = () => setDrawerOpen(true);
   const closeDrawer = () => setDrawerOpen(false);
+
+  // Prevent hydration mismatch
+  if (!isMounted) {
+    return <div className={styles.herosection} style={{ minHeight: '100vh' }} />;
+  }
 
   return (
     <>
@@ -404,7 +448,6 @@ export default function HeroSection() {
               <Link href="/Inscription" className={styles.btnAmber}>
                 Inscription
               </Link>
-
               <InstallButton compact={true} />
               <button
                 className={styles.navToggle}
@@ -481,7 +524,7 @@ export default function HeroSection() {
         {/* ── HERO ── */}
         <section className={styles.hero}>
           <div className={styles.heroInner}>
-            {/* ── HERO CONTENT WITH REF FOR FADE‑OUT ── */}
+            {/* ── HERO CONTENT ── */}
             <div className={styles.heroContent} ref={heroContentRef}>
               <div className={styles.heroEyebrow} ref={heroEyebrowRef}>
                 <span className={styles.heroEyebrowDot} />
@@ -543,11 +586,10 @@ export default function HeroSection() {
                   </div>
                   Campus Sécurisé
                 </div>
-            
               </div>
             </div>
 
-            {/* ── HERO VISUAL — wider photo, notebook composition ── */}
+            {/* ── HERO VISUAL ── */}
             <div className={styles.heroVisual} ref={heroVisualRef}>
               <div className={styles.heroFrameWrap} ref={heroFrameWrapRef}>
                 <div className={styles.dotsDeco} />
