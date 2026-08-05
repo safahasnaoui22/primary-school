@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import Head from 'next/head';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function AuthentificationPage() {
@@ -44,12 +44,38 @@ export default function AuthentificationPage() {
     });
 
     setLoading(false);
+if (result?.error) {
+  setError(result.error);
+} else {
+  const session = await getSession();
 
-    if (result?.error) {
-      setError(result.error);
-    } else {
-      router.push('/dashboard'); // change to your protected route
-    }
+  console.log("Login result:", result);
+  console.log("Session:", session);
+
+  const role = (session?.user as any)?.role;
+
+  switch (role) {
+    case 'SUPER_ADMIN':
+      router.replace('/dashboard/super-admin');
+      break;
+
+    case 'SCHOOL_OWNER':
+      router.replace('/dashboard/school-owner');
+      break;
+
+    case 'TEACHER':
+      router.replace('/dashboard/teacher');
+      break;
+
+    case 'PARENT':
+      router.replace('/dashboard/parent');
+      break;
+
+    default:
+      setError('Session not created. Please try again.');
+      console.error('No session or unknown role:', session);
+  }
+}
   };
 
   const handleRegister = async (e: FormEvent) => {
