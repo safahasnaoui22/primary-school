@@ -628,27 +628,6 @@ export default function ClassDetailClient({
         </div>
       </div>
 
-      {/* Gallery */}
-      <div className="cd-gallery-section cd-reveal">
-        <span className="cd-section-eyebrow">Immersion</span>
-        <h2 className="cd-section-title">Découvrez notre environnement d'apprentissage</h2>
-        <Swiper
-          modules={[Autoplay, Pagination, Navigation, EffectFade]}
-          effect="fade"
-          fadeEffect={{ crossFade: true }}
-          loop
-          autoplay={prefersReduced ? false : { delay: 4200, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          navigation
-          className="cd-gallery-swiper"
-        >
-          {galleryImages.map((src, i) => (
-            <SwiperSlide key={i}>
-              <Image src={src} alt="" fill sizes="100vw" style={{ objectFit: 'cover' }} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
 
       {/* Final CTA */}
       <section className="cd-final-cta">
