@@ -1,94 +1,106 @@
-// components/ClassesSection.tsx
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import Image from "next/image";
-import styles from "./ClassesSection.module.css";
+import { useEffect, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import styles from './ClassesSection.module.css';
+import { classesData } from '@/lib/classesData';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+const tools = ['calculator', 'ruler', 'book', 'pen-fancy', 'backpack', 'globe-americas'];
+const toolColors = ['#4a6bff', '#ff6b6b', '#4cff8f', '#ffc04c', '#b84cff', '#4cc3ff'];
 
 export default function ClassesSection() {
-  useEffect(() => {
-    // Create floating tool icons
-    const tools = ['calculator', 'ruler', 'book', 'pen-fancy', 'backpack', 'globe-americas'];
-    const colors = ['#4a6bff', '#ff6b6b', '#4cff8f', '#ffc04c', '#b84cff', '#4cc3ff'];
-    
-    for (let i = 0; i < 15; i++) {
-      const tool = document.createElement('div');
-      tool.className = styles.floatingTools;
-      tool.innerHTML = `<i class="fas fa-${tools[i % tools.length]}"></i>`;
-      tool.style.color = colors[i % colors.length];
-      tool.style.fontSize = `${Math.random() * 30 + 20}px`;
-      tool.style.left = `${Math.random() * 100}%`;
-      tool.style.top = `${Math.random() * 100}%`;
-      tool.style.animationDelay = `${Math.random() * 10}s`;
-      tool.style.animationDuration = `${Math.random() * 10 + 10}s`;
-      document.body.appendChild(tool);
-    }
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const boxRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-    // Cleanup
-    return () => {
-      const floatingTools = document.querySelectorAll(`.${styles.floatingTools}`);
-      floatingTools.forEach(tool => tool.remove());
-    };
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(headerRef.current, {
+        opacity: 0,
+        y: 40,
+        duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: headerRef.current,
+          start: 'top 85%',
+          toggleActions: 'play reverse play reverse',
+        },
+      });
+
+      boxRefs.current.forEach((box, i) => {
+        if (!box) return;
+        gsap.from(box, {
+          opacity: 0,
+          y: 60,
+          scale: 0.96,
+          duration: 0.7,
+          delay: (i % 3) * 0.08,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: box,
+            start: 'top 90%',
+            toggleActions: 'play reverse play reverse',
+          },
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
-  const classes = [
-    {
-      title: "1ʳᵉ année primaire",
-      subtitle: "Premiers pas dans l'apprentissage",
-      description: "Notre programme de 1ʳᵉ année initie les enfants aux bases de la lecture, de l'écriture et des mathématiques dans un environnement ludique et stimulant. Nous favorisons la curiosité et la socialisation.",
-      image: "https://i.pinimg.com/1200x/ad/63/bf/ad63bf4b9c7143ff3e8c0cf1c141e7e4.jpg",
-    },
-    {
-      title: "2ᵉ année primaire",
-      subtitle: "Consolidation des bases",
-      description: "La 2ᵉ année renforce les compétences en lecture et en mathématiques tout en introduisant la science et les arts. L'objectif est de développer la confiance et l'envie d'apprendre.",
-      image: "https://i.pinimg.com/1200x/c2/49/0a/c2490a2601c770f4fa38d2097dd1400e.jpg",
-    },
-    {
-      title: "3ᵉ année primaire",
-      subtitle: "Exploration et créativité",
-      description: "Les élèves approfondissent la compréhension en lecture, les mathématiques et les matières créatives. Nous encourageons la réflexion critique, la curiosité et le travail en équipe.",
-      image: "https://i.pinimg.com/1200x/55/81/f5/5581f531f322cfb5d66912f9a0053b30.jpg",
-    },
-    {
-      title: "4ᵉ année primaire",
-      subtitle: "4ᵉ année primaire",
-      description: "La 4ᵉ année consolide les compétences académiques et introduit des concepts avancés en sciences, mathématiques et langues. Les élèves participent aussi à des activités artistiques et sportives.",
-      image: "https://i.pinimg.com/1200x/30/0a/eb/300aeb4165381bfa01b10fe235b52804.jpg",
-    },
-    {
-      title: "5ᵉ année primaire",
-      subtitle: "Préparation aux défis",
-      description: "La 5ᵉ année développe la résolution de problèmes, la pensée critique et le leadership. Les élèves combinent apprentissage académique et activités créatives.",
-      image: "https://i.pinimg.com/1200x/51/14/73/5114730a8ab32444e2287ed24da0458d.jpg",
-    },
-    {
-      title: "6ᵉ année primaire",
-      subtitle: "Prêts pour le collège",
-      description: "La 6ᵉ année prépare les élèves au collège avec des cours avancés en mathématiques, sciences et langues, tout en renforçant la confiance et l'autonomie.",
-      image: "https://i.pinimg.com/736x/15/ae/ed/15aeed976be9d402544804e87a10e704.jpg",
-    },
-  ];
-
   return (
-    <div className={styles.classsection}>
-      <div className={styles.headerclasses}>
+    <div className={styles.classsection} ref={sectionRef}>
+      {/* Decorative floating icons — now scoped to this section only */}
+      <div className={styles.toolsLayer} aria-hidden="true">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <i
+            key={i}
+            className={`fas fa-${tools[i % tools.length]} ${styles.floatingTools}`}
+            style={{
+              color: toolColors[i % toolColors.length],
+              fontSize: `${20 + Math.random() * 26}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${10 + Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className={styles.headerclasses} ref={headerRef}>
         <h1 className={styles.h1classes}>Les Classes que Nous Proposons</h1>
         <p className={styles.pclasses}>
-          Découvrez nos classes de la 1ʳᵉ à la 6ᵉ année primaire, où chaque enfant apprend, grandit et s'épanouit dans un environnement sûr et stimulant.
+          Découvrez nos classes de la 1ʳᵉ à la 6ᵉ année primaire, où chaque enfant apprend, grandit et s'épanouit
+          dans un environnement sûr et stimulant.
         </p>
       </div>
 
       <div className={styles.container}>
-        {classes.map((classItem, index) => (
-          <div key={index} className={styles.box}>
+        {classesData.map((classItem, index) => (
+          <div
+            key={classItem.slug}
+            className={styles.box}
+            ref={(el) => {
+              boxRefs.current[index] = el;
+            }}
+          >
             <div className={styles.imgBox} title={classItem.title}>
               <Image src={classItem.image} alt={classItem.title} width={310} height={450} />
             </div>
             <div className={styles.content}>
               <h2 className={styles.h2classes}>{classItem.subtitle}</h2>
               <p>{classItem.description}</p>
-              <button className={styles.ghostBtn}>En savoir plus</button>
+              <Link href={`/classes/${classItem.slug}`} className={styles.ghostBtn}>
+                En savoir plus
+              </Link>
             </div>
           </div>
         ))}

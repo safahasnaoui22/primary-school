@@ -186,6 +186,8 @@ background: linear-gradient(
 }
 
 .ghostBtn {
+    display: inline-block;
+  text-decoration: none;
   position: absolute;
   z-index: 10;
   margin-top: 1em;
@@ -223,3 +225,17 @@ background: linear-gradient(
   50% { transform: translateY(-50px) rotate(10deg); }
 }
 
+.toolsLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.toolsLayer .floatingTools {
+  position: absolute;
+  opacity: 0.12;
+  animation: float 15s infinite ease-in-out;
+  pointer-events: none;
+}
