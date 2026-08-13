@@ -98,9 +98,13 @@ export default function ClassesSection() {
             <div className={styles.content}>
               <h2 className={styles.h2classes}>{classItem.subtitle}</h2>
               <p>{classItem.description}</p>
-              <Link href={`/classes/${classItem.slug}`} className={styles.ghostBtn}>
-                En savoir plus
-              </Link>
+             <Link
+  href={`/classes/${classItem.slug}`}
+  className={styles.ghostBtn}
+  onClick={(e) => e.stopPropagation()}
+>
+  En savoir plus
+</Link>
             </div>
           </div>
         ))}
