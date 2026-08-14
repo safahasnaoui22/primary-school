@@ -857,237 +857,58 @@
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1024px) {
-  .heroInner {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 48px;
-  }
-  .heroP {
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .heroBtns {
-    justify-content: center;
-  }
-  .heroBadges {
-    justify-content: center;
-  }
-  .heroFrameWrap {
-    max-width: 380px;
-  }
-  .statsInner {
-    flex-wrap: wrap;
-  }
-  .statCell {
-    flex: 1 1 50%;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .statCell:nth-child(even) {
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-  }
-}
-
-@media (max-width: 768px) {
-  .topbarInner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  .topbarLeft {
-    flex-direction: column;
-    gap: 4px;
-  }
+/* iPad landscape specific fix */
+@media (min-width: 1024px) and (max-width: 1180px) and (orientation: landscape) {
   .navMenu {
-    display: none;
+    display: none; /* Hide nav menu to make space */
   }
+  
   .navToggle {
-    display: block;
-  }
-  .navActions .btnGhost,
-  .navActions .btnAmber {
-    display: none;
-  }
-  .hero {
-    padding: 48px 0 32px;
-    min-height: auto;
-  }
-  .heroH1 {
-    font-size: 36px;
-  }
-  .heroBadges {
-    flex-direction: column;
-  }
-  .heroBadgeItem {
-    border-right: none;
-    border-bottom: 1px solid var(--line-soft);
-    justify-content: center;
-  }
-  .heroBadgeItem:last-child {
-    border-bottom: none;
-  }
-  .heroFrameWrap {
-    max-width: 300px;
-    margin-top: 30px;
-  }
-  .doodleArrow {
-    display: none;
-  }
-  .stampBadge {
-    left: 10px;
-    top: 10px;
-  }
-  .ratingsFloat {
-    right: 6px;
-    top: -16px;
-  }
-  .admissionsFloat {
-    left: 6px;
-    bottom: -18px;
-    min-width: 190px;
-  }
-  .paperCard {
-    inset: 16px -10px -10px 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .heroH1 {
-    font-size: 28px;
-  }
-  .heroBtns {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .btnHeroPrimary,
-  .btnHeroOutline {
-    justify-content: center;
-  }
-  .heroFrameWrap {
-    max-width: 240px;
-  }
-  .dotsDeco {
-    display: none;
-  }
-  .ratingsFloat {
-    display: none;
-  }
-  .admissionsFloat {
-    min-width: auto;
-    max-width: 180px;
-    padding: 14px 16px;
-    left: 0;
-  }
-  .stampBadge {
-    display: none;
-  }
-  .statCell {
-    flex: 1 1 100%;
-    padding: 16px 16px;
-    gap: 12px;
-  }
-  .statIco {
-    width: 36px;
-    height: 36px;
-  }
-  .statNum {
-    font-size: 22px;
-  }
-  .statLbl {
-    font-size: 9.5px;
-  }
-  .statsInner {
-    padding: 0 12px;
-  }
-  .mobileActionsBtn {
-    margin-bottom: 8px;
-  }
-}
-
-/* ── GSAP: prevent layout shift while SplitText measures characters ── */
-.heroH1 :global(.char) {
-  will-change: transform, opacity;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroEyebrowDot {
-    animation: none;
-  }
-  
-  .navActions > * {
-    animation: none;
-    opacity: 1;
-  }
-}
-
-
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1024px) {
-  .navInner {
-    gap: 16px;
-    padding: 0 20px;
-  }
-  
-  .navMenu {
-    gap: 0;
-  }
-  
-  .navMenu a {
-    padding: 8px 10px;
-    font-size: 12px;
+    display: block; /* Show hamburger menu */
   }
   
   .navActions {
     gap: 8px;
   }
   
+  /* Keep all action buttons visible */
+  .navActions > * {
+    display: inline-flex !important;
+    white-space: nowrap;
+  }
+  
   .btnGhost {
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 12px;
   }
   
   .btnAmber {
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 12px;
   }
-}
-
-@media (max-width: 768px) {
-  .navActions .btnGhost,
-  .navActions .btnAmber {
-    display: none;
-  }
   
-  /* Keep InstallButton always visible */
+  /* Ensure InstallButton is visible */
   .navActions > button,
   .navActions > :global(.install-button) {
     display: inline-flex !important;
+    flex-shrink: 0;
   }
 }
 
-/* iPad portrait - hide menu to make room for InstallButton */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-  .navMenu {
-    display: none;
-  }
-  
-  .navToggle {
-    display: block;
+/* For larger iPad landscape */
+@media (min-width: 1181px) and (max-width: 1366px) and (orientation: landscape) {
+  .navMenu a {
+    padding: 8px 10px;
+    font-size: 12px;
   }
   
   .navActions > * {
     display: inline-flex !important;
   }
-}
-
-/* iPad landscape - ensure all nav items fit */
-@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-  .navActions > * {
+  
+  .navActions > button,
+  .navActions > :global(.install-button) {
     display: inline-flex !important;
+    flex-shrink: 0;
   }
 }
