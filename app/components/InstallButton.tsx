@@ -23,8 +23,13 @@ export default function InstallButton({ compact = false }: InstallButtonProps) {
       setIsInstalled(true);
     }
 
-    // Detect iOS
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
+    // Detect iOS. iPadOS 13+ reports its user agent as desktop Safari (Mac),
+    // so we also check for a "Mac" platform with touch support, since a real
+    // Mac never has touch points but an iPad always does.
+    setIsIOS(
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    );
 
     // Listen for install prompt
     const handler = (e: Event) => {
