@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body> 
         
-     <RegisterSW />
+  
   <Providers>{children}</Providers>
           
           </body>
