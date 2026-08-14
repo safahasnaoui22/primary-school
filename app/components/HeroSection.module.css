@@ -1023,3 +1023,71 @@
     opacity: 1;
   }
 }
+
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .navInner {
+    gap: 16px;
+    padding: 0 20px;
+  }
+  
+  .navMenu {
+    gap: 0;
+  }
+  
+  .navMenu a {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .navActions {
+    gap: 8px;
+  }
+  
+  .btnGhost {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .btnAmber {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navActions .btnGhost,
+  .navActions .btnAmber {
+    display: none;
+  }
+  
+  /* Keep InstallButton always visible */
+  .navActions > button,
+  .navActions > :global(.install-button) {
+    display: inline-flex !important;
+  }
+}
+
+/* iPad portrait - hide menu to make room for InstallButton */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .navMenu {
+    display: none;
+  }
+  
+  .navToggle {
+    display: block;
+  }
+  
+  .navActions > * {
+    display: inline-flex !important;
+  }
+}
+
+/* iPad landscape - ensure all nav items fit */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .navActions > * {
+    display: inline-flex !important;
+  }
+}
