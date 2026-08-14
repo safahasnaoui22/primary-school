@@ -40,34 +40,48 @@ export default function HeroSection() {
   const btnPrimaryRef = useRef<HTMLAnchorElement>(null);
   const btnOutlineRef = useRef<HTMLAnchorElement>(null);
 
-
+  // ── Mark component as mounted ──
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // ── Lenis smooth scroll ──
-useEffect(() => {
-  const lenis = new Lenis({
-    duration: 1.15,
-    easing: (t: number) =>
-      Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: true,
-    touchMultiplier: 1.5,
-  });
+  useEffect(() => {
+    if (!isMounted) return;
 
-  const update = (time: number) => {
-    lenis.raf(time * 1000);
-  };
+    const lenis = new Lenis({
+      duration: 1.15,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+      // REMOVED: normalizeWheel and infinite (not valid options in this version)
+    });
 
-  lenis.on("scroll", () => {
-    ScrollTrigger.update();
-  });
+    // Update ScrollTrigger on Lenis scroll
+    lenis.on('scroll', () => {
+      ScrollTrigger.update();
+    });
 
-  gsap.ticker.add(update);
-  gsap.ticker.lagSmoothing(0);
+    // Proper GSAP ticker integration
+    const update = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    
+    gsap.ticker.add(update);
+    gsap.ticker.lagSmoothing(0);
 
-  return () => {
-    gsap.ticker.remove(update);
-    lenis.destroy();
-  };
-}, []);
+    // Force initial render
+    requestAnimationFrame((time) => {
+      lenis.raf(time);
+    });
+
+    return () => {
+      gsap.ticker.remove(update);
+      lenis.destroy();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, [isMounted]);
+
   // ── Scroll progress bar + navbar shrink trigger ──
   useEffect(() => {
     if (!isMounted) return;

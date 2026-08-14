@@ -239,3 +239,8 @@ background: linear-gradient(
   animation: float 15s infinite ease-in-out;
   pointer-events: none;
 }
+@media (max-width: 1024px) and (min-width: 769px) {
+  .container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
