@@ -7,6 +7,9 @@
   padding: 0;
   box-sizing: border-box;
 }
+html {
+  overscroll-behavior-y: contain; /* prevents the whole page from bouncing/scrolling oddly in standalone mode */
+}
 
 
 html {
