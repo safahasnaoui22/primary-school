@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import PullToRefresh from "./components/Pulltorefresh";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         
   
   <Providers>{children}</Providers>
-          
+            <PullToRefresh />
           </body>
     </html>
   );

@@ -3,11 +3,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './HeroSection.module.css';
 import InstallButton from './InstallButton';
+
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
+import RefreshButton from './RefreshButton';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -428,6 +430,7 @@ export default function HeroSection() {
                 </svg>
               </div>
               <div>
+                <RefreshButton />
                 <div className={styles.logoName}>EduSmart</div>
                 <div className={styles.logoSub}>École Primaire</div>
               </div>
