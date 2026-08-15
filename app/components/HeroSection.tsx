@@ -436,8 +436,7 @@ export default function HeroSection() {
               <li><a href="#" className={styles.active}>Accueil</a></li>
               <li><a href="#">Programme Scolaire</a></li>
               <li><a href="#">Vie Scolaire</a></li>
-              <li><a href="#">Galerie</a></li>
-              <li><a href="#">Actualités</a></li>
+          
               <li><a href="#">Contact</a></li>
             </ul>
             <div className={styles.navActions}>
@@ -498,8 +497,7 @@ export default function HeroSection() {
             <li><a href="#" onClick={closeDrawer}>Accueil</a></li>
             <li><a href="#" onClick={closeDrawer}>Programme Scolaire</a></li>
             <li><a href="#" onClick={closeDrawer}>Vie Scolaire</a></li>
-            <li><a href="#" onClick={closeDrawer}>Galerie</a></li>
-            <li><a href="#" onClick={closeDrawer}>Actualités</a></li>
+          
             <li><a href="#" onClick={closeDrawer}>Contact</a></li>
           </ul>
           <div className={styles.mobileActions}>
