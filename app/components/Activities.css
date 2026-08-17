@@ -277,16 +277,16 @@ img {
   display: block;
   border: 0;
 }
-/* Add these media queries at the end of your Activities.css */
 
-/* Vertical/Portrait Tablet (≤992px) */
-@media (max-width: 992px) and (orientation: portrait) {
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
   .content {
+    max-width: 100%;
     display: flex;
     flex-wrap: nowrap;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: flex-start;
-    gap: 2vw;
+    gap: 2rem;
+    padding: 0 1rem;
   }
 
   .cube-container {
@@ -295,11 +295,7 @@ img {
     flex-shrink: 0;
   }
 
-  .photo-cube {
-    width: 220px;
-    height: 205px;
-  }
-
+  .photo-cube,
   .front,
   .back,
   .left,
@@ -314,18 +310,16 @@ img {
 
   .back {
     transform: translateZ(-88px) rotateY(270deg);
+    transform-origin: center left;
   }
 
   .left {
     transform: rotateY(-270deg) translate3d(88px, 0, 0);
+    transform-origin: top right;
   }
 
   .right {
     transform: translateZ(-88px) rotateY(180deg);
-  }
-
-  .photo-desc {
-    padding: 1.2em 1em 0;
   }
 
   .photo-desc h3 {
@@ -333,212 +327,79 @@ img {
   }
 
   .photo-desc p {
-    font-size: 0.85rem;
-  }
-
-  .button {
-    font-size: 0.75em;
-    padding: 0.7em 0;
-  }
-}
-
-/* Vertical/Small Tablet (≤768px) */
-@media (max-width: 768px) and (orientation: portrait) {
-  .content {
-    gap: 1.5vw;
-  }
-
-  .cube-container {
-    width: 180px;
-  }
-
-  .photo-cube {
-    width: 180px;
-    height: 170px;
-  }
-
-  .front,
-  .back,
-  .left,
-  .right {
-    width: 180px;
-    height: 170px;
-  }
-
-  .front {
-    transform: translate3d(0, 0, 72px);
-  }
-
-  .back {
-    transform: translateZ(-72px) rotateY(270deg);
-  }
-
-  .left {
-    transform: rotateY(-270deg) translate3d(72px, 0, 0);
-  }
-
-  .right {
-    transform: translateZ(-72px) rotateY(180deg);
-  }
-
-  .photo-desc h3 {
-    font-size: 0.9rem;
-  }
-
-  .photo-desc p {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
   }
 
   .button {
     font-size: 0.7em;
-    padding: 0.6em 0;
+    padding: 0.7em 0;
   }
 }
-
-/* Vertical/Phone (≤480px) */
-@media (max-width: 480px) and (orientation: portrait) {
-  .activities-page {
-    padding: 0 0.5em 3em;
-  }
-
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
   .content {
-    gap: 1vw;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 0 0.5rem;
   }
 
   .cube-container {
-    width: 120px;
+    width: 200px;
+    margin: 0;
+    flex-shrink: 0;
   }
 
-  .photo-cube {
-    width: 120px;
-    height: 115px;
-  }
-
+  .photo-cube,
   .front,
   .back,
   .left,
   .right {
-    width: 120px;
-    height: 115px;
+    width: 200px;
+    height: 190px;
   }
 
   .front {
-    transform: translate3d(0, 0, 48px);
+    transform: translate3d(0, 0, 80px);
   }
 
   .back {
-    transform: translateZ(-48px) rotateY(270deg);
+    transform: translateZ(-80px) rotateY(270deg);
+    transform-origin: center left;
   }
 
   .left {
-    transform: rotateY(-270deg) translate3d(48px, 0, 0);
+    transform: rotateY(-270deg) translate3d(80px, 0, 0);
+    transform-origin: top right;
   }
 
   .right {
-    transform: translateZ(-48px) rotateY(180deg);
+    transform: translateZ(-80px) rotateY(180deg);
   }
 
   .photo-desc {
-    padding: 0.8em 0.6em 0;
+    padding: 1.2em 0.8em 0;
   }
 
   .photo-desc h3 {
-    font-size: 0.75rem;
-    margin-bottom: 0.3em;
+    font-size: 0.85rem;
+    margin-top: 0;
+    margin-bottom: 0.1em;
   }
 
   .photo-desc p {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1.3;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.6em;
   }
 
   .button {
     font-size: 0.6em;
-    padding: 0.5em 0;
-    margin-top: 0.5em;
-  }
-}/* Replace the existing photo-desc related styles in your media queries */
-
-/* Vertical/Portrait Tablet (≤992px) */
-@media (max-width: 992px) and (orientation: portrait) {
-  .photo-desc {
-    padding: 0.8em 0.7em 0.5em;
-  }
-
-  .photo-desc h3 {
-    font-size: 0.8rem;
-    margin-top: 0;
-    margin-bottom: 0.2em;
-    line-height: 1.2;
-  }
-
-  .photo-desc p {
-    font-size: 0.7rem;
-    line-height: 1.3;
-    margin-bottom: 0.3em;
-    flex: 1;
-  }
-
-  .button {
-    font-size: 0.65em;
-    padding: 0.5em 0;
-    margin-top: 0.3em;
-    margin-bottom: 0.5em;
-    width: 90%;
-  }
-}
-
-/* Vertical/Small Tablet (≤768px) */
-@media (max-width: 768px) and (orientation: portrait) {
-  .photo-desc {
-    padding: 0.6em 0.5em 0.4em;
-  }
-
-  .photo-desc h3 {
-    font-size: 0.7rem;
-    margin-bottom: 0.15em;
-  }
-
-  .photo-desc p {
-    font-size: 0.6rem;
-    line-height: 1.2;
-    margin-bottom: 0.2em;
-  }
-
-  .button {
-    font-size: 0.55em;
-    padding: 0.4em 0;
-    margin-top: 0.2em;
-    margin-bottom: 0.3em;
-    width: 95%;
-  }
-}
-
-/* Vertical/Phone (≤480px) */
-@media (max-width: 480px) and (orientation: portrait) {
-  .photo-desc {
-    padding: 0.5em 0.4em 0.3em;
-  }
-
-  .photo-desc h3 {
-    font-size: 0.6rem;
-    margin-bottom: 0.1em;
-    line-height: 1.1;
-  }
-
-  .photo-desc p {
-    font-size: 0.5rem;
-    line-height: 1.15;
-    margin-bottom: 0.15em;
-  }
-
-  .button {
-    font-size: 0.45em;
-    padding: 0.35em 0;
-    margin-top: 0.15em;
-    margin-bottom: 0.2em;
-    width: 100%;
-    border-radius: 1.5em;
+    padding: 0.6em 0;
+    margin: 0.8em auto 0.5em;
+    width: 85%;
   }
 }
