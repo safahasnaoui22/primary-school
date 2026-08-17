@@ -1091,6 +1091,82 @@
     display: inline-flex !important;
   }
 }
+/* Phone and iPad vertical - Center all content */
+@media (max-width: 1024px) {
+  .heroInner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .heroContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .heroP {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .heroBtns {
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .heroBadges {
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .heroVisual {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .heroFrameWrap {
+    margin: 0 auto;
+  }
+  
+  .statsInner {
+    justify-content: center;
+  }
+  
+  .statCell {
+    justify-content: center;
+  }
+}
+
+/* Phone only - Center everything */
+@media (max-width: 480px) {
+  .heroEyebrow {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .heroH1 {
+    text-align: center;
+  }
+  
+  .heroBtns {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .heroBadges {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
 /* Phone and iPad vertical - Stats bar in one row */
 @media (max-width: 1024px) {
   .statsInner {
