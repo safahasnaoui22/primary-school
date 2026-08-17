@@ -1320,3 +1320,155 @@
     padding: 8px 10px;
   }
 }
+/* Phone and iPad vertical - Remove horizontal scroll, fit to screen */
+@media (max-width: 1024px) {
+  /* Hero Badges - Fit to screen width */
+  .heroBadges {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    gap: 0;
+  }
+  
+  .heroBadgeItem {
+    flex: 1 1 33.33%;
+    min-width: 0;
+    border-right: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 10px 8px;
+    justify-content: center;
+    gap: 5px;
+  }
+  
+  .heroBadgeItem:nth-child(3n) {
+    border-right: none;
+  }
+  
+  .heroBadgeItem:nth-last-child(-n+3) {
+    border-bottom: none;
+  }
+  
+  .badgeIcon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  
+  .badgeIcon svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Phone only - Smaller badges */
+@media (max-width: 480px) {
+  .heroBadgeItem {
+    font-size: 9px;
+    padding: 8px 5px;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  
+  .badgeIcon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .badgeIcon svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Stats Bar - Remove horizontal scroll, allow 2 rows */
+@media (max-width: 1024px) {
+  .statsInner {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow: hidden;
+    width: 100%;
+  }
+  
+  .statCell {
+    flex: 0 0 33.33%;
+    min-width: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    justify-content: center;
+    padding: 20px 12px;
+  }
+  
+  .statCell:nth-child(3n) {
+    border-right: none;
+  }
+  
+  .statCell:nth-child(n+4) {
+    border-bottom: none;
+  }
+  
+  .statIco {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+  
+  .statIco svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .statNum {
+    font-size: 22px;
+  }
+  
+  .statLbl {
+    font-size: 9px;
+  }
+}
+
+/* Phone only - 2 columns for stats */
+@media (max-width: 480px) {
+  .statCell {
+    flex: 0 0 50%;
+    padding: 15px 10px;
+    gap: 10px;
+  }
+  
+  .statCell:nth-child(3n) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .statCell:nth-child(2n) {
+    border-right: none;
+  }
+  
+  .statCell:nth-child(n+3) {
+    border-bottom: none;
+  }
+  
+  .statCell:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .statIco {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .statIco svg {
+    width: 15px;
+    height: 15px;
+  }
+  
+  .statNum {
+    font-size: 18px;
+  }
+  
+  .statLbl {
+    font-size: 8px;
+  }
+}
