@@ -14,7 +14,7 @@ export default function MethodSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize Lenis smooth scroll — minimal options for compatibility
+    // Initialize Lenis smooth scroll
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -35,13 +35,13 @@ export default function MethodSection() {
       }
     });
 
-    // Mobile layout handler
+    // Mobile/Tablet layout handler
     function handleMobileLayout() {
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      const isMobileOrTablet = window.matchMedia("(max-width: 1024px)").matches;
       const leftItems = gsap.utils.toArray(`.${styles.arch__info}`);
       const rightItems = gsap.utils.toArray(`.${styles.imgWrapper}`);
 
-      if (isMobile) {
+      if (isMobileOrTablet) {
         leftItems.forEach((item: any, i) => {
           item.style.order = i * 2;
         });
@@ -70,11 +70,42 @@ export default function MethodSection() {
     const imgs = gsap.utils.toArray(`.${styles.imgWrapper} img`);
     const bgColors = ["#EDF9FF", "#FFECF2", "#FFE8DB"];
 
+    // Check for vertical iPad
+    const isVerticalIPad = window.matchMedia(
+      "(min-width: 768px) and (max-width: 1024px) and (orientation: portrait)"
+    ).matches;
+
+    if (isVerticalIPad) {
+      // Kill all existing ScrollTrigger animations
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+
+      // Clear any GSAP styles
+      gsap.set(`.${styles.arch__right}`, { clearProps: "all" });
+      gsap.set(imgs, { clearProps: "all" });
+
+      // Remove pin-spacer elements
+      document.querySelectorAll(".pin-spacer").forEach((el) => {
+        const parent = el.parentNode;
+        if (parent) {
+          while (el.firstChild) {
+            parent.insertBefore(el.firstChild, el);
+          }
+          parent.removeChild(el);
+        }
+      });
+
+      // Cleanup and return early
+      return () => {
+        lenis.destroy();
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      };
+    }
+
     // GSAP Animation with Media Query
     let mm = gsap.matchMedia();
 
     /* ================= DESKTOP ================= */
-    mm.add("(min-width: 769px)", () => {
+    mm.add("(min-width: 1025px)", () => {
       const mainTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: `.${styles.arch}`,
@@ -132,8 +163,8 @@ export default function MethodSection() {
       });
     });
 
-    /* ================= MOBILE ================= */
-    mm.add("(max-width: 768px)", () => {
+    /* ================= MOBILE & TABLET ================= */
+    mm.add("(max-width: 1024px)", () => {
       gsap.set(imgs, {
         objectPosition: "0px 60%",
       });
@@ -168,40 +199,40 @@ export default function MethodSection() {
     };
   }, []);
 
- const methods = [
-  {
-    id: "green",
-    title: "Apprentissage Moderne",
-    description:
-      "Notre école primaire en Tunisie privilégie un apprentissage interactif où jeux éducatifs, ateliers créatifs et activités collaboratives permettent à chaque enfant d'apprendre avec plaisir et confiance.",
-    image:
-      "https://i.pinimg.com/1200x/dd/c2/1f/ddc21f7f791460cf26ee45033c5c7710.jpg",
-  },
-  {
-    id: "blue",
-    title: "Enseignement de Qualité",
-    description:
-      "Nous suivons le programme officiel tunisien avec des enseignants qualifiés, un accompagnement personnalisé et des méthodes modernes favorisant la réussite scolaire de chaque élève.",
-    image:
-      "https://i.pinimg.com/1200x/03/d1/71/03d171ab20f7868c006e5bab42339b46.jpg",
-  },
-  {
-    id: "pink",
-    title: "Épanouissement de l'Enfant",
-    description:
-      "À travers des activités sportives, artistiques et culturelles, nous développons la confiance en soi, l'autonomie, la créativité et l'esprit d'équipe pour former des enfants équilibrés.",
-    image:
-      "https://i.pinimg.com/736x/d1/1c/21/d11c21182a955a542fd863c4a6d1d8b9.jpg",
-  },
-  {
-    id: "orange",
-    title: "Cadre Sûr et Bienveillant",
-    description:
-      "Notre établissement offre un environnement sécurisé, propre et accueillant où chaque enfant évolue sereinement grâce à une équipe attentive et un climat de confiance avec les familles.",
-    image:
-      "https://i.pinimg.com/736x/81/59/27/815927097111fd8f1c4b7f0096c4f1bf.jpg",
-  },
-];
+  const methods = [
+    {
+      id: "green",
+      title: "Apprentissage Moderne",
+      description:
+        "Notre école primaire en Tunisie privilégie un apprentissage interactif où jeux éducatifs, ateliers créatifs et activités collaboratives permettent à chaque enfant d'apprendre avec plaisir et confiance.",
+      image:
+        "https://i.pinimg.com/1200x/dd/c2/1f/ddc21f7f791460cf26ee45033c5c7710.jpg",
+    },
+    {
+      id: "blue",
+      title: "Enseignement de Qualité",
+      description:
+        "Nous suivons le programme officiel tunisien avec des enseignants qualifiés, un accompagnement personnalisé et des méthodes modernes favorisant la réussite scolaire de chaque élève.",
+      image:
+        "https://i.pinimg.com/1200x/03/d1/71/03d171ab20f7868c006e5bab42339b46.jpg",
+    },
+    {
+      id: "pink",
+      title: "Épanouissement de l'Enfant",
+      description:
+        "À travers des activités sportives, artistiques et culturelles, nous développons la confiance en soi, l'autonomie, la créativité et l'esprit d'équipe pour former des enfants équilibrés.",
+      image:
+        "https://i.pinimg.com/736x/d1/1c/21/d11c21182a955a542fd863c4a6d1d8b9.jpg",
+    },
+    {
+      id: "orange",
+      title: "Cadre Sûr et Bienveillant",
+      description:
+        "Notre établissement offre un environnement sécurisé, propre et accueillant où chaque enfant évolue sereinement grâce à une équipe attentive et un climat de confiance avec les familles.",
+      image:
+        "https://i.pinimg.com/736x/81/59/27/815927097111fd8f1c4b7f0096c4f1bf.jpg",
+    },
+  ];
 
   return (
     <div className={styles.container} ref={sectionRef}>
@@ -209,18 +240,17 @@ export default function MethodSection() {
         <h1
           className={styles.h1methode}
           style={{
-           
             marginBottom: "10px",
           }}
         >
-         Pourquoi Nous Choisir
+          Pourquoi Nous Choisir
         </h1>
-<p
-  className="hide-on-mobile"
-  style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}
->
-  Les valeurs qui font de notre école un choix de confiance pour votre enfant.
-</p>
+        <p
+          className="hide-on-mobile"
+          style={{ fontSize: "18px", opacity: 0.8, color: "#374151" }}
+        >
+          Les valeurs qui font de notre école un choix de confiance pour votre enfant.
+        </p>
       </div>
 
       <div className={styles.arch}>

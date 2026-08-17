@@ -2,30 +2,28 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap");
 
 .container {
-width : 100% ;
+  width: 100%;
   padding: 2rem;
   margin: 0 auto;
   color: #121212;
   font-family: "Outfit", sans-serif;
-background: linear-gradient(
- 135deg,
- #fff9e6 0%,
- #ffeeb8 45%,
- #ffd87a 100%
-);
+  background: linear-gradient(
+    135deg,
+    #fff9e6 0%,
+    #ffeeb8 45%,
+    #ffd87a 100%
+  );
 }
+
 .h1methode {
   font-weight: 800;
   margin-bottom: 0.5rem;
-
-background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
+  background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
-
   font-family: 'DM Serif Display', serif;
-
   font-size: 2rem;
 }
 
@@ -37,7 +35,7 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
 
 @media (min-width: 1024px) {
   .h1methode {
-    font-size: 3rem; /* = 48px */
+    font-size: 3rem;
   }
 }
 
@@ -59,7 +57,6 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   justify-content: space-between;
   max-width: 1100px;
   margin-inline: auto;
-
 }
 
 .arch__left {
@@ -74,9 +71,10 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   display: grid;
   place-items: center;
 }
+
 .arch__info .header {
   font-family: Outfit;
-  font-size: clamp(1.75rem, 4vw + 0.75rem, 2.625rem); /* 28px → 42px */
+  font-size: clamp(1.75rem, 4vw + 0.75rem, 2.625rem);
   font-weight: 800;
   letter-spacing: -0.84px;
   background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
@@ -84,8 +82,9 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradientMove 8s ease infinite;
-   text-transform: none; 
+  text-transform: none;
 }
+
 .arch__info .desc {
   color: gray;
   font-size: 18px;
@@ -123,23 +122,13 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   object-position: center;
 }
 
-@media (max-width: 900px) {
-  .arch {
-    gap: 30px;
-  }
-}
-
-@media (max-width: 768px) {
+/* Tablet and Mobile - Same layout */
+@media (max-width: 1024px) {
   .arch__info .header {
-  font-family: Outfit;
-
-  font-weight: 600;
-
-}
-
-    .hide-on-mobile {
-    display: none;
+    font-family: Outfit;
+    font-weight: 600;
   }
+
   .arch {
     flex-direction: column;
     gap: 20px;
@@ -169,6 +158,39 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   }
 }
 
+/* Vertical iPad specific styles */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .h1methode {
+    font-size: 2.2rem;
+  }
+
+  .arch {
+    gap: 30px;
+  }
+
+  .arch__info .header {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .arch__info .desc {
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .imgWrapper {
+    height: 350px;
+    margin-bottom: 30px;
+  }
+}
+
 @media (max-width: 560px) {
   .arch {
     gap: 12px;
@@ -181,5 +203,51 @@ background: linear-gradient(270deg, #0b2f4e, #0077b6, #00b4d8, #0b2f4e);
   .imgWrapper {
     border-radius: 10px;
     height: 280px;
+  }
+}
+/* Vertical iPad specific styles */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .h1methode {
+    font-size: 2.5rem;
+  }
+
+  .arch {
+    gap: 40px;
+  }
+
+  .arch__info .header {
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .arch__info .desc {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    text-align: center;
+    margin-bottom: 25px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .arch__info .content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .imgWrapper {
+    height: 400px;
+    margin-bottom: 40px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
