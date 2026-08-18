@@ -14,10 +14,9 @@ interface ChildData {
   class: string;
   previousSchool: string;
 }
+type Language = 'fr';
 
-type Language = 'fr' | 'en' | 'ar';
-
-const translations: Record<Language, any> = {
+const translations: Record<Language, Record<string, string>> = {
   fr: {
     schoolName: 'École Primaire EduSmart',
     subtitle: 'Inscription 2026',
