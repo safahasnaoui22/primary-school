@@ -16,7 +16,7 @@ model User {
   school        School?   @relation(fields: [schoolId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
+postedResources Resource[] @relation("ResourceTeacher")
   childLinks         ParentStudent[] @relation("ParentLinks")
   taughtClasses      Class[]         @relation("TeacherClasses")
   recordedAttendance Attendance[]    @relation("RecordedByUser")
@@ -28,7 +28,17 @@ model User {
   enrollmentRequests EnrollmentRequest[] @relation("EnrollmentParent")
 
 }
-
+model Resource {
+  id          String   @id @default(cuid())
+  classId     String
+  class       Class    @relation(fields: [classId], references: [id])
+  teacherId   String
+  teacher     User     @relation("ResourceTeacher", fields: [teacherId], references: [id])
+  title       String
+  description String?
+  fileUrl     String?
+  createdAt   DateTime @default(now())
+}
 model School {
   id        String   @id @default(cuid())
   name      String
@@ -152,7 +162,7 @@ model Class {
   teacherId String?
   teacher   User?    @relation("TeacherClasses", fields: [teacherId], references: [id])
   createdAt DateTime @default(now())
-
+resources Resource[]
   students      Student[]
   attendance    Attendance[]
   grades        Grade[]

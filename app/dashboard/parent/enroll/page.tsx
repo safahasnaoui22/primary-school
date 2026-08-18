@@ -15,9 +15,9 @@ interface ChildData {
   previousSchool: string;
 }
 
-type Language = 'fr';
+type Language = 'fr' | 'en' | 'ar';
 
-const translations: Record<Language, Record<string, string>> = {
+const translations: Record<Language, any> = {
   fr: {
     schoolName: 'École Primaire EduSmart',
     subtitle: 'Inscription 2026',
@@ -451,7 +451,7 @@ export default function EnrollChildPage() {
                 <p>{t.confirmed}</p>
                 <p className="contact">{t.contact}</p>
                 <Link href="/dashboard/parent" className="home-btn">
-               {t.backHome}
+                  <i className="fas fa-arrow-left"></i> {t.backHome}
                 </Link>
               </div>
             </div>
