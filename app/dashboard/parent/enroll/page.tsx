@@ -451,7 +451,7 @@ export default function EnrollChildPage() {
                 <p>{t.confirmed}</p>
                 <p className="contact">{t.contact}</p>
                 <Link href="/dashboard/parent" className="home-btn">
-                  <i className="fas fa-arrow-left"></i> {t.backHome}
+               {t.backHome}
                 </Link>
               </div>
             </div>
