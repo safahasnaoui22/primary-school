@@ -16,13 +16,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Le consentement est requis' }, { status: 400 });
     }
 
-    // Single-school deployment assumption — if you later support multiple
-    // schools on one instance, pass schoolId explicitly instead of findFirst().
-    const school = await prisma.school.findFirst();
-    if (!school) {
-      return NextResponse.json({ error: 'Aucune école configurée' }, { status: 500 });
-    }
+ const schoolId = process.env.SCHOOL_ID;
+if (!schoolId) {
+  return NextResponse.json({ error: "SCHOOL_ID n'est pas configuré" }, { status: 500 });
+}
 
+const school = await prisma.school.findUnique({ where: { id: schoolId } });
+if (!school) {
+  return NextResponse.json({ error: 'École introuvable' }, { status: 500 });
+}
     const enrollment = await prisma.enrollmentRequest.create({
       data: {
         schoolId: school.id,
