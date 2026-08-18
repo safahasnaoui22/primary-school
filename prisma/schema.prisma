@@ -89,20 +89,41 @@ enum EnrollmentStatus {
   REJECTED
 }
 model EnrollmentRequest {
-  id           String           @id @default(cuid())
-  schoolId     String
-  school       School           @relation(fields: [schoolId], references: [id])
-  parentId     String
-  parent       User             @relation("EnrollmentParent", fields: [parentId], references: [id])
-  parentPhone  String
-  childrenJson Json
-  medical      String?
-  consent      Boolean          @default(false)
-  status       EnrollmentStatus @default(PENDING)
-  createdAt    DateTime         @default(now())
-  reviewedAt   DateTime?
-}
+  id          String             @id @default(cuid())
+  schoolId    String
+  school      School             @relation(fields: [schoolId], references: [id])
 
+  parentId    String
+  parent      User               @relation("EnrollmentParent", fields: [parentId], references: [id])
+
+  parentPhone String
+  medical     String?
+  consent     Boolean            @default(false)
+
+  status      EnrollmentStatus   @default(PENDING)
+
+  createdAt   DateTime            @default(now())
+  reviewedAt  DateTime?
+
+  children    EnrollmentChild[]
+}
+model EnrollmentChild {
+  id              String            @id @default(cuid())
+
+  enrollmentId    String
+  enrollment      EnrollmentRequest @relation(fields: [enrollmentId], references: [id])
+
+  firstName       String
+  lastName        String
+  age             Int
+  gender          String?
+  className       String
+  previousSchool  String?
+
+  status          EnrollmentStatus  @default(PENDING)
+
+  createdAt       DateTime           @default(now())
+}
 model Conversation {
   id        String   @id @default(cuid())
   schoolId  String
