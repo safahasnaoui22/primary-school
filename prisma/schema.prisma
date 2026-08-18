@@ -26,20 +26,9 @@ model User {
   conversationsB     Conversation[]  @relation("ConversationUserB")
   announcements      Announcement[]  @relation("AnnouncementAuthor")
   enrollmentRequests EnrollmentRequest[] @relation("EnrollmentParent")
-postedResources Resource[] @relation("ResourceTeacher")
+
 }
 
-model Resource {
-  id          String   @id @default(cuid())
-  classId     String
-  class       Class    @relation(fields: [classId], references: [id])
-  teacherId   String
-  teacher     User     @relation("ResourceTeacher", fields: [teacherId], references: [id])
-  title       String
-  description String?
-  fileUrl     String?
-  createdAt   DateTime @default(now())
-}
 model School {
   id        String   @id @default(cuid())
   name      String
@@ -89,41 +78,20 @@ enum EnrollmentStatus {
   REJECTED
 }
 model EnrollmentRequest {
-  id          String             @id @default(cuid())
-  schoolId    String
-  school      School             @relation(fields: [schoolId], references: [id])
-
-  parentId    String
-  parent      User               @relation("EnrollmentParent", fields: [parentId], references: [id])
-
-  parentPhone String
-  medical     String?
-  consent     Boolean            @default(false)
-
-  status      EnrollmentStatus   @default(PENDING)
-
-  createdAt   DateTime            @default(now())
-  reviewedAt  DateTime?
-
-  children    EnrollmentChild[]
+  id           String           @id @default(cuid())
+  schoolId     String
+  school       School           @relation(fields: [schoolId], references: [id])
+  parentId     String
+  parent       User             @relation("EnrollmentParent", fields: [parentId], references: [id])
+  parentPhone  String
+  childrenJson Json
+  medical      String?
+  consent      Boolean          @default(false)
+  status       EnrollmentStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  reviewedAt   DateTime?
 }
-model EnrollmentChild {
-  id              String            @id @default(cuid())
 
-  enrollmentId    String
-  enrollment      EnrollmentRequest @relation(fields: [enrollmentId], references: [id])
-
-  firstName       String
-  lastName        String
-  age             Int
-  gender          String?
-  className       String
-  previousSchool  String?
-
-  status          EnrollmentStatus  @default(PENDING)
-
-  createdAt       DateTime           @default(now())
-}
 model Conversation {
   id        String   @id @default(cuid())
   schoolId  String
@@ -184,7 +152,7 @@ model Class {
   teacherId String?
   teacher   User?    @relation("TeacherClasses", fields: [teacherId], references: [id])
   createdAt DateTime @default(now())
-resources Resource[]
+
   students      Student[]
   attendance    Attendance[]
   grades        Grade[]
