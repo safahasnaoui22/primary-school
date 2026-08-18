@@ -4,17 +4,17 @@ import { useEffect, useState, useCallback } from 'react';
 
 interface ChildEntry {
   firstName: string;
+  lastName: string;
   age: string;
+  gender?: string;
   class: string;
+  previousSchool?: string;
 }
 
 interface EnrollmentRequest {
   id: string;
-  parentName: string;
-  parentEmail: string;
+  parent: { username: string; email: string };
   parentPhone: string;
-  city: string;
-  street: string;
   childrenJson: ChildEntry[];
   medical: string | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -27,12 +27,14 @@ const tabs = [
   { key: 'REJECTED', label: 'Refusées' },
 ];
 
+const genderLabel: Record<string, string> = { M: 'Garçon', F: 'Fille' };
+
 export default function EnrollmentsPage() {
   const [filter, setFilter] = useState<'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING');
   const [requests, setRequests] = useState<EnrollmentRequest[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [lastResult, setLastResult] = useState<{ email: string; tempPassword: string | null } | null>(null);
+  const [lastResult, setLastResult] = useState<{ studentsCreated: number } | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/school-owner/enrollments?status=${filter}`);
@@ -50,7 +52,7 @@ export default function EnrollmentsPage() {
     const data = await res.json();
     setBusyId(null);
     if (res.ok) {
-      setLastResult({ email: data.parentEmail, tempPassword: data.tempPassword });
+      setLastResult({ studentsCreated: data.studentsCreated });
       load();
     } else {
       alert(data.error || "Échec de l'approbation");
@@ -58,7 +60,7 @@ export default function EnrollmentsPage() {
   };
 
   const reject = async (id: string) => {
-    if (!confirm('Refuser cette demande d\'inscription ?')) return;
+    if (!confirm("Refuser cette demande d'inscription ?")) return;
     setBusyId(id);
     const res = await fetch(`/api/school-owner/enrollments/${id}/reject`, { method: 'POST' });
     setBusyId(null);
@@ -79,17 +81,7 @@ export default function EnrollmentsPage() {
 
       {lastResult && (
         <div style={{ background: '#EAF3DE', border: '1px solid #C7E0AE', borderRadius: 10, padding: '14px 18px', marginBottom: 20, fontSize: 14, color: '#27500A' }}>
-          <strong>Inscription approuvée.</strong> Compte parent : {lastResult.email}
-          {lastResult.tempPassword && (
-            <>
-              {' '}— nouveau compte créé, mot de passe temporaire :{' '}
-              <code style={{ background: '#fff', padding: '2px 6px', borderRadius: 4 }}>{lastResult.tempPassword}</code>
-              <br />
-              <span style={{ fontSize: 12 }}>
-                ⚠️ Communiquez ce mot de passe au parent manuellement (aucun service d'email n'est encore configuré). Il devra le changer après connexion.
-              </span>
-            </>
-          )}
+          <strong>Inscription approuvée.</strong> {lastResult.studentsCreated} élève{lastResult.studentsCreated > 1 ? 's' : ''} ajouté{lastResult.studentsCreated > 1 ? 's' : ''} et lié{lastResult.studentsCreated > 1 ? 's' : ''} au compte du parent.
         </div>
       )}
 
@@ -138,7 +130,7 @@ export default function EnrollmentsPage() {
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 600, color: '#071B4A', fontSize: 15 }}>{r.parentName}</div>
+                  <div style={{ fontWeight: 600, color: '#071B4A', fontSize: 15 }}>{r.parent.username}</div>
                   <div style={{ fontSize: 13, color: '#5A6A7A' }}>
                     {r.childrenJson.length} enfant{r.childrenJson.length > 1 ? 's' : ''} · {new Date(r.createdAt).toLocaleDateString('fr-FR')}
                   </div>
@@ -150,19 +142,15 @@ export default function EnrollmentsPage() {
                 <div style={{ padding: '0 20px 20px', borderTop: '1px solid #F0F0F0' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16, marginBottom: 16 }}>
                     <div>
-                      <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Email</div>
-                      <div style={{ fontSize: 14 }}>{r.parentEmail}</div>
+                      <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Compte parent (email)</div>
+                      <div style={{ fontSize: 14 }}>{r.parent.email}</div>
                     </div>
                     <div>
                       <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Téléphone</div>
                       <div style={{ fontSize: 14 }}>{r.parentPhone}</div>
                     </div>
-                    <div>
-                      <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Adresse</div>
-                      <div style={{ fontSize: 14 }}>{r.street}, {r.city}</div>
-                    </div>
                     {r.medical && (
-                      <div>
+                      <div style={{ gridColumn: '1 / -1' }}>
                         <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Remarques médicales</div>
                         <div style={{ fontSize: 14 }}>{r.medical}</div>
                       </div>
@@ -174,8 +162,15 @@ export default function EnrollmentsPage() {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
                     {r.childrenJson.map((c, i) => (
-                      <div key={i} style={{ fontSize: 14, background: '#FAFAFA', padding: '8px 12px', borderRadius: 8 }}>
-                        {c.firstName} — {c.age} ans — {c.class}
+                      <div key={i} style={{ fontSize: 14, background: '#FAFAFA', padding: '10px 12px', borderRadius: 8 }}>
+                        <div style={{ fontWeight: 600, color: '#071B4A' }}>
+                          {c.firstName} {c.lastName}
+                          {c.gender && <span style={{ fontWeight: 400, color: '#5A6A7A' }}> · {genderLabel[c.gender] ?? c.gender}</span>}
+                        </div>
+                        <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 2 }}>
+                          {c.age} ans · {c.class}
+                          {c.previousSchool && ` · Ancienne école : ${c.previousSchool}`}
+                        </div>
                       </div>
                     ))}
                   </div>

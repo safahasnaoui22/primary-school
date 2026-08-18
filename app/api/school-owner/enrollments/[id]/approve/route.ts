@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -23,68 +22,42 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: 'This request has already been reviewed' }, { status: 409 });
   }
 
-  const children = enrollment.childrenJson as { firstName: string; age: string; class: string }[];
+  const children = enrollment.childrenJson as {
+    firstName: string;
+    lastName: string;
+    age: string;
+    gender?: string;
+    class: string;
+    previousSchool?: string;
+  }[];
 
   try {
-    const result = await prisma.$transaction(async (tx: any) => {
-      // Find or create the parent's User account
-      let parent = await tx.user.findUnique({ where: { email: enrollment.parentEmail } });
-      let tempPassword: string | null = null;
-
-      if (!parent) {
-        tempPassword = Math.random().toString(36).slice(-10);
-        const hashed = await bcrypt.hash(tempPassword, 10);
-        parent = await tx.user.create({
-          data: {
-            username: enrollment.parentName,
-            email: enrollment.parentEmail,
-            password: hashed,
-            role: 'PARENT',
-            schoolId: session.user.schoolId,
-          },
-        });
-      } else if (!parent.schoolId) {
-        parent = await tx.user.update({
-          where: { id: parent.id },
-          data: { schoolId: session.user.schoolId },
-        });
-      }
-
-      // Create a Student record per child, and link to the parent
-      const students = [];
-      for (const child of children) {
-        const student = await tx.student.create({
+    const students = await prisma.$transaction(
+      children.map((child: any) =>
+        prisma.student.create({
           data: {
             firstName: child.firstName,
-            lastName: enrollment.parentName.split(' ').slice(-1)[0] || '',
-            age: parseInt(child.age) || 0,
-            className: child.class,
-            schoolId: session.user.schoolId,
+            lastName: child.lastName,
+            schoolId: session.user.schoolId!,
           },
-        });
-        await tx.parentStudent.create({
-          data: { parentId: parent.id, studentId: student.id },
-        });
-        students.push(student);
-      }
+        })
+      )
+    );
 
-      const updated = await tx.enrollmentRequest.update({
-        where: { id },
-        data: { status: 'APPROVED', reviewedAt: new Date() },
-      });
+    await prisma.$transaction(
+      students.map((student: any) =>
+        prisma.parentStudent.create({
+          data: { parentId: enrollment.parentId, studentId: student.id },
+        })
+      )
+    );
 
-      return { parent, students, tempPassword, enrollment: updated };
+    await prisma.enrollmentRequest.update({
+      where: { id },
+      data: { status: 'APPROVED', reviewedAt: new Date() },
     });
 
-    return NextResponse.json({
-      success: true,
-      studentsCreated: result.students.length,
-      parentEmail: result.parent.email,
-      // Only present when a brand-new parent account was created —
-      // you'll need to communicate this to the parent some other way (email/SMS)
-      // since no email service is wired up yet.
-      tempPassword: result.tempPassword,
-    });
+    return NextResponse.json({ success: true, studentsCreated: students.length });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Failed to approve enrollment' }, { status: 500 });

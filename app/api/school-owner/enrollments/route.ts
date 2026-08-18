@@ -20,6 +20,9 @@ export async function GET(req: Request) {
       schoolId: session.user.schoolId,
       ...(status ? { status: status as any } : {}),
     },
+    include: {
+      parent: { select: { username: true, email: true } },
+    },
     orderBy: { createdAt: 'desc' },
   });
 

@@ -25,6 +25,8 @@ model User {
   conversationsA     Conversation[]  @relation("ConversationUserA")
   conversationsB     Conversation[]  @relation("ConversationUserB")
   announcements      Announcement[]  @relation("AnnouncementAuthor")
+  enrollmentRequests EnrollmentRequest[] @relation("EnrollmentParent")
+
 }
 
 model School {
@@ -75,16 +77,13 @@ enum EnrollmentStatus {
   APPROVED
   REJECTED
 }
-
 model EnrollmentRequest {
   id           String           @id @default(cuid())
   schoolId     String
   school       School           @relation(fields: [schoolId], references: [id])
-  parentName   String
-  parentEmail  String
+  parentId     String
+  parent       User             @relation("EnrollmentParent", fields: [parentId], references: [id])
   parentPhone  String
-  city         String
-  street       String
   childrenJson Json
   medical      String?
   consent      Boolean          @default(false)
