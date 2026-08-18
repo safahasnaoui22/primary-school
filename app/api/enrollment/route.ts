@@ -24,6 +24,8 @@ export async function POST(req: Request) {
     }
 
     const schoolId = process.env.SCHOOL_ID;
+
+console.log('SCHOOL_ID:', schoolId);
     if (!schoolId) {
       return NextResponse.json({ error: "SCHOOL_ID n'est pas configuré" }, { status: 500 });
     }
