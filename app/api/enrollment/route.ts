@@ -48,4 +48,4 @@ export async function POST(req: Request) {
     console.error(err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
-}app/api/school-owner/enrollments/[id]/approve/route.ts
+}
