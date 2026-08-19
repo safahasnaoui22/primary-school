@@ -1,0 +1,50 @@
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'SCHOOL_OWNER' || !session.user.schoolId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const classes = await prisma.class.findMany({
+    where: { schoolId: session.user.schoolId },
+    orderBy: { name: 'asc' },
+    include: { feeStructures: true, students: { select: { id: true } } },
+  });
+
+  return NextResponse.json(
+    classes.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      studentCount: c.students.length,
+      feeStructures: c.feeStructures.map((f: any) => ({ id: f.id, semester: f.semester, amount: f.amount })),
+    }))
+  );
+}
+
+export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'SCHOOL_OWNER' || !session.user.schoolId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { classId, semester, amount } = await req.json();
+  if (!classId || !semester || amount == null) {
+    return NextResponse.json({ error: 'Champs manquants' }, { status: 400 });
+  }
+
+  const cls = await prisma.class.findUnique({ where: { id: classId } });
+  if (!cls || cls.schoolId !== session.user.schoolId) {
+    return NextResponse.json({ error: 'Classe introuvable' }, { status: 404 });
+  }
+
+  const fee = await prisma.feeStructure.upsert({
+    where: { classId_semester: { classId, semester } },
+    update: { amount: parseFloat(amount) },
+    create: { schoolId: session.user.schoolId, classId, semester, amount: parseFloat(amount) },
+  });
+
+  return NextResponse.json(fee);
+}

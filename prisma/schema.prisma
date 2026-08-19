@@ -26,6 +26,8 @@ postedResources Resource[] @relation("ResourceTeacher")
   conversationsB     Conversation[]  @relation("ConversationUserB")
   announcements      Announcement[]  @relation("AnnouncementAuthor")
   enrollmentRequests EnrollmentRequest[] @relation("EnrollmentParent")
+  invoicesAsParent Invoice[] @relation("InvoiceParent")
+paymentsRecorded Payment[] @relation("PaymentRecordedBy")
 
 }
 model Resource {
@@ -45,7 +47,7 @@ model School {
   ownerId   String?  @unique
   users     User[]
   createdAt DateTime @default(now())
-
+feeStructures FeeStructure[]
   invoices           Invoice[]
   students           Student[]
   classes            Class[]
@@ -57,17 +59,22 @@ model School {
 model Invoice {
   id          String        @id @default(cuid())
   schoolId    String
-  parentId    String?
-  studentId   String?
+  school      School        @relation(fields: [schoolId], references: [id])
+  studentId   String
+  student     Student       @relation(fields: [studentId], references: [id])
+  parentId    String
+  parent      User          @relation("InvoiceParent", fields: [parentId], references: [id])
+  classId     String
+  class       Class         @relation(fields: [classId], references: [id])
+  semester    String
   amount      Float
   status      InvoiceStatus @default(PENDING)
   dueDate     DateTime
-  paidAt      DateTime?
   description String?
   createdAt   DateTime      @default(now())
-  school      School        @relation(fields: [schoolId], references: [id])
-}
 
+  payments Payment[]
+}
 enum Role {
   SUPER_ADMIN
   SCHOOL_OWNER
@@ -77,11 +84,11 @@ enum Role {
 
 enum InvoiceStatus {
   PENDING
+  PARTIAL
   PAID
   OVERDUE
   CANCELLED
 }
-
 enum EnrollmentStatus {
   PENDING
   APPROVED
@@ -137,7 +144,7 @@ model Student {
   classId   String?
   class     Class?   @relation(fields: [classId], references: [id])
   createdAt DateTime @default(now())
-
+invoices Invoice[]
   parents    ParentStudent[]
   attendance Attendance[]
   grades     Grade[]
@@ -167,6 +174,8 @@ resources Resource[]
   attendance    Attendance[]
   grades        Grade[]
   announcements Announcement[]
+  feeStructures FeeStructure[]
+invoices      Invoice[]
 }
 
 enum AttendanceStatus {
@@ -222,4 +231,30 @@ model Announcement {
   body      String
   category  AnnouncementCategory @default(ANNOUNCEMENT)
   createdAt DateTime             @default(now())
+}
+
+model FeeStructure {
+  id        String   @id @default(cuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  semester  String   // e.g. "Semestre 1 2026"
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classId, semester])
+}
+model Payment {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id])
+  amount       Float
+  note         String?
+  recordedById String
+  recordedBy   User     @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+  voided       Boolean  @default(false)
+  voidedReason String?
+  createdAt    DateTime @default(now())
 }
