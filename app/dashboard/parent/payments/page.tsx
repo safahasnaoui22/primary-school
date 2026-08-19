@@ -61,45 +61,69 @@ export default function ParentPaymentsPage() {
           </div>
         ))}
         <p className="no-print" style={{ fontSize: 12, color: '#5A6A7A', marginTop: 20 }}>
-          Astuce : dans la boîte de dialogue d'impression, choisissez "Enregistrer en PDF" pour télécharger ce reçu.
+          Astuce : choisissez "Enregistrer en PDF" dans la boîte de dialogue d'impression pour télécharger ce reçu.
         </p>
       </div>
     );
   }
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 1000, margin: '0 auto' }}>
       <h1 style={{ color: '#071B4A', marginBottom: 4 }}>Paiements</h1>
-      <p style={{ color: '#5A6A7A', marginBottom: 24 }}>Historique et factures de scolarité.</p>
+      <p style={{ color: '#5A6A7A', marginBottom: 24 }}>Ce que vous devez payer pour chacun de vos enfants.</p>
 
-      {invoices.length === 0 ? (
-        <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune facture pour le moment.</p>
-      ) : (
-        invoices.map((inv) => {
-          const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
-          const remaining = inv.amount - paid;
-          const sc = statusColor[inv.status] ?? statusColor.PENDING;
-          return (
-            <div key={inv.id} style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 20, marginBottom: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <strong style={{ color: '#071B4A' }}>{inv.student.firstName} {inv.student.lastName} — {inv.semester}</strong>
-                <span style={{ background: sc.bg, color: sc.text, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 10 }}>
-                  {sc.label}
-                </span>
-              </div>
-              <div style={{ fontSize: 13, color: '#5A6A7A', marginBottom: 10 }}>
-                Dû : {inv.amount.toLocaleString('fr-FR')} DT · Payé : {paid.toLocaleString('fr-FR')} DT · Restant : {remaining.toLocaleString('fr-FR')} DT · Échéance : {new Date(inv.dueDate).toLocaleDateString('fr-FR')}
-              </div>
-              <button
-                onClick={() => setPrinting(inv)}
-                style={{ background: '#071B4A', color: '#fff', border: 'none', borderRadius: 20, padding: '8px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-              >
-                Imprimer / Télécharger le reçu
-              </button>
-            </div>
-          );
-        })
-      )}
+      <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: '#F8F9FA', textAlign: 'left' }}>
+              <th style={thStyle}>Élève</th>
+              <th style={thStyle}>Classe / Semestre</th>
+              <th style={thStyle}>Dû</th>
+              <th style={thStyle}>Payé</th>
+              <th style={thStyle}>Reste</th>
+              <th style={thStyle}>Statut</th>
+              <th style={thStyle}>Reçu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoices.length === 0 && (
+              <tr><td style={tdStyle} colSpan={7}>Aucune facture pour le moment.</td></tr>
+            )}
+            {invoices.map((inv) => {
+              const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
+              const remaining = inv.amount - paid;
+              const sc = statusColor[inv.status] ?? statusColor.PENDING;
+              return (
+                <tr key={inv.id}>
+                  <td style={tdStyle}>{inv.student.firstName} {inv.student.lastName}</td>
+                  <td style={tdStyle}>{inv.class.name} — {inv.semester}</td>
+                  <td style={tdStyle}>{inv.amount.toLocaleString('fr-FR')} DT</td>
+                  <td style={tdStyle}>{paid.toLocaleString('fr-FR')} DT</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: remaining > 0 ? '#C0392B' : '#27500A' }}>
+                    {remaining.toLocaleString('fr-FR')} DT
+                  </td>
+                  <td style={tdStyle}>
+                    <span style={{ background: sc.bg, color: sc.text, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 10 }}>
+                      {sc.label}
+                    </span>
+                  </td>
+                  <td style={tdStyle}>
+                    <button
+                      onClick={() => setPrinting(inv)}
+                      style={{ background: '#071B4A', color: '#fff', border: 'none', borderRadius: 16, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      Imprimer
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
+
+const thStyle: React.CSSProperties = { padding: '11px 14px', fontSize: 12, color: '#5A6A7A', fontWeight: 600, borderBottom: '1px solid #E5E9F0', whiteSpace: 'nowrap' };
+const tdStyle: React.CSSProperties = { padding: '11px 14px', fontSize: 13, color: '#1A1A2E', borderBottom: '1px solid #F5F5F5' };

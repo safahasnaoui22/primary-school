@@ -30,9 +30,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { classId, semester, amount } = await req.json();
-  if (!classId || !semester || amount == null) {
-    return NextResponse.json({ error: 'Champs manquants' }, { status: 400 });
+  const { classId, semester, amount, dueDate } = await req.json();
+  if (!classId || !semester || amount == null || !dueDate) {
+    return NextResponse.json({ error: 'Classe, semestre, prix et date limite sont requis' }, { status: 400 });
   }
 
   const cls = await prisma.class.findUnique({ where: { id: classId } });
@@ -46,5 +46,48 @@ export async function POST(req: Request) {
     create: { schoolId: session.user.schoolId, classId, semester, amount: parseFloat(amount) },
   });
 
-  return NextResponse.json(fee);
+  // Auto-generate/sync invoices for every student in this class for this semester
+  const students = await prisma.student.findMany({
+    where: { classId },
+    include: { parents: { take: 1 } },
+  });
+
+  let created = 0;
+  let updatedExisting = 0;
+  let skippedNoParent = 0;
+
+  for (const student of students) {
+    const parentLink = student.parents[0];
+    if (!parentLink) {
+      skippedNoParent++;
+      continue;
+    }
+
+    const existing = await prisma.invoice.findFirst({ where: { studentId: student.id, classId, semester } });
+    if (existing) {
+      // Keep existing invoice's amount in sync if the price was corrected
+      // (only when nothing's been paid yet — don't silently change amount due after payments started)
+      const paidCount = await prisma.payment.count({ where: { invoiceId: existing.id, voided: false } });
+      if (paidCount === 0 && existing.amount !== fee.amount) {
+        await prisma.invoice.update({ where: { id: existing.id }, data: { amount: fee.amount } });
+        updatedExisting++;
+      }
+      continue;
+    }
+
+    await prisma.invoice.create({
+      data: {
+        schoolId: session.user.schoolId,
+        studentId: student.id,
+        parentId: parentLink.parentId,
+        classId,
+        semester,
+        amount: fee.amount,
+        dueDate: new Date(dueDate),
+      },
+    });
+    created++;
+  }
+
+  return NextResponse.json({ fee, created, updatedExisting, skippedNoParent });
 }
