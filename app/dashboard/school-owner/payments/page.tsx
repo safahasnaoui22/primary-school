@@ -5,6 +5,14 @@ import { useEffect, useState, useCallback } from 'react';
 interface FeeEntry { id: string; semester: string; amount: number; }
 interface ClassEntry { id: string; name: string; studentCount: number; feeStructures: FeeEntry[]; }
 interface Payment { id: string; amount: number; note: string | null; voided: boolean; createdAt: string; }
+interface Student {
+  id: string;
+  firstName: string;
+  lastName: string;
+  classId: string;
+  class: { name: string };
+  parent: { username: string; email: string; phone: string | null };
+}
 interface InvoiceRow {
   id: string;
   amount: number;
@@ -27,6 +35,8 @@ const statusColor: Record<string, { bg: string; text: string; label: string }> =
 export default function SchoolOwnerPaymentsPage() {
   const [classes, setClasses] = useState<ClassEntry[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [newClassId, setNewClassId] = useState('');
   const [newSemester, setNewSemester] = useState('');
@@ -48,7 +58,22 @@ export default function SchoolOwnerPaymentsPage() {
     if (res.ok) setInvoices(await res.json());
   }, []);
 
-  useEffect(() => { loadClasses(); loadInvoices(); }, [loadClasses, loadInvoices]);
+  const loadStudents = useCallback(async () => {
+    const res = await fetch('/api/school-owner/enrollments/students');
+    if (res.ok) {
+      const data = await res.json();
+      setStudents(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadAll = async () => {
+      setLoading(true);
+      await Promise.all([loadClasses(), loadInvoices(), loadStudents()]);
+      setLoading(false);
+    };
+    loadAll();
+  }, [loadClasses, loadInvoices, loadStudents]);
 
   const saveFee = async () => {
     if (!newClassId || !newSemester || !newAmount || !newDueDate) {
@@ -60,7 +85,12 @@ export default function SchoolOwnerPaymentsPage() {
     const res = await fetch('/api/school-owner/fee-structures', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ classId: newClassId, semester: newSemester, amount: newAmount, dueDate: newDueDate }),
+      body: JSON.stringify({ 
+        classId: newClassId, 
+        semester: newSemester, 
+        amount: parseFloat(newAmount), 
+        dueDate: newDueDate 
+      }),
     });
     const data = await res.json();
     setSavingFee(false);
@@ -68,31 +98,71 @@ export default function SchoolOwnerPaymentsPage() {
       setFeeMsg(`Tarif enregistré. ${data.created} facture(s) créée(s)${data.updatedExisting ? `, ${data.updatedExisting} mise(s) à jour` : ''}${data.skippedNoParent ? `, ${data.skippedNoParent} élève(s) sans parent lié` : ''}.`);
       setNewSemester('');
       setNewAmount('');
-      loadClasses();
-      loadInvoices();
+      setNewDueDate('');
+      await Promise.all([loadClasses(), loadInvoices()]);
     } else {
-      setFeeMsg(data.error);
+      setFeeMsg(data.error || 'Erreur lors de l\'enregistrement');
     }
   };
 
   const recordPayment = async (invoiceId: string) => {
     const amount = payAmount[invoiceId];
-    if (!amount) return;
+    if (!amount || parseFloat(amount) <= 0) {
+      alert('Veuillez entrer un montant valide');
+      return;
+    }
     setBusy(invoiceId);
     const res = await fetch(`/api/school-owner/invoices/${invoiceId}/payments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ amount: parseFloat(amount) }),
     });
     const data = await res.json();
     setBusy(null);
     if (res.ok) {
       setPayAmount({ ...payAmount, [invoiceId]: '' });
-      loadInvoices();
+      await loadInvoices();
     } else {
-      alert(data.error);
+      alert(data.error || 'Erreur lors du paiement');
     }
   };
+
+  // Create invoice for student manually
+  const createInvoiceForStudent = async (studentId: string, classId: string) => {
+    const amount = prompt('Montant de la facture (DT):');
+    const semester = prompt('Semestre:');
+    if (amount && semester) {
+      const res = await fetch('/api/school-owner/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          studentId, 
+          classId, 
+          semester, 
+          amount: parseFloat(amount) 
+        }),
+      });
+      if (res.ok) {
+        await loadInvoices();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Erreur lors de la création de la facture');
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', color: '#5A6A7A' }}>
+        Chargement...
+      </div>
+    );
+  }
+
+  // Find students without invoices
+  const studentsWithoutInvoices = students.filter(student => 
+    !invoices.some(inv => inv.student.firstName === student.firstName && inv.student.lastName === student.lastName)
+  );
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 1150, margin: '0 auto' }}>
@@ -173,6 +243,42 @@ export default function SchoolOwnerPaymentsPage() {
         {feeMsg && <p style={{ fontSize: 13, color: '#5A6A7A', marginTop: 10 }}>{feeMsg}</p>}
       </div>
 
+      {/* Students without invoices */}
+      {studentsWithoutInvoices.length > 0 && (
+        <>
+          <h2 style={{ color: '#071B4A', fontSize: 17, marginBottom: 12 }}>Élèves inscrits sans facture</h2>
+          <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden', marginBottom: 40 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#F8F9FA', textAlign: 'left' }}>
+                  <th style={thStyle}>Parent</th>
+                  <th style={thStyle}>Élève</th>
+                  <th style={thStyle}>Classe</th>
+                  <th style={thStyle}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studentsWithoutInvoices.map((student) => (
+                  <tr key={student.id}>
+                    <td style={tdStyle}>{student.parent?.username || 'N/A'}</td>
+                    <td style={tdStyle}>{student.firstName} {student.lastName}</td>
+                    <td style={tdStyle}>{student.class?.name || 'N/A'}</td>
+                    <td style={tdStyle}>
+                      <button
+                        onClick={() => createInvoiceForStudent(student.id, student.classId)}
+                        style={{ ...smallBtnStyle, background: '#4C7C59', padding: '6px 14px' }}
+                      >
+                        Créer une facture
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
       {/* TABLE 2 — Parents / payments */}
       <h2 style={{ color: '#071B4A', fontSize: 17, marginBottom: 12 }}>Paiements des parents</h2>
       <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden' }}>
@@ -208,7 +314,14 @@ export default function SchoolOwnerPaymentsPage() {
                     {remaining.toLocaleString('fr-FR')} DT
                   </td>
                   <td style={tdStyle}>
-                    <span style={{ background: sc.bg, color: sc.text, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 10 }}>
+                    <span style={{ 
+                      background: sc.bg, 
+                      color: sc.text, 
+                      fontSize: 12, 
+                      fontWeight: 700, 
+                      padding: '3px 10px', 
+                      borderRadius: 10 
+                    }}>
                       {sc.label}
                     </span>
                   </td>
@@ -244,7 +357,33 @@ export default function SchoolOwnerPaymentsPage() {
   );
 }
 
-const thStyle: React.CSSProperties = { padding: '11px 14px', fontSize: 12, color: '#5A6A7A', fontWeight: 600, borderBottom: '1px solid #E5E9F0', whiteSpace: 'nowrap' };
-const tdStyle: React.CSSProperties = { padding: '11px 14px', fontSize: 13, color: '#1A1A2E', borderBottom: '1px solid #F5F5F5' };
-const inputStyle: React.CSSProperties = { padding: '9px 12px', borderRadius: 8, border: '1px solid #DCE1E8', fontSize: 13, outline: 'none' };
-const smallBtnStyle: React.CSSProperties = { color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
+const thStyle: React.CSSProperties = { 
+  padding: '11px 14px', 
+  fontSize: 12, 
+  color: '#5A6A7A', 
+  fontWeight: 600, 
+  borderBottom: '1px solid #E5E9F0', 
+  whiteSpace: 'nowrap' 
+};
+const tdStyle: React.CSSProperties = { 
+  padding: '11px 14px', 
+  fontSize: 13, 
+  color: '#1A1A2E', 
+  borderBottom: '1px solid #F5F5F5' 
+};
+const inputStyle: React.CSSProperties = { 
+  padding: '9px 12px', 
+  borderRadius: 8, 
+  border: '1px solid #DCE1E8', 
+  fontSize: 13, 
+  outline: 'none' 
+};
+const smallBtnStyle: React.CSSProperties = { 
+  color: '#fff', 
+  border: 'none', 
+  borderRadius: 8, 
+  padding: '9px 16px', 
+  fontSize: 13, 
+  fontWeight: 700, 
+  cursor: 'pointer' 
+};
