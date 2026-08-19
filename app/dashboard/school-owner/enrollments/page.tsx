@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 interface ChildEntry {
   firstName: string;
   age: string;
-  class: string;
+  classId: string;
 }
 
 interface EnrollmentRequest {
@@ -33,7 +33,7 @@ export default function EnrollmentsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{ email: string; tempPassword: string | null } | null>(null);
-
+const [classMap, setClassMap] = useState<Record<string, string>>({});
   const load = useCallback(async () => {
     const res = await fetch(`/api/school-owner/enrollments?status=${filter}`);
     if (res.ok) setRequests(await res.json());
@@ -43,6 +43,15 @@ export default function EnrollmentsPage() {
     load();
   }, [load]);
 
+  useEffect(() => {
+  fetch('/api/classes')
+    .then((r) => r.json())
+    .then((data) => {
+      if (Array.isArray(data)) {
+        setClassMap(Object.fromEntries(data.map((c: any) => [c.id, c.name])));
+      }
+    });
+}, []);
   const approve = async (id: string) => {
     setBusyId(id);
     setLastResult(null);
@@ -175,7 +184,7 @@ export default function EnrollmentsPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
                     {r.childrenJson.map((c, i) => (
                       <div key={i} style={{ fontSize: 14, background: '#FAFAFA', padding: '8px 12px', borderRadius: 8 }}>
-                        {c.firstName} — {c.age} ans — {c.class}
+                        {c.firstName} — {c.age} ans · {classMap[c.classId] ?? 'Classe inconnue'}
                       </div>
                     ))}
                   </div>

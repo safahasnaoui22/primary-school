@@ -27,30 +27,51 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     lastName: string;
     age: string;
     gender?: string;
-    class: string;
+    classId: string;
     previousSchool?: string;
   }[];
 
   try {
-    const students = await prisma.$transaction(
-      children.map((child: any) =>
-        prisma.student.create({
-          data: {
-            firstName: child.firstName,
-            lastName: child.lastName,
-            schoolId: session.user.schoolId!,
-          },
-        })
-      )
-    );
+    const students = [];
+    for (const child of children) {
+      const cls = await prisma.class.findUnique({ where: { id: child.classId } });
+      if (!cls || cls.schoolId !== session.user.schoolId) {
+        return NextResponse.json({ error: `Classe invalide pour ${child.firstName}` }, { status: 400 });
+      }
 
-    await prisma.$transaction(
-      students.map((student: any) =>
-        prisma.parentStudent.create({
-          data: { parentId: enrollment.parentId, studentId: student.id },
-        })
-      )
-    );
+      const student = await prisma.student.create({
+        data: {
+          firstName: child.firstName,
+          lastName: child.lastName,
+          schoolId: session.user.schoolId,
+          classId: child.classId,
+        },
+      });
+
+      await prisma.parentStudent.create({
+        data: { parentId: enrollment.parentId, studentId: student.id },
+      });
+
+      // If this class already has fee structures set (e.g. Semester 1 price
+      // already entered by the school owner), generate the matching invoice
+      // immediately so it shows up on the payments page without a manual step.
+      const feeStructures = await prisma.feeStructure.findMany({ where: { classId: child.classId } });
+      for (const fee of feeStructures) {
+        await prisma.invoice.create({
+          data: {
+            schoolId: session.user.schoolId,
+            studentId: student.id,
+            parentId: enrollment.parentId,
+            classId: child.classId,
+            semester: fee.semester,
+            amount: fee.amount,
+            dueDate: new Date(new Date().setMonth(new Date().getMonth() + 1)), // default: 1 month from approval
+          },
+        });
+      }
+
+      students.push(student);
+    }
 
     await prisma.enrollmentRequest.update({
       where: { id },

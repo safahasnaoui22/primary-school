@@ -11,7 +11,7 @@ interface ChildData {
   lastName: string;
   age: string;
   gender: string;
-  class: string;
+  classId: string;
   previousSchool: string;
 }
 type Language = 'fr';
@@ -73,7 +73,7 @@ export default function EnrollChildPage() {
   const [step, setStep] = useState(1);
   const [phone, setPhone] = useState('');
   const [children, setChildren] = useState<ChildData[]>([
-    { firstName: '', lastName: '', age: '', gender: '', class: 'CP1', previousSchool: '' },
+    { firstName: '', lastName: '', age: '', gender: '', classId: '', previousSchool: '' },
   ]);
   const [medical, setMedical] = useState('');
   const [consent, setConsent] = useState(false);
@@ -82,8 +82,15 @@ export default function EnrollChildPage() {
   const [showSave, setShowSave] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableClasses, setAvailableClasses] = useState<{ id: string; name: string }[]>([]);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    fetch('/api/classes')
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setAvailableClasses(data));
+  }, []);
 
   useEffect(() => {
     const draft = localStorage.getItem('enrollmentDraft');
@@ -135,6 +142,10 @@ export default function EnrollChildPage() {
         children.forEach((child, i) => {
           if (!child.firstName.trim() || !child.lastName.trim()) {
             newErrors[`child_${i}_name`] = t.childRequired;
+            valid = false;
+          }
+          if (!child.classId) {
+            newErrors[`child_${i}_class`] = 'Classe requise';
             valid = false;
           }
           const age = parseInt(child.age);
@@ -238,12 +249,12 @@ export default function EnrollChildPage() {
 
   const goPrev = () => { if (step > 1) setStep(step - 1); };
 
-  const addChild = () => {
-    setChildren([...children, { firstName: '', lastName: '', age: '', gender: '', class: 'CP1', previousSchool: '' }]);
-  };
-
   const removeChild = (idx: number) => {
     if (children.length > 1) setChildren(children.filter((_, i) => i !== idx));
+  };
+
+  const addChild = () => {
+    setChildren([...children, { firstName: '', lastName: '', age: '', gender: '', classId: '', previousSchool: '' }]);
   };
 
   const updateChild = (idx: number, field: keyof ChildData, value: string) => {
@@ -387,16 +398,17 @@ export default function EnrollChildPage() {
                       </select>
                     </div>
                     <div className="field">
-                      <label>{t.class}</label>
-                      <select value={child.class} onChange={(e) => updateChild(idx, 'class', e.target.value)}>
-                        <option>CP1</option>
-                        <option>CP2</option>
-                        <option>CE1</option>
-                        <option>CE2</option>
-                        <option>CM1</option>
-                        <option>CM2</option>
-                        <option>6ème</option>
+                      <label>{t.class} <span className="required">*</span></label>
+                      <select value={child.classId} onChange={(e) => updateChild(idx, 'classId', e.target.value)}>
+                        <option value="">— Choisir une classe —</option>
+                        {availableClasses.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
                       </select>
+                      {errors[`child_${idx}_class`] && <span className="error">{errors[`child_${idx}_class`]}</span>}
+                      {availableClasses.length === 0 && (
+                        <span style={{ fontSize: 12, color: '#5A6A7A' }}>Aucune classe disponible pour le moment.</span>
+                      )}
                     </div>
                     <div className="field full">
                       <label>{t.previousSchool}</label>
