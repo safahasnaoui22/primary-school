@@ -311,7 +311,11 @@ export default function SchoolOwnerDashboardClient({
           { href: '/dashboard/school-owner/students', label: 'Élèves', sub: `${studentCount} inscrits` },
           { href: '/dashboard/school-owner/payments', label: 'Paiements', sub: `${unpaidCount} factures à suivre` },
           { href: '/dashboard/messages', label: 'Messagerie', sub: 'Contacter parents et enseignants' },
-          { href: '/dashboard/school-owner/settings', label: "Paramètres de l'école", sub: 'Nom, logo, informations' },
+   { 
+  href: 'https://primary-school-two.vercel.app/dashboard/school-owner/classes', 
+  label: "Classes", 
+  sub: 'Gérer les classes de l’école' 
+},
         ].map((a, i) => (
           <Reveal key={a.href} delay={0.05 * i}>
             <Link href={a.href} className="so-card so-action">
