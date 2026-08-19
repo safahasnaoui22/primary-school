@@ -64,14 +64,25 @@ export async function GET(req: Request) {
           name: true
         }
       },
-      parent: {
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          phone: true
+      parents: {
+        include: {
+          parent: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            }
+          }
         }
       },
+      invoices: {
+        select: {
+          id: true,
+          status: true,
+          amount: true,
+          semester: true
+        }
+      }
     },
     orderBy: { lastName: 'asc' },
   });

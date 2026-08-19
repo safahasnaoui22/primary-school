@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Auto-create students from enrollment
+    // Create students and link to parent
     const createdStudents = [];
     const createdInvoices = [];
     
@@ -62,16 +62,21 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // Create student
+      // Create student (without age/gender since they're not in schema)
       const student = await prisma.student.create({
         data: {
           firstName: child.firstName,
           lastName: child.lastName,
-          age: parseInt(child.age) || null,
-          gender: child.gender || null,
           classId: child.classId,
           schoolId: schoolId,
+        }
+      });
+
+      // Link parent to student through ParentStudent join table
+      await prisma.parentStudent.create({
+        data: {
           parentId: session.user.id,
+          studentId: student.id,
         }
       });
 

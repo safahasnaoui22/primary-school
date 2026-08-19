@@ -44,11 +44,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Get student to find parent
+    // Get student with parents to find parent ID
     const student = await prisma.student.findUnique({
       where: { id: studentId },
       include: {
-        parent: { select: { id: true } }
+        parents: {
+          include: {
+            parent: {
+              select: { id: true }
+            }
+          }
+        }
       }
     });
 
@@ -56,7 +62,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    if (!student.parentId) {
+    // Get first parent (or you might want to handle multiple parents differently)
+    const parentLink = student.parents[0];
+    if (!parentLink) {
       return NextResponse.json({ error: 'Student has no parent linked' }, { status: 400 });
     }
 
@@ -64,7 +72,7 @@ export async function POST(req: Request) {
     const invoice = await prisma.invoice.create({
       data: {
         studentId,
-        parentId: student.parentId,
+        parentId: parentLink.parentId,
         classId,
         schoolId: session.user.schoolId,
         amount: parseFloat(amount),
