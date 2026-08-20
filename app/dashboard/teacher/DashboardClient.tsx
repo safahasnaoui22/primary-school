@@ -247,7 +247,7 @@ export default function TeacherDashboardClient({
       </Reveal>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
         {[
-          { href: '/dashboard/teacher/attendance', label: "Faire l'appel", sub: 'Non encore connecté aux données' },
+          { href: '/dashboard/teacher/classroom', label: "classroom", sub: 'Non encore connecté aux données' },
           { href: '/dashboard/teacher/grades', label: 'Saisir les notes', sub: 'Non encore connecté aux données' },
           { href: '/dashboard/messages', label: 'Messagerie', sub: 'Contacter parents et direction' },
         ].map((a, i) => (
