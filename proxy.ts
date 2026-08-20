@@ -8,12 +8,17 @@ const roleHome: Record<string, string> = {
   PARENT: '/dashboard/parent',
 };
 
+// Routes any authenticated user (regardless of role) is allowed to visit,
+// without being forced back to their own dashboard root.
+const sharedAuthenticatedRoutes = ['/dashboard/messages'];
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const session = req.auth;
 
   const isProtected = pathname.startsWith('/dashboard');
   const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isSharedRoute = sharedAuthenticatedRoutes.some((r) => pathname.startsWith(r));
 
   if (!session && isProtected) {
     return NextResponse.redirect(new URL('/login', req.url));
@@ -23,7 +28,7 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(roleHome[session.user.role] ?? '/dashboard', req.url));
   }
 
-  if (session && isProtected) {
+  if (session && isProtected && !isSharedRoute) {
     const allowedBase = roleHome[session.user.role];
     if (allowedBase && !pathname.startsWith(allowedBase)) {
       return NextResponse.redirect(new URL(allowedBase, req.url));
