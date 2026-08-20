@@ -130,22 +130,26 @@ export default function MessagesPage() {
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {showContacts ? (
-            contacts.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => startConversation(c)}
-                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', borderBottom: '1px solid #F5F5F5' }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.username}</div>
-                <div style={{ fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.role] ?? c.role}</div>
-              </button>
-            ))
-          ) : conversations.length === 0 ? (
-            <p style={{ padding: 16, fontSize: 13, color: '#5A6A7A' }}>
-              Aucune conversation. Cliquez sur "+ Nouveau" pour commencer.
-            </p>
-          ) : (
+         {showContacts ? (
+  contacts.length === 0 ? (
+    <p style={{ padding: 16, fontSize: 13, color: '#5A6A7A' }}>
+      Aucun contact disponible pour le moment.
+    </p>
+  ) : (
+    contacts.map((c) => (
+      <button
+        key={c.id}
+        onClick={() => startConversation(c)}
+        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', borderBottom: '1px solid #F5F5F5' }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.username}</div>
+        <div style={{ fontSize: 12, color: '#5A6A7A' }}>
+          {c.context ?? (roleLabel[c.role] ?? c.role)}
+        </div>
+      </button>
+    ))
+  )
+) : (
             conversations.map((c) => (
               <button
                 key={c.id}
