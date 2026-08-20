@@ -391,9 +391,9 @@ export default function ParentDashboardClient({
           <span className="label">Payer les frais</span>
           <span className="sub">Voir les factures et payer en ligne</span>
         </Link>
-        <Link href="/dashboard/parent/profile">
-          <span className="label">Paramètres du compte</span>
-          <span className="sub">Coordonnées et mot de passe</span>
+        <Link href="/dashboard/parent/classroom">
+          <span className="label">ClassRoom</span>
+          <span className="sub">classroom</span>
         </Link>
       </div>
     </div>

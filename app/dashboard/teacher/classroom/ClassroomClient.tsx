@@ -1,9 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Student { id: string; firstName: string; lastName: string; }
 interface ClassData { id: string; name: string; students: Student[]; }
+
+interface HomeworkStudent { id: string; firstName: string; lastName: string; completed: boolean; }
+interface HomeworkEntry {
+  id: string;
+  title: string;
+  instructions: string | null;
+  fileUrl: string | null;
+  deadline: string;
+  className: string;
+  students: HomeworkStudent[];
+}
 
 const tabs = ['Ressources', 'Devoirs', 'Calendrier', 'Progrès'] as const;
 type Tab = typeof tabs[number];
@@ -51,12 +62,18 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
   const [resDesc, setResDesc] = useState('');
   const [resUrl, setResUrl] = useState('');
 
-  // Homework
+  // Homework — creation
   const [hwClass, setHwClass] = useState('');
   const [hwTitle, setHwTitle] = useState('');
   const [hwInstructions, setHwInstructions] = useState('');
   const [hwUrl, setHwUrl] = useState('');
   const [hwDeadline, setHwDeadline] = useState('');
+
+  // Homework — tracking
+  const [homeworks, setHomeworks] = useState<HomeworkEntry[]>([]);
+  const [loadingHw, setLoadingHw] = useState(false);
+  const [expandedHwId, setExpandedHwId] = useState<string | null>(null);
+  const [savingStatus, setSavingStatus] = useState<string | null>(null); // `${homeworkId}:${studentId}`
 
   // Calendar
   const [evClass, setEvClass] = useState('');
@@ -72,6 +89,17 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
   const [prNote, setPrNote] = useState('');
 
   const allStudents = classes.flatMap((c) => c.students.map((s) => ({ ...s, className: c.name })));
+
+  const loadHomeworks = useCallback(async () => {
+    setLoadingHw(true);
+    const res = await fetch('/api/teacher/homework');
+    if (res.ok) setHomeworks(await res.json());
+    setLoadingHw(false);
+  }, []);
+
+  useEffect(() => {
+    if (tab === 'Devoirs') loadHomeworks();
+  }, [tab, loadHomeworks]);
 
   const submitResource = async () => {
     if (!resClass || !resTitle) return setMsg('Classe et titre requis.');
@@ -94,7 +122,30 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
     });
     const data = await res.json();
     setMsg(res.ok ? 'Devoir créé.' : data.error);
-    if (res.ok) { setHwTitle(''); setHwInstructions(''); setHwUrl(''); setHwDeadline(''); }
+    if (res.ok) {
+      setHwTitle(''); setHwInstructions(''); setHwUrl(''); setHwDeadline('');
+      loadHomeworks();
+    }
+  };
+
+  const toggleCompletion = async (homeworkId: string, studentId: string, current: boolean) => {
+    const key = `${homeworkId}:${studentId}`;
+    setSavingStatus(key);
+    const res = await fetch(`/api/teacher/homework/${homeworkId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, completed: !current }),
+    });
+    setSavingStatus(null);
+    if (res.ok) {
+      setHomeworks((prev) =>
+        prev.map((h) =>
+          h.id === homeworkId
+            ? { ...h, students: h.students.map((s) => (s.id === studentId ? { ...s, completed: !current } : s)) }
+            : h
+        )
+      );
+    }
   };
 
   const submitEvent = async () => {
@@ -143,7 +194,7 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
 
       {msg && <p style={{ fontSize: 13, color: '#5A6A7A', marginBottom: 16 }}>{msg}</p>}
 
-      <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 20 }}>
+      <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 20, marginBottom: tab === 'Devoirs' ? 20 : 0 }}>
         {tab === 'Ressources' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <select value={resClass} onChange={(e) => setResClass(e.target.value)} style={inputStyle}>
@@ -210,6 +261,76 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
           </div>
         )}
       </div>
+
+      {/* Homework completion tracking — only shown on the Devoirs tab */}
+      {tab === 'Devoirs' && (
+        <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 20 }}>
+          <h2 style={{ color: '#071B4A', fontSize: 16, marginBottom: 14 }}>Suivi des devoirs</h2>
+
+          {loadingHw ? (
+            <p style={{ color: '#5A6A7A', fontSize: 14 }}>Chargement...</p>
+          ) : homeworks.length === 0 ? (
+            <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun devoir créé pour le moment.</p>
+          ) : (
+            homeworks.map((h) => {
+              const isOpen = expandedHwId === h.id;
+              const completedCount = h.students.filter((s) => s.completed).length;
+              const overdue = new Date(h.deadline) < new Date();
+              return (
+                <div key={h.id} style={{ border: '1px solid #F0F0F0', borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                  <button
+                    onClick={() => setExpandedHwId(isOpen ? null : h.id)}
+                    style={{
+                      width: '100%', textAlign: 'left', padding: '14px 16px', background: 'transparent', border: 'none', cursor: 'pointer',
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, color: '#071B4A', fontSize: 14 }}>{h.title}</div>
+                      <div style={{ fontSize: 12, color: '#5A6A7A' }}>
+                        {h.className} · Échéance {new Date(h.deadline).toLocaleDateString('fr-FR')}
+                        {overdue && <span style={{ color: '#C0392B', fontWeight: 600 }}> · En retard</span>}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#FFB400' }}>
+                      {completedCount}/{h.students.length} {isOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div style={{ borderTop: '1px solid #F0F0F0', padding: '10px 16px' }}>
+                      {h.students.length === 0 ? (
+                        <p style={{ fontSize: 13, color: '#5A6A7A' }}>Aucun élève dans cette classe.</p>
+                      ) : (
+                        h.students.map((s) => {
+                          const key = `${h.id}:${s.id}`;
+                          return (
+                            <label
+                              key={s.id}
+                              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #F5F5F5', cursor: 'pointer', fontSize: 13 }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={s.completed}
+                                disabled={savingStatus === key}
+                                onChange={() => toggleCompletion(h.id, s.id, s.completed)}
+                              />
+                              <span style={{ color: s.completed ? '#27500A' : '#1A1A2E', fontWeight: s.completed ? 600 : 400 }}>
+                                {s.firstName} {s.lastName}
+                              </span>
+                              {savingStatus === key && <span style={{ fontSize: 11, color: '#5A6A7A' }}>...</span>}
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }
