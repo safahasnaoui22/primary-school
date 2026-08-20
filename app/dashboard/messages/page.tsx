@@ -8,6 +8,7 @@ interface Contact {
   username: string;
   email: string;
   role: string;
+  context?: string | null;
 }
 
 interface ConversationSummary {
