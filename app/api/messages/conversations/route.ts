@@ -9,6 +9,17 @@ export async function GET() {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
+  // Parents always get a ready-made conversation with the school owner —
+  // no need to hunt for it via "+ Nouveau" first.
+  if (session.user.role === 'PARENT' && session.user.schoolId) {
+    const owner = await prisma.user.findFirst({
+      where: { schoolId: session.user.schoolId, role: 'SCHOOL_OWNER' },
+    });
+    if (owner) {
+      await getOrCreateConversation(session.user.schoolId, session.user.id, owner.id);
+    }
+  }
+
   const conversations = await prisma.conversation.findMany({
     where: {
       OR: [{ userAId: session.user.id }, { userBId: session.user.id }],
@@ -42,6 +53,14 @@ export async function GET() {
       };
     })
   );
+
+  // Pin the school owner conversation to the top, so it's always the
+  // first thing a parent sees when opening their inbox.
+  shaped.sort((a, b) => {
+    if (a.other.role === 'SCHOOL_OWNER') return -1;
+    if (b.other.role === 'SCHOOL_OWNER') return 1;
+    return 0;
+  });
 
   return NextResponse.json(shaped);
 }
