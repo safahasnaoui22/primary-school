@@ -15,6 +15,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }
 
+    const schoolId = process.env.SCHOOL_ID;
+    if (!schoolId) {
+      return NextResponse.json({ error: "SCHOOL_ID n'est pas configuré" }, { status: 500 });
+    }
+
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -22,7 +27,8 @@ export async function POST(req: Request) {
         username,
         email,
         password: hashed,
-        role: 'PARENT', // self-registration always creates a PARENT
+        role: 'PARENT',
+        schoolId, // now set automatically — this was the missing piece
       },
     });
 
