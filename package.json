@@ -21,6 +21,7 @@
     "@studio-freight/lenis": "^1.0.42",
     "@types/jquery": "^4.0.1",
     "@types/slick-carousel": "^1.6.40",
+    "@vercel/blob": "^2.8.0",
     "aos": "^2.3.4",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.43.0",

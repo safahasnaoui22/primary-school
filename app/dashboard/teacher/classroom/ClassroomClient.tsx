@@ -1,5 +1,6 @@
 'use client';
 
+import FileDropZone from '@/app/components/FileDropZone';
 import { useState, useEffect, useCallback } from 'react';
 
 interface Student { id: string; firstName: string; lastName: string; }
@@ -206,7 +207,13 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
             </select>
             <input placeholder="Titre" value={resTitle} onChange={(e) => setResTitle(e.target.value)} style={inputStyle} />
             <textarea placeholder="Description (optionnel)" value={resDesc} onChange={(e) => setResDesc(e.target.value)} rows={2} style={inputStyle} />
-            <input placeholder="Lien (Google Drive, YouTube, etc.)" value={resUrl} onChange={(e) => setResUrl(e.target.value)} style={inputStyle} />
+
+          {resType === 'VIDEO' || resType === 'LINK' ? (
+  <input placeholder="Lien (YouTube, site externe, etc.)" value={resUrl} onChange={(e) => setResUrl(e.target.value)} style={inputStyle} />
+) : (
+  <FileDropZone onUploaded={(url) => setResUrl(url)} />
+)}
+           
             <button onClick={submitResource} style={btnStyle}>Publier la ressource</button>
           </div>
         )}
@@ -219,7 +226,7 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
             </select>
             <input placeholder="Titre du devoir" value={hwTitle} onChange={(e) => setHwTitle(e.target.value)} style={inputStyle} />
             <textarea placeholder="Instructions" value={hwInstructions} onChange={(e) => setHwInstructions(e.target.value)} rows={3} style={inputStyle} />
-            <input placeholder="Lien du document (optionnel)" value={hwUrl} onChange={(e) => setHwUrl(e.target.value)} style={inputStyle} />
+<FileDropZone onUploaded={(url) => setHwUrl(url)} />
             <label style={{ fontSize: 12, color: '#5A6A7A' }}>Date limite</label>
             <input type="date" value={hwDeadline} onChange={(e) => setHwDeadline(e.target.value)} style={inputStyle} />
             <button onClick={submitHomework} style={btnStyle}>Créer le devoir</button>
