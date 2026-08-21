@@ -29,12 +29,18 @@ export default function FileDropZone({ onUploaded, currentFilename }: Props) {
       });
       setFilename(file.name);
       onUploaded(blob.url, file.name);
-    } catch (err) {
-      console.error(err);
-      setError("Échec du téléversement. Réessayez.");
-    } finally {
-      setUploading(false);
-    }
+    }  catch (err) {
+  console.error('Upload error:', err);
+
+  const message =
+    err instanceof Error
+      ? err.message
+      : 'Échec du téléversement. Réessayez.';
+
+  setError(message);
+} finally {
+  setUploading(false);
+}
   };
 
   return (
