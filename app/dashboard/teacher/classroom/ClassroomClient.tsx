@@ -1,8 +1,9 @@
 'use client';
 
+import ActionToast from '@/app/components/ActionToast';
+import FileDropZone from '@/app/components/FileDropZone';
 import { useState, useEffect, useCallback } from 'react';
-import FileDropZone from '@/components/FileDropZone';
-import ActionToast, { ToastData } from '@/components/ActionToast';
+
 
 interface Student { id: string; firstName: string; lastName: string; }
 interface ClassData { id: string; name: string; students: Student[]; }
