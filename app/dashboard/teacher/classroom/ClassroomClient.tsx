@@ -1,6 +1,6 @@
 'use client';
 
-import ActionToast from '@/app/components/ActionToast';
+import ActionToast, { ToastData } from '@/app/components/ActionToast';
 import FileDropZone from '@/app/components/FileDropZone';
 import { useState, useEffect, useCallback } from 'react';
 
