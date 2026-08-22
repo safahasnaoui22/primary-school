@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { upload } from '@vercel/blob/client';
 
 interface Props {
   onUploaded: (url: string, filename: string) => void;
@@ -16,31 +15,33 @@ export default function FileDropZone({ onUploaded, currentFilename }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Fichier trop volumineux (max 10 Mo).');
+    if (file.size > 4 * 1024 * 1024) {
+      setError('Fichier trop volumineux (max 4 Mo).');
       return;
     }
     setError('');
     setUploading(true);
+
     try {
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/teacher/upload',
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/teacher/upload', {
+        method: 'POST',
+        body: formData,
       });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Échec du téléversement');
+
       setFilename(file.name);
-      onUploaded(blob.url, file.name);
-    }  catch (err) {
-  console.error('Upload error:', err);
-
-  const message =
-    err instanceof Error
-      ? err.message
-      : 'Échec du téléversement. Réessayez.';
-
-  setError(message);
-} finally {
-  setUploading(false);
-}
+      onUploaded(data.url, file.name);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Échec du téléversement. Réessayez.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -82,7 +83,7 @@ export default function FileDropZone({ onUploaded, currentFilename }: Props) {
         ) : (
           <span style={{ fontSize: 13, color: '#5A6A7A' }}>
             📄 Glissez un fichier ici, ou cliquez pour parcourir<br />
-            <span style={{ fontSize: 11 }}>PDF, image ou document Word — max 10 Mo</span>
+            <span style={{ fontSize: 11 }}>PDF, image ou document Word — max 4 Mo</span>
           </span>
         )}
       </div>

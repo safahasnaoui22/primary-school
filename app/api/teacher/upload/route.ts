@@ -1,69 +1,48 @@
 import { NextResponse } from 'next/server';
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
+import { put } from '@vercel/blob';
 import { auth } from '@/auth';
 
 export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'TEACHER') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const formData = await request.formData();
+  const file = formData.get('file') as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: 'Aucun fichier reçu' }, { status: 400 });
+  }
+
+  const allowedTypes = [
+    'application/pdf',
+    'image/png',
+    'image/jpeg',
+    'image/webp',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ];
+  if (!allowedTypes.includes(file.type)) {
+    return NextResponse.json({ error: 'Type de fichier non autorisé' }, { status: 400 });
+  }
+
+  // Vercel serverless functions cap request bodies around 4.5MB —
+  // this proxy approach trades away larger uploads for actually working,
+  // given client-direct uploads are currently broken by a platform-side bug.
+  if (file.size > 4 * 1024 * 1024) {
+    return NextResponse.json({ error: 'Fichier trop volumineux (max 4 Mo pour le moment)' }, { status: 400 });
+  }
+
   try {
-    const session = await auth();
-
-    if (!session?.user || session.user.role !== 'TEACHER') {
-      console.error('Upload forbidden: invalid session or user is not a teacher');
-
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
-
-    const body = (await request.json()) as HandleUploadBody;
-
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-
-      onBeforeGenerateToken: async () => {
-        console.log('Generating Vercel Blob upload token for:', session.user.id);
-
-        return {
-          allowedContentTypes: [
-            'application/pdf',
-            'image/png',
-            'image/jpeg',
-            'image/webp',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          ],
-
-          maximumSizeInBytes: 10 * 1024 * 1024,
-
-          addRandomSuffix: true,
-
-          tokenPayload: JSON.stringify({
-            teacherId: session.user.id,
-          }),
-        };
-      },
-
-      onUploadCompleted: async ({ blob }) => {
-        console.log('Upload completed successfully:', {
-          url: blob.url,
-          pathname: blob.pathname,
-        });
-      },
+    const blob = await put(file.name, file, {
+      access: 'public',
+      addRandomSuffix: true,
     });
 
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json({ url: blob.url, filename: file.name });
   } catch (err) {
-    console.error('VERCEL BLOB UPLOAD ERROR:', err);
-
-    const message =
-      err instanceof Error
-        ? err.message
-        : 'Échec du téléversement';
-
-    return NextResponse.json(
-      { error: message },
-      { status: 400 }
-    );
+    console.error(err);
+    return NextResponse.json({ error: 'Échec du téléversement' }, { status: 500 });
   }
 }
