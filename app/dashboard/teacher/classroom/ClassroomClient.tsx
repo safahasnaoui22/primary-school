@@ -1,7 +1,8 @@
 'use client';
 
-import FileDropZone from '@/app/components/FileDropZone';
 import { useState, useEffect, useCallback } from 'react';
+import FileDropZone from '@/components/FileDropZone';
+import ActionToast, { ToastData } from '@/components/ActionToast';
 
 interface Student { id: string; firstName: string; lastName: string; }
 interface ClassData { id: string; name: string; students: Student[]; }
@@ -21,20 +22,20 @@ const tabs = ['Ressources', 'Devoirs', 'Calendrier', 'Progrès'] as const;
 type Tab = typeof tabs[number];
 
 const resourceTypes = [
-  { value: 'PDF', label: 'PDF de cours' },
-  { value: 'WORKSHEET', label: 'Feuille d\'exercices' },
-  { value: 'VIDEO', label: 'Vidéo éducative' },
-  { value: 'IMAGE', label: 'Image' },
-  { value: 'LINK', label: 'Lien externe' },
-  { value: 'REVISION', label: 'Document de révision' },
+  { value: 'PDF', label: 'PDF de cours', emoji: '📄' },
+  { value: 'WORKSHEET', label: 'Feuille d\'exercices', emoji: '📝' },
+  { value: 'VIDEO', label: 'Vidéo éducative', emoji: '🎥' },
+  { value: 'IMAGE', label: 'Image', emoji: '🖼️' },
+  { value: 'LINK', label: 'Lien externe', emoji: '🔗' },
+  { value: 'REVISION', label: 'Document de révision', emoji: '📚' },
 ];
 
 const eventTypes = [
-  { value: 'EXAM', label: 'Examen' },
-  { value: 'ACTIVITY', label: 'Activité scolaire' },
-  { value: 'TRIP', label: 'Sortie' },
-  { value: 'MEETING', label: 'Réunion parents' },
-  { value: 'EVENT', label: 'Événement spécial' },
+  { value: 'EXAM', label: 'Examen', emoji: '📝' },
+  { value: 'ACTIVITY', label: 'Activité scolaire', emoji: '🎨' },
+  { value: 'TRIP', label: 'Sortie', emoji: '🚌' },
+  { value: 'MEETING', label: 'Réunion parents', emoji: '👨‍👩‍👧' },
+  { value: 'EVENT', label: 'Événement spécial', emoji: '🎉' },
 ];
 
 const progressCategories = [
@@ -54,7 +55,7 @@ const progressLevels = [
 
 export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
   const [tab, setTab] = useState<Tab>('Ressources');
-  const [msg, setMsg] = useState('');
+  const [toast, setToast] = useState<ToastData | null>(null);
 
   // Resources
   const [resClass, setResClass] = useState('');
@@ -62,19 +63,21 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
   const [resTitle, setResTitle] = useState('');
   const [resDesc, setResDesc] = useState('');
   const [resUrl, setResUrl] = useState('');
+  const [resFilename, setResFilename] = useState('');
 
   // Homework — creation
   const [hwClass, setHwClass] = useState('');
   const [hwTitle, setHwTitle] = useState('');
   const [hwInstructions, setHwInstructions] = useState('');
   const [hwUrl, setHwUrl] = useState('');
+  const [hwFilename, setHwFilename] = useState('');
   const [hwDeadline, setHwDeadline] = useState('');
 
   // Homework — tracking
   const [homeworks, setHomeworks] = useState<HomeworkEntry[]>([]);
   const [loadingHw, setLoadingHw] = useState(false);
   const [expandedHwId, setExpandedHwId] = useState<string | null>(null);
-  const [savingStatus, setSavingStatus] = useState<string | null>(null); // `${homeworkId}:${studentId}`
+  const [savingStatus, setSavingStatus] = useState<string | null>(null);
 
   // Calendar
   const [evClass, setEvClass] = useState('');
@@ -103,29 +106,52 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
   }, [tab, loadHomeworks]);
 
   const submitResource = async () => {
-    if (!resClass || !resTitle) return setMsg('Classe et titre requis.');
+    if (!resClass || !resTitle) {
+      setToast({ title: 'Champs manquants', message: 'Choisissez une classe et un titre.', emoji: '⚠️', tone: 'error' });
+      return;
+    }
     const res = await fetch('/api/teacher/resources', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ classId: resClass, type: resType, title: resTitle, description: resDesc, fileUrl: resUrl }),
     });
     const data = await res.json();
-    setMsg(res.ok ? 'Ressource publiée.' : data.error);
-    if (res.ok) { setResTitle(''); setResDesc(''); setResUrl(''); }
+    if (res.ok) {
+      const typeInfo = resourceTypes.find((t) => t.value === resType);
+      setToast({
+        title: 'Merci ! Ressource publiée',
+        message: `« ${resTitle} » ${typeInfo?.label.toLowerCase() ?? ''} a bien été ajouté${resFilename ? ` (${resFilename})` : ''} et est visible par les parents.`,
+        emoji: typeInfo?.emoji ?? '✅',
+        tone: 'success',
+      });
+      setResTitle(''); setResDesc(''); setResUrl(''); setResFilename('');
+    } else {
+      setToast({ title: 'Échec', message: data.error || "La ressource n'a pas pu être publiée.", emoji: '⚠️', tone: 'error' });
+    }
   };
 
   const submitHomework = async () => {
-    if (!hwClass || !hwTitle || !hwDeadline) return setMsg('Classe, titre et échéance requis.');
+    if (!hwClass || !hwTitle || !hwDeadline) {
+      setToast({ title: 'Champs manquants', message: 'Classe, titre et échéance sont requis.', emoji: '⚠️', tone: 'error' });
+      return;
+    }
     const res = await fetch('/api/teacher/homework', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ classId: hwClass, title: hwTitle, instructions: hwInstructions, fileUrl: hwUrl, deadline: hwDeadline }),
     });
     const data = await res.json();
-    setMsg(res.ok ? 'Devoir créé.' : data.error);
     if (res.ok) {
-      setHwTitle(''); setHwInstructions(''); setHwUrl(''); setHwDeadline('');
+      setToast({
+        title: 'Merci ! Devoir créé',
+        message: `« ${hwTitle} »${hwFilename ? ` avec le document ${hwFilename}` : ''} a été envoyé aux parents, échéance le ${new Date(hwDeadline).toLocaleDateString('fr-FR')}.`,
+        emoji: '📚',
+        tone: 'success',
+      });
+      setHwTitle(''); setHwInstructions(''); setHwUrl(''); setHwFilename(''); setHwDeadline('');
       loadHomeworks();
+    } else {
+      setToast({ title: 'Échec', message: data.error || "Le devoir n'a pas pu être créé.", emoji: '⚠️', tone: 'error' });
     }
   };
 
@@ -150,31 +176,61 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
   };
 
   const submitEvent = async () => {
-    if (!evTitle || !evDate) return setMsg('Titre et date requis.');
+    if (!evTitle || !evDate) {
+      setToast({ title: 'Champs manquants', message: 'Titre et date sont requis.', emoji: '⚠️', tone: 'error' });
+      return;
+    }
     const res = await fetch('/api/teacher/calendar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ classId: evClass || null, title: evTitle, description: evDesc, date: evDate, type: evType }),
     });
     const data = await res.json();
-    setMsg(res.ok ? 'Événement ajouté.' : data.error);
-    if (res.ok) { setEvTitle(''); setEvDesc(''); setEvDate(''); }
+    if (res.ok) {
+      const typeInfo = eventTypes.find((t) => t.value === evType);
+      setToast({
+        title: 'Merci ! Événement ajouté',
+        message: `« ${evTitle} » (${typeInfo?.label ?? ''}) est maintenant visible dans le calendrier des parents.`,
+        emoji: typeInfo?.emoji ?? '📅',
+        tone: 'success',
+      });
+      setEvTitle(''); setEvDesc(''); setEvDate('');
+    } else {
+      setToast({ title: 'Échec', message: data.error || "L'événement n'a pas pu être ajouté.", emoji: '⚠️', tone: 'error' });
+    }
   };
 
   const submitProgress = async () => {
-    if (!prStudent) return setMsg('Choisissez un élève.');
+    if (!prStudent) {
+      setToast({ title: 'Élève manquant', message: 'Choisissez un élève.', emoji: '⚠️', tone: 'error' });
+      return;
+    }
+    const student = allStudents.find((s) => s.id === prStudent);
     const res = await fetch('/api/teacher/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ studentId: prStudent, category: prCategory, level: prLevel, note: prNote }),
     });
     const data = await res.json();
-    setMsg(res.ok ? 'Mise à jour de progrès envoyée.' : data.error);
-    if (res.ok) setPrNote('');
+    if (res.ok) {
+      const catInfo = progressCategories.find((c) => c.value === prCategory);
+      const levelInfo = progressLevels.find((l) => l.value === prLevel);
+      setToast({
+        title: 'Merci ! Progrès envoyé',
+        message: `${catInfo?.emoji ?? ''} ${catInfo?.label ?? ''} — ${levelInfo?.label ?? ''} pour ${student?.firstName ?? 'cet élève'} a été partagé avec le parent.`,
+        emoji: '⭐',
+        tone: 'success',
+      });
+      setPrNote('');
+    } else {
+      setToast({ title: 'Échec', message: data.error || "La mise à jour n'a pas pu être envoyée.", emoji: '⚠️', tone: 'error' });
+    }
   };
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 800, margin: '0 auto' }}>
+      <ActionToast toast={toast} onClose={() => setToast(null)} />
+
       <h1 style={{ color: '#071B4A', marginBottom: 4 }}>Ma classe</h1>
       <p style={{ color: '#5A6A7A', marginBottom: 20 }}>Ressources, devoirs, calendrier et suivi des progrès.</p>
 
@@ -182,7 +238,7 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
         {tabs.map((tName) => (
           <button
             key={tName}
-            onClick={() => { setTab(tName); setMsg(''); }}
+            onClick={() => setTab(tName)}
             style={{
               padding: '8px 16px', borderRadius: 20, border: '1px solid #E5E9F0', fontSize: 13, fontWeight: 600, cursor: 'pointer',
               background: tab === tName ? '#071B4A' : '#fff', color: tab === tName ? '#fff' : '#071B4A',
@@ -193,8 +249,6 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
         ))}
       </div>
 
-      {msg && <p style={{ fontSize: 13, color: '#5A6A7A', marginBottom: 16 }}>{msg}</p>}
-
       <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 20, marginBottom: tab === 'Devoirs' ? 20 : 0 }}>
         {tab === 'Ressources' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -203,17 +257,15 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
               {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <select value={resType} onChange={(e) => setResType(e.target.value)} style={inputStyle}>
-              {resourceTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {resourceTypes.map((t) => <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>)}
             </select>
             <input placeholder="Titre" value={resTitle} onChange={(e) => setResTitle(e.target.value)} style={inputStyle} />
             <textarea placeholder="Description (optionnel)" value={resDesc} onChange={(e) => setResDesc(e.target.value)} rows={2} style={inputStyle} />
-
-          {resType === 'VIDEO' || resType === 'LINK' ? (
-  <input placeholder="Lien (YouTube, site externe, etc.)" value={resUrl} onChange={(e) => setResUrl(e.target.value)} style={inputStyle} />
-) : (
-  <FileDropZone onUploaded={(url) => setResUrl(url)} />
-)}
-           
+            {resType === 'VIDEO' || resType === 'LINK' ? (
+              <input placeholder="Lien (YouTube, site externe, etc.)" value={resUrl} onChange={(e) => setResUrl(e.target.value)} style={inputStyle} />
+            ) : (
+              <FileDropZone onUploaded={(url, name) => { setResUrl(url); setResFilename(name); }} />
+            )}
             <button onClick={submitResource} style={btnStyle}>Publier la ressource</button>
           </div>
         )}
@@ -226,7 +278,7 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
             </select>
             <input placeholder="Titre du devoir" value={hwTitle} onChange={(e) => setHwTitle(e.target.value)} style={inputStyle} />
             <textarea placeholder="Instructions" value={hwInstructions} onChange={(e) => setHwInstructions(e.target.value)} rows={3} style={inputStyle} />
-<FileDropZone onUploaded={(url) => setHwUrl(url)} />
+            <FileDropZone onUploaded={(url, name) => { setHwUrl(url); setHwFilename(name); }} />
             <label style={{ fontSize: 12, color: '#5A6A7A' }}>Date limite</label>
             <input type="date" value={hwDeadline} onChange={(e) => setHwDeadline(e.target.value)} style={inputStyle} />
             <button onClick={submitHomework} style={btnStyle}>Créer le devoir</button>
@@ -240,7 +292,7 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
               {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <select value={evType} onChange={(e) => setEvType(e.target.value)} style={inputStyle}>
-              {eventTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {eventTypes.map((t) => <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>)}
             </select>
             <input placeholder="Titre de l'événement" value={evTitle} onChange={(e) => setEvTitle(e.target.value)} style={inputStyle} />
             <textarea placeholder="Description (optionnel)" value={evDesc} onChange={(e) => setEvDesc(e.target.value)} rows={2} style={inputStyle} />
@@ -269,7 +321,6 @@ export default function ClassroomClient({ classes }: { classes: ClassData[] }) {
         )}
       </div>
 
-      {/* Homework completion tracking — only shown on the Devoirs tab */}
       {tab === 'Devoirs' && (
         <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 20 }}>
           <h2 style={{ color: '#071B4A', fontSize: 16, marginBottom: 14 }}>Suivi des devoirs</h2>
