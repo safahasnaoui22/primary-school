@@ -5,16 +5,17 @@ import AttendanceClient from './AttendanceClient';
 export default async function AttendancePage({
   searchParams,
 }: {
-  searchParams?: { classId?: string; date?: string };
+  searchParams?: Promise<{ classId?: string; date?: string }>;
 }) {
   const session = await auth();
   if (!session?.user.schoolId) {
     return <div style={{ padding: 40 }}>Non autorisé</div>;
   }
 
+  const params = await searchParams;
   const teacherId = session.user.id;
-  const classId = searchParams?.classId;
-  const dateStr = searchParams?.date || new Date().toISOString().split('T')[0];
+  const classId = params?.classId;
+  const dateStr = params?.date || new Date().toISOString().split('T')[0];
   const date = new Date(dateStr);
   date.setHours(0, 0, 0, 0);
   const nextDay = new Date(date);
