@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Reveal } from '@/lib/reveal';
 import Sidebar from './Sidebar';
-import ActionToast, { ToastData } from '@/components/ActionToast';
+import ActionToast, { ToastData } from '@/app/components/ActionToast';
 
 interface Teacher { id: string; username: string; email: string; createdAt: string; }
 interface TrendPoint { label: string; revenue: number; students: number; }
