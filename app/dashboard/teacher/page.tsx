@@ -38,7 +38,7 @@ export default async function TeacherDashboard() {
       lastName: s.lastName,
       className: c.name,
       parentNames: s.parents.map((p: any) => p.parent.username),
-      birthDate: s.birthDate, // Assurez-vous que le champ existe dans votre modèle
+      birthDate: s.birthDate,
     }))
   );
 
@@ -66,7 +66,6 @@ export default async function TeacherDashboard() {
     },
   });
 
-  // Résumé par classe
   const attendanceSummaryByClass = classes.map((c) => {
     const classStudents = c.students;
     const records = attendanceRecords.filter((a) => a.classId === c.id);
@@ -90,10 +89,10 @@ export default async function TeacherDashboard() {
   // --- Événements à venir (7 prochains jours) ---
   const upcomingEvents = await prisma.calendarEvent.findMany({
     where: {
-      teacherId,
-      start: { gte: new Date() },
+      authorId: teacherId,
+      date: { gte: new Date() },
     },
-    orderBy: { start: 'asc' },
+    orderBy: { date: 'asc' },
     take: 5,
   });
 
@@ -120,8 +119,9 @@ export default async function TeacherDashboard() {
   in30Days.setDate(in30Days.getDate() + 30);
   const birthdays = await prisma.student.findMany({
     where: {
-      class: { teacherId },
+      class: { teacherId },   // ensures class exists
       birthDate: {
+        not: null,
         gte: now,
         lte: in30Days,
       },
@@ -170,7 +170,7 @@ export default async function TeacherDashboard() {
     };
   });
 
-  // Conversations (inchangé)
+  // Conversations
   const conversations = await prisma.conversation.findMany({
     where: { OR: [{ userAId: teacherId }, { userBId: teacherId }] },
     include: {
@@ -209,8 +209,8 @@ export default async function TeacherDashboard() {
       upcomingEvents={upcomingEvents.map((e) => ({
         id: e.id,
         title: e.title,
-        start: e.start.toISOString(),
-        end: e.end?.toISOString(),
+        start: e.date.toISOString(),
+        end: undefined,
         description: e.description,
       }))}
       todos={todos.map((t) => ({
@@ -223,15 +223,14 @@ export default async function TeacherDashboard() {
         id: r.id,
         title: r.title,
         description: r.description,
-        url: r.url,
         fileUrl: r.fileUrl,
       }))}
       birthdays={birthdays.map((b) => ({
         id: b.id,
         firstName: b.firstName,
         lastName: b.lastName,
-        birthDate: b.birthDate.toISOString(),
-        className: b.class.name,
+        birthDate: b.birthDate!.toISOString(), // non-null assert because filtered
+        className: b.class!.name,              // non-null assert because class filter exists
       }))}
       studentPerformance={studentPerformance}
     />
