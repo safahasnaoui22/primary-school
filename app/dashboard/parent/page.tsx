@@ -112,6 +112,14 @@ export default async function ParentDashboard() {
       })
     : [];
 
+  const upcomingEvents = session.user.schoolId
+    ? await prisma.calendarEvent.findMany({
+        where: { schoolId: session.user.schoolId, date: { gte: new Date() } },
+        orderBy: { date: 'asc' },
+        take: 4,
+      })
+    : [];
+
   const nextInvoice = await prisma.invoice.findFirst({
     where: { parentId: session.user.id, status: { in: ['PENDING', 'OVERDUE'] } },
     orderBy: { dueDate: 'asc' },
@@ -142,6 +150,12 @@ export default async function ParentDashboard() {
         title: a.title,
         category: a.category,
         createdAt: a.createdAt.toISOString(),
+      }))}
+      upcomingEvents={upcomingEvents.map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        date: e.date.toISOString(),
+        type: e.type,
       }))}
       invoice={
         nextInvoice

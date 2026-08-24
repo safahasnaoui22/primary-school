@@ -34,6 +34,13 @@ export default async function SchoolOwnerDashboard() {
     invoicesForTrend,
     studentsForTrend,
     invoiceStatusCounts,
+    studentsNoClass,
+    studentsNoParent,
+    classesNoTeacher,
+    classes,
+    announcements,
+    upcomingEvents,
+    conversations,
   ] = await Promise.all([
     prisma.school.findUnique({ where: { id: schoolId } }),
     prisma.user.count({ where: { schoolId, role: 'TEACHER' } }),
@@ -47,21 +54,41 @@ export default async function SchoolOwnerDashboard() {
     }),
     prisma.invoice.aggregate({ where: { schoolId, status: 'PAID' }, _sum: { amount: true } }),
     prisma.invoice.count({ where: { schoolId, status: { in: ['PENDING', 'OVERDUE'] } } }),
-    // last 6 months of paid invoices, for the revenue trend line
     prisma.invoice.findMany({
       where: { schoolId, status: 'PAID', createdAt: { gte: sixMonthsAgo } },
       select: { amount: true, createdAt: true },
     }),
-    // last 6 months of enrollments, for the growth trend line
     prisma.student.findMany({
       where: { schoolId, createdAt: { gte: sixMonthsAgo } },
       select: { createdAt: true },
     }),
-    // breakdown for the status bar
     prisma.invoice.groupBy({ by: ['status'], where: { schoolId }, _count: { _all: true } }),
+    // Data health
+    prisma.student.count({ where: { schoolId, classId: null } }),
+    prisma.student.count({ where: { schoolId, parents: { none: {} } } }),
+    prisma.class.count({ where: { schoolId, teacherId: null } }),
+    prisma.class.findMany({ where: { schoolId }, select: { id: true, name: true } }),
+    // Announcements
+    prisma.announcement.findMany({ where: { schoolId }, orderBy: { createdAt: 'desc' }, take: 4 }),
+    // Upcoming events
+    prisma.calendarEvent.findMany({
+      where: { schoolId, date: { gte: new Date() } },
+      orderBy: { date: 'asc' },
+      take: 5,
+    }),
+    // Messages
+    prisma.conversation.findMany({
+      where: { OR: [{ userAId: session.user.id }, { userBId: session.user.id }] },
+      include: {
+        userA: { select: { id: true, username: true, role: true } },
+        userB: { select: { id: true, username: true, role: true } },
+        messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+    }),
   ]);
 
-  // Build 6 month buckets ending this month
   const buckets: { key: string; label: string; revenue: number; students: number }[] = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date();
@@ -86,6 +113,22 @@ export default async function SchoolOwnerDashboard() {
 
   const revenueCollected = invoiceAgg._sum.amount ?? 0;
 
+  const conversationsShaped = await Promise.all(
+    conversations.map(async (c: any) => {
+      const other = c.userAId === session.user.id ? c.userB : c.userA;
+      const unreadCount = await prisma.message.count({
+        where: { conversationId: c.id, senderId: { not: session.user.id }, readAt: null },
+      });
+      return {
+        id: c.id,
+        otherName: other.username,
+        otherRole: other.role,
+        lastMessage: c.messages[0]?.content ?? null,
+        unreadCount,
+      };
+    })
+  );
+
   return (
     <SchoolOwnerDashboardClient
       schoolName={school?.name ?? 'Votre école'}
@@ -103,6 +146,23 @@ export default async function SchoolOwnerDashboard() {
       unpaidCount={unpaidCount}
       trend={buckets}
       invoiceStatusBreakdown={statusBreakdown}
+      health={{ studentsNoClass, studentsNoParent, classesNoTeacher }}
+      classes={classes}
+      announcements={announcements.map((a: any) => ({
+        id: a.id,
+        title: a.title,
+        body: a.body,
+        category: a.category,
+        createdAt: a.createdAt.toISOString(),
+      }))}
+      upcomingEvents={upcomingEvents.map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        date: e.date.toISOString(),
+        type: e.type,
+      }))}
+      conversations={conversationsShaped}
     />
   );
 }

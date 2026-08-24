@@ -45,6 +45,13 @@ interface AnnouncementPreview {
   createdAt: string;
 }
 
+interface EventPreview {
+  id: string;
+  title: string;
+  date: string;
+  type: string;
+}
+
 interface InvoicePreview {
   amount: number;
   dueDate: string;
@@ -58,6 +65,7 @@ interface Props {
   conversations: ConversationPreview[];
   unreadCount: number;
   announcements: AnnouncementPreview[];
+  upcomingEvents: EventPreview[];
   invoice: InvoicePreview | null;
 }
 
@@ -77,6 +85,14 @@ const roleLabel: Record<string, string> = {
   SCHOOL_OWNER: "Chef d'établissement",
   TEACHER: 'Enseignant',
   PARENT: 'Parent',
+};
+
+const eventTypeLabel: Record<string, { label: string; color: string; emoji: string }> = {
+  EXAM: { label: 'Examen', color: '#C0392B', emoji: '📝' },
+  ACTIVITY: { label: 'Activité', color: '#4C7C59', emoji: '🎨' },
+  TRIP: { label: 'Sortie', color: '#071B4A', emoji: '🚌' },
+  MEETING: { label: 'Réunion parents', color: '#FFB400', emoji: '👨‍👩‍👧' },
+  EVENT: { label: 'Événement', color: '#8A5A00', emoji: '🎉' },
 };
 
 function gradeColor(grade: string) {
@@ -104,6 +120,7 @@ export default function ParentDashboardClient({
   conversations,
   unreadCount,
   announcements,
+  upcomingEvents,
   invoice,
 }: Props) {
   const [activeChildId, setActiveChildId] = useState(children[0]?.id ?? null);
@@ -375,6 +392,37 @@ export default function ParentDashboardClient({
         <Link href="/news-events" className="pd-link-btn" style={{ display: 'inline-block', marginTop: 14 }}>
           Voir toutes les actualités →
         </Link>
+      </div>
+
+      <div className="pd-card" style={{ marginBottom: 28 }}>
+        <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Événements à venir</h2>
+        {upcomingEvents.length === 0 ? (
+          <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucun événement à venir.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {upcomingEvents.map((e) => {
+              const et = eventTypeLabel[e.type] ?? eventTypeLabel.EVENT;
+              return (
+                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: '#FFB400', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {new Date(e.date).toLocaleDateString('fr-FR', { month: 'short' })}
+                    </div>
+                    <div style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 600, color: '#071B4A' }}>
+                      {new Date(e.date).getDate()}
+                    </div>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#071B4A' }}>
+                      {et.emoji} {e.title}
+                    </p>
+                    <p style={{ margin: 0, fontSize: 12, color: et.color, fontWeight: 600 }}>{et.label}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
