@@ -10,6 +10,7 @@ interface StudentEntry {
   lastName: string;
   className: string;
   parentNames: string[];
+  birthDate?: string;
 }
 
 interface ConversationPreview {
@@ -19,12 +20,68 @@ interface ConversationPreview {
   lastMessage: string | null;
 }
 
+interface AttendanceClassSummary {
+  classId: string;
+  className: string;
+  totalStudents: number;
+  present: number;
+  absent: number;
+  late: number;
+  excused: number;
+  unmarked: number;
+}
+
+interface CalendarEventPreview {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  description?: string | null;
+}
+
+interface TodoPreview {
+  id: string;
+  title: string;
+  dueDate?: string;
+  completed: boolean;
+}
+
+interface ResourcePreview {
+  id: string;
+  title: string;
+  description?: string | null;
+  url?: string | null;
+  fileUrl?: string | null;
+}
+
+interface BirthdayPreview {
+  id: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  className: string;
+}
+
+interface PerformancePreview {
+  studentId: string;
+  studentName: string;
+  className: string;
+  average: number | null;
+  subjectCount: number;
+}
+
 interface Props {
   teacherName: string;
   classGroups: { className: string; count: number }[];
   students: StudentEntry[];
   recentConversations: ConversationPreview[];
   unreadCount: number;
+  attendanceSummary: AttendanceClassSummary[];
+  upcomingEvents: CalendarEventPreview[];
+  todos: TodoPreview[];
+  recentResources: ResourcePreview[];
+  birthdays: BirthdayPreview[];
+  studentPerformance: PerformancePreview[];
 }
 
 const roleLabel: Record<string, string> = {
@@ -67,12 +124,50 @@ export default function TeacherDashboardClient({
   students,
   recentConversations,
   unreadCount,
+  attendanceSummary,
+  upcomingEvents,
+  todos,
+  recentResources,
+  birthdays,
+  studentPerformance,
 }: Props) {
   const classNames = classGroups.map((g) => g.className);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredStudents, setFilteredStudents] = useState(students);
 
   const sidebarWidth = sidebarOpen ? 260 : 72;
   const mainMarginLeft = sidebarOpen ? 260 : 72;
+
+  // Recherche d'élèves
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredStudents(students);
+    } else {
+      const term = searchTerm.toLowerCase();
+      setFilteredStudents(
+        students.filter(
+          (s) =>
+            s.firstName.toLowerCase().includes(term) ||
+            s.lastName.toLowerCase().includes(term) ||
+            s.className.toLowerCase().includes(term)
+        )
+      );
+    }
+  }, [searchTerm, students]);
+
+  // Formatage des dates
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  };
+
+  const formatTime = (dateStr?: string) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#F8F9FC', display: 'flex' }}>
@@ -247,6 +342,10 @@ export default function TeacherDashboardClient({
               </span>
             )}
           </Link>
+          <Link href="/dashboard/teacher/attendance" className={`t-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
+            <span>📋</span>
+            {sidebarOpen && <span>Appel</span>}
+          </Link>
           <Link href="/dashboard/teacher/classroom" className={`t-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span>📚</span>
             {sidebarOpen && <span>ClassRoom</span>}
@@ -287,7 +386,7 @@ export default function TeacherDashboardClient({
         }}
       >
         <div style={{ maxWidth: 1080, margin: '0 auto', paddingBottom: 60 }}>
-          {/* Header with Typewriter */}
+          {/* Header avec Typewriter */}
           <Reveal>
             <div style={{ marginTop: 8, marginBottom: 24 }}>
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, letterSpacing: 1.5, color: '#5A6A7A', textTransform: 'uppercase' }}>
@@ -304,6 +403,32 @@ export default function TeacherDashboardClient({
             </div>
           </Reveal>
 
+          {/* Barre de recherche */}
+          <Reveal delay={0.05}>
+            <div style={{ marginBottom: 24, display: 'flex', gap: 12, alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="Rechercher un élève..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 10,
+                  border: '1px solid #E5E9F0',
+                  fontSize: 14,
+                  width: '100%',
+                  maxWidth: 400,
+                  outline: 'none',
+                }}
+              />
+              {searchTerm && (
+                <span style={{ fontSize: 13, color: '#5A6A7A' }}>
+                  {filteredStudents.length} résultat(s)
+                </span>
+              )}
+            </div>
+          </Reveal>
+
           {classNames.length === 0 ? (
             <Reveal delay={0.1}>
               <div className="t-card" style={{ padding: 24, borderLeft: '4px solid #FFB400' }}>
@@ -314,6 +439,7 @@ export default function TeacherDashboardClient({
             </Reveal>
           ) : (
             <>
+              {/* Statistiques globales */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
                 <Reveal delay={0}>
                   <div className="t-card t-stat-card">
@@ -337,23 +463,191 @@ export default function TeacherDashboardClient({
                 </Reveal>
               </div>
 
+              {/* SECTION PRÉSENCES */}
               <Reveal delay={0.1}>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
-                  {classGroups.map((g) => (
-                    <span key={g.className} className="t-class-tab">
-                      {g.className} · {g.count} élève{g.count !== 1 ? 's' : ''}
-                    </span>
-                  ))}
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h2 className="t-heading" style={{ fontSize: 18 }}>Présences aujourd'hui</h2>
+                    <Link href="/dashboard/teacher/attendance" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
+                      Voir tout →
+                    </Link>
+                  </div>
+                  {attendanceSummary.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune classe assignée.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      {attendanceSummary.map((cls) => (
+                        <div key={cls.classId} style={{ border: '1px solid #F0F0F0', borderRadius: 10, padding: 16 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 700, color: '#071B4A', fontSize: 15 }}>{cls.className}</span>
+                            <Link
+                              href={`/dashboard/teacher/attendance?classId=${cls.classId}&date=${new Date().toISOString().split('T')[0]}`}
+                              style={{
+                                background: '#071B4A',
+                                color: '#fff',
+                                padding: '8px 16px',
+                                borderRadius: 8,
+                                fontSize: 13,
+                                fontWeight: 600,
+                                textDecoration: 'none',
+                                transition: 'background 0.2s',
+                              }}
+                            >
+                              Faire l'appel →
+                            </Link>
+                          </div>
+                          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <span style={{ color: '#2e7d32' }}>🟢 {cls.present} présents</span>
+                            <span style={{ color: '#c62828' }}>🔴 {cls.absent} absents</span>
+                            <span style={{ color: '#ef6c00' }}>🟠 {cls.late} retards</span>
+                            <span style={{ color: '#5A6A7A' }}>⚪ {cls.excused} excusés</span>
+                            <span style={{ color: '#9e9e9e' }}>⏳ {cls.unmarked} non marqués</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Reveal>
 
+              {/* SECTION EMPLOI DU TEMPS / CALENDRIER */}
+              <Reveal delay={0.1}>
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h2 className="t-heading" style={{ fontSize: 18 }}>Aujourd'hui & à venir</h2>
+                    <Link href="/dashboard/teacher/calendar" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
+                      Calendrier →
+                    </Link>
+                  </div>
+                  {upcomingEvents.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun événement planifié.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {upcomingEvents.map((ev) => (
+                        <div key={ev.id} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F5F5F5' }}>
+                          <div style={{ minWidth: 70, textAlign: 'center', background: '#F8F9FC', borderRadius: 8, padding: '6px 8px' }}>
+                            <div style={{ fontSize: 18, fontWeight: 700, color: '#071B4A' }}>{formatDate(ev.start)}</div>
+                            <div style={{ fontSize: 12, color: '#5A6A7A' }}>{formatTime(ev.start)}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: '#071B4A' }}>{ev.title}</div>
+                            {ev.description && <div style={{ fontSize: 12, color: '#5A6A7A' }}>{ev.description}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+
+              {/* SECTION TO DO */}
+              <Reveal delay={0.1}>
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h2 className="t-heading" style={{ fontSize: 18 }}>To Do Today</h2>
+                    <Link href="/dashboard/teacher/tasks" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
+                      Gérer →
+                    </Link>
+                  </div>
+                  {todos.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune tâche en attente.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {todos.map((todo) => (
+                        <div key={todo.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <input type="checkbox" checked={todo.completed} readOnly style={{ width: 18, height: 18 }} />
+                          <span style={{ fontSize: 14, color: '#1A1A2E' }}>{todo.title}</span>
+                          {todo.dueDate && <span style={{ marginLeft: 'auto', fontSize: 12, color: '#5A6A7A' }}>{formatDate(todo.dueDate)}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+
+              {/* SECTION PERFORMANCE */}
+              <Reveal delay={0.1}>
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h2 className="t-heading" style={{ fontSize: 18 }}>Aperçu des performances</h2>
+                    <Link href="/dashboard/teacher/grades" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
+                      Notes →
+                    </Link>
+                  </div>
+                  {studentPerformance.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune note saisie pour le moment.</p>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                      {studentPerformance.slice(0, 6).map((sp) => (
+                        <div key={sp.studentId} style={{ padding: 12, background: '#F8F9FC', borderRadius: 10 }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{sp.studentName}</div>
+                          <div style={{ fontSize: 12, color: '#5A6A7A' }}>{sp.className}</div>
+                          <div style={{ marginTop: 6, fontSize: 15, fontWeight: 700, color: sp.average !== null && sp.average >= 10 ? '#2e7d32' : '#c62828' }}>
+                            {sp.average !== null ? `${sp.average.toFixed(2)} / 20` : 'Aucune note'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+
+              {/* SECTION RESSOURCES RÉCENTES */}
+              <Reveal delay={0.1}>
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h2 className="t-heading" style={{ fontSize: 18 }}>Ressources récentes</h2>
+                    <Link href="/dashboard/teacher/resources" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
+                      Toutes →
+                    </Link>
+                  </div>
+                  {recentResources.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune ressource partagée.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {recentResources.map((res) => (
+                        <div key={res.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F5F5F5' }}>
+                          <span style={{ fontSize: 18 }}>📄</span>
+                          <div>
+                            <div style={{ fontWeight: 600, color: '#071B4A' }}>{res.title}</div>
+                            {res.description && <div style={{ fontSize: 12, color: '#5A6A7A' }}>{res.description}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+
+              {/* SECTION ANNIVERSAIRES */}
+              <Reveal delay={0.1}>
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <h2 className="t-heading" style={{ fontSize: 18, marginBottom: 16 }}>🎂 Anniversaires à venir</h2>
+                  {birthdays.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun anniversaire dans les 30 prochains jours.</p>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+                      {birthdays.map((b) => (
+                        <div key={b.id} style={{ padding: 12, background: '#FFF8E1', borderRadius: 10 }}>
+                          <div style={{ fontWeight: 600, color: '#071B4A' }}>{b.firstName} {b.lastName}</div>
+                          <div style={{ fontSize: 12, color: '#5A6A7A' }}>{b.className}</div>
+                          <div style={{ fontSize: 12, color: '#F57F17' }}>📅 {formatDate(b.birthDate)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+
+              {/* Liste des élèves avec recherche */}
               <Reveal delay={0.1}>
                 <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <h2 className="t-heading" style={{ fontSize: 18 }}>Liste des élèves</h2>
+                    <span style={{ fontSize: 13, color: '#5A6A7A' }}>{filteredStudents.length} élève(s)</span>
                   </div>
-                  {students.length === 0 ? (
-                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun élève dans vos classes pour le moment.</p>
+                  {filteredStudents.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun élève trouvé.</p>
                   ) : (
                     <div style={{ border: '1px solid #F0F0F0', borderRadius: 10, overflow: 'hidden' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -365,7 +659,7 @@ export default function TeacherDashboardClient({
                           </tr>
                         </thead>
                         <tbody>
-                          {students.map((s) => (
+                          {filteredStudents.map((s) => (
                             <tr key={s.id}>
                               <td style={tdStyle}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -385,60 +679,63 @@ export default function TeacherDashboardClient({
                   )}
                 </div>
               </Reveal>
+
+              {/* Messages récents */}
+              <Reveal delay={0.1}>
+                <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h2 className="t-heading" style={{ fontSize: 18 }}>Messages récents</h2>
+                    <Link href="/dashboard/messages" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
+                      Voir tout →
+                    </Link>
+                  </div>
+                  {recentConversations.length === 0 ? (
+                    <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune conversation pour le moment.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {recentConversations.map((c) => (
+                        <Link
+                          key={c.id}
+                          href="/dashboard/messages"
+                          style={{ display: 'flex', justifyContent: 'space-between', textDecoration: 'none', color: 'inherit' }}
+                        >
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.otherName}</div>
+                            <div style={{ fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.otherRole] ?? c.otherRole}</div>
+                          </div>
+                          {c.lastMessage && (
+                            <div style={{ fontSize: 13, color: '#5A6A7A', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {c.lastMessage}
+                            </div>
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+
+              {/* Actions rapides */}
+              <Reveal delay={0.1}>
+                <h2 className="t-heading" style={{ fontSize: 18, marginBottom: 14 }}>Actions rapides</h2>
+              </Reveal>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+                {[
+                  { href: '/dashboard/teacher/attendance', label: "Faire l'appel", sub: 'Marquer les présences du jour' },
+                  { href: '/dashboard/teacher/classroom', label: 'ClassRoom', sub: 'Gérer vos classes' },
+                  { href: '/dashboard/teacher/grades', label: 'Saisir les notes', sub: 'Noter les élèves' },
+                  { href: '/dashboard/messages', label: 'Messagerie', sub: 'Contacter parents et direction' },
+                ].map((a, i) => (
+                  <Reveal key={a.href} delay={0.05 * i}>
+                    <Link href={a.href} className="t-card t-action">
+                      <span className="label">{a.label}</span>
+                      <span className="sub">{a.sub}</span>
+                    </Link>
+                  </Reveal>
+                ))}
+              </div>
             </>
           )}
-
-          <Reveal delay={0.1}>
-            <div className="t-card" style={{ padding: 24, marginBottom: 28 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <h2 className="t-heading" style={{ fontSize: 18 }}>Messages récents</h2>
-                <Link href="/dashboard/messages" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '1px solid #FFB400' }}>
-                  Voir tout →
-                </Link>
-              </div>
-              {recentConversations.length === 0 ? (
-                <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune conversation pour le moment.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {recentConversations.map((c) => (
-                    <Link
-                      key={c.id}
-                      href="/dashboard/messages"
-                      style={{ display: 'flex', justifyContent: 'space-between', textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.otherName}</div>
-                        <div style={{ fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.otherRole] ?? c.otherRole}</div>
-                      </div>
-                      {c.lastMessage && (
-                        <div style={{ fontSize: 13, color: '#5A6A7A', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {c.lastMessage}
-                        </div>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <h2 className="t-heading" style={{ fontSize: 18, marginBottom: 14 }}>Actions rapides</h2>
-          </Reveal>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
-            {[
-              { href: '/dashboard/teacher/classroom', label: "classroom", sub: 'Non encore connecté aux données' },
-              { href: '/dashboard/teacher/grades', label: 'Saisir les notes', sub: 'Non encore connecté aux données' },
-              { href: '/dashboard/messages', label: 'Messagerie', sub: 'Contacter parents et direction' },
-            ].map((a, i) => (
-              <Reveal key={a.href} delay={0.05 * i}>
-                <Link href={a.href} className="t-card t-action">
-                  <span className="label">{a.label}</span>
-                  <span className="sub">{a.sub}</span>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </main>
     </div>

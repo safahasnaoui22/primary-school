@@ -1,3 +1,5 @@
+// schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,70 +8,45 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id            String    @id @default(cuid())
-  username      String
-  email         String    @unique
-  password      String
-  role          Role      @default(PARENT)
-  schoolId      String?
-  school        School?   @relation(fields: [schoolId], references: [id])
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-postedResources Resource[] @relation("ResourceTeacher")
-  childLinks         ParentStudent[] @relation("ParentLinks")
-  taughtClasses      Class[]         @relation("TeacherClasses")
-  recordedAttendance Attendance[]    @relation("RecordedByUser")
-  recordedGrades     Grade[]         @relation("GradedByUser")
-  sentMessages       Message[]       @relation("SentMessages")
-  conversationsA     Conversation[]  @relation("ConversationUserA")
-  conversationsB     Conversation[]  @relation("ConversationUserB")
-  announcements      Announcement[]  @relation("AnnouncementAuthor")
-  enrollmentRequests EnrollmentRequest[] @relation("EnrollmentParent")
-  invoicesAsParent Invoice[] @relation("InvoiceParent")
-paymentsRecorded Payment[] @relation("PaymentRecordedBy")
-homeworksPosted        Homework[]       @relation("HomeworkTeacher")
-calendarEventsAuthored CalendarEvent[]  @relation("CalendarAuthor")
-progressUpdatesGiven   ProgressUpdate[] @relation("ProgressTeacher")
+// ==================== ENUMS ====================
 
+enum Role {
+  SUPER_ADMIN
+  SCHOOL_OWNER
+  TEACHER
+  PARENT
 }
-model Resource {
-  id          String       @id @default(cuid())
-  classId     String
-  class       Class        @relation(fields: [classId], references: [id])
-  teacherId   String
-  teacher     User         @relation("ResourceTeacher", fields: [teacherId], references: [id])
-  type        ResourceType @default(PDF)
-  title       String
-  description String?
-  fileUrl     String?
-  createdAt   DateTime     @default(now())
-}
-model Homework {
-  id           String   @id @default(cuid())
-  classId      String
-  class        Class    @relation(fields: [classId], references: [id])
-  teacherId    String
-  teacher      User     @relation("HomeworkTeacher", fields: [teacherId], references: [id])
-  title        String
-  instructions String?
-  fileUrl      String?
-  deadline     DateTime
-  createdAt    DateTime @default(now())
 
-  statuses HomeworkStatus[]
+enum InvoiceStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
 }
-model HomeworkStatus {
-  id         String   @id @default(cuid())
-  homeworkId String
-  homework   Homework @relation(fields: [homeworkId], references: [id])
-  studentId  String
-  student    Student  @relation(fields: [studentId], references: [id])
-  completed  Boolean  @default(false)
-  updatedAt  DateTime @updatedAt
 
-  @@unique([homeworkId, studentId])
+enum EnrollmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
+
+enum ResourceType {
+  PDF
+  WORKSHEET
+  VIDEO
+  IMAGE
+  LINK
+  REVISION
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED // <-- AJOUTÉ pour les absences excusées
+}
+
 enum CalendarEventType {
   EXAM
   ACTIVITY
@@ -77,20 +54,7 @@ enum CalendarEventType {
   MEETING
   EVENT
 }
-model CalendarEvent {
-  id          String            @id @default(cuid())
-  schoolId    String
-  school      School            @relation(fields: [schoolId], references: [id])
-  classId     String?
-  class       Class?            @relation(fields: [classId], references: [id])
-  authorId    String
-  author      User              @relation("CalendarAuthor", fields: [authorId], references: [id])
-  title       String
-  description String?
-  date        DateTime
-  type        CalendarEventType @default(EVENT)
-  createdAt   DateTime          @default(now())
-}
+
 enum ProgressCategory {
   READING
   MATH
@@ -105,6 +69,196 @@ enum ProgressLevel {
   IMPROVING
   NEEDS_PRACTICE
 }
+
+enum AnnouncementCategory {
+  ANNOUNCEMENT
+  ACHIEVEMENT
+  POLICY
+}
+
+// ==================== MODÈLES ====================
+
+model User {
+  id            String    @id @default(cuid())
+  username      String
+  email         String    @unique
+  password      String
+  role          Role      @default(PARENT)
+  schoolId      String?
+  school        School?   @relation(fields: [schoolId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  postedResources      Resource[]         @relation("ResourceTeacher")
+  childLinks           ParentStudent[]    @relation("ParentLinks")
+  taughtClasses        Class[]            @relation("TeacherClasses")
+  recordedAttendance   Attendance[]       @relation("RecordedByUser")
+  recordedGrades       Grade[]            @relation("GradedByUser")
+  sentMessages         Message[]          @relation("SentMessages")
+  conversationsA       Conversation[]     @relation("ConversationUserA")
+  conversationsB       Conversation[]     @relation("ConversationUserB")
+  announcements        Announcement[]     @relation("AnnouncementAuthor")
+  enrollmentRequests   EnrollmentRequest[] @relation("EnrollmentParent")
+  invoicesAsParent     Invoice[]          @relation("InvoiceParent")
+  paymentsRecorded     Payment[]          @relation("PaymentRecordedBy")
+  homeworksPosted      Homework[]         @relation("HomeworkTeacher")
+  calendarEventsAuthored CalendarEvent[]  @relation("CalendarAuthor")
+  progressUpdatesGiven ProgressUpdate[]   @relation("ProgressTeacher")
+
+  tasks                Task[]             @relation("TaskTeacher") // <-- AJOUTÉ
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String?  @unique
+  users     User[]
+  createdAt DateTime @default(now())
+
+  feeStructures      FeeStructure[]
+  invoices           Invoice[]
+  students           Student[]
+  classes            Class[]
+  announcements      Announcement[]
+  conversations      Conversation[]
+  enrollmentRequests EnrollmentRequest[]
+  calendarEvents     CalendarEvent[]
+}
+
+model Class {
+  id        String   @id @default(cuid())
+  name      String
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  teacherId String?
+  teacher   User?    @relation("TeacherClasses", fields: [teacherId], references: [id])
+  createdAt DateTime @default(now())
+
+  resources      Resource[]
+  students       Student[]
+  attendance     Attendance[]
+  grades         Grade[]
+  announcements  Announcement[]
+  feeStructures  FeeStructure[]
+  invoices       Invoice[]
+  homeworks      Homework[]
+  calendarEvents CalendarEvent[]
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  classId   String?
+  class     Class?   @relation(fields: [classId], references: [id])
+  birthDate DateTime? // <-- AJOUTÉ pour les anniversaires
+  createdAt DateTime @default(now())
+
+  invoices          Invoice[]
+  parents           ParentStudent[]
+  attendance        Attendance[]
+  grades            Grade[]
+  homeworkStatuses  HomeworkStatus[]
+  progressUpdates   ProgressUpdate[]
+}
+
+model ParentStudent {
+  id        String   @id @default(cuid())
+  parentId  String
+  parent    User     @relation("ParentLinks", fields: [parentId], references: [id])
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([parentId, studentId])
+}
+
+model Attendance {
+  id           String           @id @default(cuid())
+  studentId    String
+  student      Student          @relation(fields: [studentId], references: [id])
+  classId      String
+  class        Class            @relation(fields: [classId], references: [id])
+  date         DateTime
+  status       AttendanceStatus
+  recordedById String
+  recordedBy   User             @relation("RecordedByUser", fields: [recordedById], references: [id])
+  createdAt    DateTime         @default(now())
+
+  @@unique([studentId, date])
+}
+
+model Grade {
+  id           String   @id @default(cuid())
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id])
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id])
+  subject      String
+  value        Float    // <-- CHANGÉ : remplace `gradeValue String` par une valeur numérique pour les calculs
+  term         String
+  recordedById String
+  recordedBy   User     @relation("GradedByUser", fields: [recordedById], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model Resource {
+  id          String       @id @default(cuid())
+  classId     String
+  class       Class        @relation(fields: [classId], references: [id])
+  teacherId   String
+  teacher     User         @relation("ResourceTeacher", fields: [teacherId], references: [id])
+  type        ResourceType @default(PDF)
+  title       String
+  description String?
+  fileUrl     String?
+  createdAt   DateTime     @default(now())
+}
+
+model Homework {
+  id           String   @id @default(cuid())
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id])
+  teacherId    String
+  teacher      User     @relation("HomeworkTeacher", fields: [teacherId], references: [id])
+  title        String
+  instructions String?
+  fileUrl      String?
+  deadline     DateTime
+  createdAt    DateTime @default(now())
+
+  statuses HomeworkStatus[]
+}
+
+model HomeworkStatus {
+  id         String   @id @default(cuid())
+  homeworkId String
+  homework   Homework @relation(fields: [homeworkId], references: [id])
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id])
+  completed  Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([homeworkId, studentId])
+}
+
+model CalendarEvent {
+  id          String            @id @default(cuid())
+  schoolId    String
+  school      School            @relation(fields: [schoolId], references: [id])
+  classId     String?
+  class       Class?            @relation(fields: [classId], references: [id])
+  authorId    String
+  author      User              @relation("CalendarAuthor", fields: [authorId], references: [id])
+  title       String
+  description String?
+  date        DateTime
+  type        CalendarEventType @default(EVENT)
+  createdAt   DateTime          @default(now())
+}
+
 model ProgressUpdate {
   id        String           @id @default(cuid())
   studentId String
@@ -115,21 +269,6 @@ model ProgressUpdate {
   level     ProgressLevel
   note      String?
   createdAt DateTime         @default(now())
-}
-model School {
-  id        String   @id @default(cuid())
-  name      String
-  ownerId   String?  @unique
-  users     User[]
-  createdAt DateTime @default(now())
-feeStructures FeeStructure[]
-  invoices           Invoice[]
-  students           Student[]
-  classes            Class[]
-  announcements      Announcement[]
-  conversations      Conversation[]
-  enrollmentRequests EnrollmentRequest[]
-  calendarEvents CalendarEvent[]
 }
 
 model Invoice {
@@ -151,33 +290,20 @@ model Invoice {
 
   payments Payment[]
 }
-enum Role {
-  SUPER_ADMIN
-  SCHOOL_OWNER
-  TEACHER
-  PARENT
+
+model Payment {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id])
+  amount       Float
+  note         String?
+  recordedById String
+  recordedBy   User     @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+  voided       Boolean  @default(false)
+  voidedReason String?
+  createdAt    DateTime @default(now())
 }
 
-enum InvoiceStatus {
-  PENDING
-  PARTIAL
-  PAID
-  OVERDUE
-  CANCELLED
-}
-enum EnrollmentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-enum ResourceType {
-  PDF
-  WORKSHEET
-  VIDEO
-  IMAGE
-  LINK
-  REVISION
-}
 model EnrollmentRequest {
   id           String           @id @default(cuid())
   schoolId     String
@@ -219,94 +345,6 @@ model Message {
   createdAt      DateTime     @default(now())
 }
 
-model Student {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id])
-  classId   String?
-  class     Class?   @relation(fields: [classId], references: [id])
-  createdAt DateTime @default(now())
-invoices Invoice[]
-  parents    ParentStudent[]
-  attendance Attendance[]
-  grades     Grade[]
-  homeworkStatuses HomeworkStatus[]
-progressUpdates  ProgressUpdate[]
-}
-
-model ParentStudent {
-  id        String   @id @default(cuid())
-  parentId  String
-  parent    User     @relation("ParentLinks", fields: [parentId], references: [id])
-  studentId String
-  student   Student  @relation(fields: [studentId], references: [id])
-  createdAt DateTime @default(now())
-
-  @@unique([parentId, studentId])
-}
-
-model Class {
-  id        String   @id @default(cuid())
-  name      String
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id])
-  teacherId String?
-  teacher   User?    @relation("TeacherClasses", fields: [teacherId], references: [id])
-  createdAt DateTime @default(now())
-resources Resource[]
-  students      Student[]
-  attendance    Attendance[]
-  grades        Grade[]
-  announcements Announcement[]
-  feeStructures FeeStructure[]
-invoices      Invoice[]
-homeworks      Homework[]
-calendarEvents CalendarEvent[]
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-}
-
-model Attendance {
-  id           String           @id @default(cuid())
-  studentId    String
-  student      Student          @relation(fields: [studentId], references: [id])
-  classId      String
-  class        Class            @relation(fields: [classId], references: [id])
-  date         DateTime
-  status       AttendanceStatus
-  recordedById String
-  recordedBy   User             @relation("RecordedByUser", fields: [recordedById], references: [id])
-  createdAt    DateTime         @default(now())
-
-  @@unique([studentId, date])
-}
-
-model Grade {
-  id           String   @id @default(cuid())
-  studentId    String
-  student      Student  @relation(fields: [studentId], references: [id])
-  classId      String
-  class        Class    @relation(fields: [classId], references: [id])
-  subject      String
-  gradeValue   String
-  term         String
-  recordedById String
-  recordedBy   User     @relation("GradedByUser", fields: [recordedById], references: [id])
-  createdAt    DateTime @default(now())
-}
-
-enum AnnouncementCategory {
-  ANNOUNCEMENT
-  ACHIEVEMENT
-  POLICY
-}
-
 model Announcement {
   id        String               @id @default(cuid())
   schoolId  String
@@ -327,22 +365,23 @@ model FeeStructure {
   school    School   @relation(fields: [schoolId], references: [id])
   classId   String
   class     Class    @relation(fields: [classId], references: [id])
-  semester  String   // e.g. "Semestre 1 2026"
+  semester  String
   amount    Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([classId, semester])
 }
-model Payment {
-  id           String   @id @default(cuid())
-  invoiceId    String
-  invoice      Invoice  @relation(fields: [invoiceId], references: [id])
-  amount       Float
-  note         String?
-  recordedById String
-  recordedBy   User     @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
-  voided       Boolean  @default(false)
-  voidedReason String?
-  createdAt    DateTime @default(now())
+
+// ==================== NOUVEAU MODÈLE : TASK (To Do) ====================
+
+model Task {
+  id        String    @id @default(cuid())
+  title     String
+  dueDate   DateTime?
+  completed Boolean   @default(false)
+  teacherId String?
+  teacher   User?     @relation("TaskTeacher", fields: [teacherId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
