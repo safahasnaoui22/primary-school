@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     await prisma.attendance.deleteMany({
       where: {
         classId: records[0].classId,
-        teacherId,
+        recordedById: teacherId, // ✅ Use recordedById instead of teacherId
         date: {
           gte: date,
           lt: nextDay,
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       data: records.map((r) => ({
         studentId: r.studentId,
         classId: r.classId,
-        teacherId,
+        recordedById: teacherId, // ✅ Use recordedById instead of teacherId
         date,
         status: r.status as any,
       })),
