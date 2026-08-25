@@ -1,4 +1,85 @@
-'use client';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import TeacherDashboardClient from './DashboardClient';
+
+export default async function TeacherDashboard() {
+  const session = await auth();
+
+  if (!session?.user.schoolId) {
+    return (
+      <div style={{ padding: 40, fontFamily: 'Inter, sans-serif', color: '#5A6A7A' }}>
+        Aucune école n'est liée à votre compte. Contactez votre chef d'établissement.
+      </div>
+    );
+  }
+
+  const classes = await prisma.class.findMany({
+    where: { teacherId: session.user.id },
+    orderBy: { name: 'asc' },
+    include: {
+      students: {
+        orderBy: { lastName: 'asc' },
+        include: {
+          parents: {
+            include: { parent: { select: { id: true, username: true, email: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  const allStudents = classes.flatMap((c: any) =>
+    c.students.map((s: any) => ({
+      id: s.id,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      className: c.name,
+      parentNames: s.parents.map((p: any) => p.parent.username),
+    }))
+  );
+
+  const classGroups = classes.map((c: any) => ({
+    className: c.name,
+    count: c.students.length,
+  }));
+
+  const conversations = await prisma.conversation.findMany({
+    where: { OR: [{ userAId: session.user.id }, { userBId: session.user.id }] },
+    include: {
+      userA: { select: { id: true, username: true, role: true } },
+      userB: { select: { id: true, username: true, role: true } },
+      messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+  });
+
+  const unreadCount = await prisma.message.count({
+    where: {
+      conversation: { OR: [{ userAId: session.user.id }, { userBId: session.user.id }] },
+      senderId: { not: session.user.id },
+      readAt: null,
+    },
+  });
+
+  return (
+    <TeacherDashboardClient
+      teacherName={session.user.name ?? ''}
+      classGroups={classGroups}
+      students={allStudents}
+      recentConversations={conversations.map((c: any) => {
+        const other = c.userAId === session.user.id ? c.userB : c.userA;
+        return {
+          id: c.id,
+          otherName: other.username,
+          otherRole: other.role,
+          lastMessage: c.messages[0]?.content ?? null,
+        };
+      })}
+      unreadCount={unreadCount}
+    />
+  );
+} 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -458,4 +539,4 @@ const tdStyle: React.CSSProperties = {
   fontSize: 14,
   color: '#1A1A2E',
   borderBottom: '1px solid #F5F5F5',
-};
+}; 
