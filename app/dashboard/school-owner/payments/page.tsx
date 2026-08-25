@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-
+import type { CSSProperties } from 'react';
 interface FeeEntry { id: string; semester: string; amount: number; }
 interface ClassEntry { id: string; name: string; studentCount: number; feeStructures: FeeEntry[]; }
 interface Payment { id: string; amount: number; note: string | null; voided: boolean; createdAt: string; }
