@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import ActionToast, { ToastData } from '@/components/ActionToast';
+import ActionToast, { ToastData } from '@/app/components/ActionToast';
+
 
 interface StudentEntry {
   id: string;
