@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import type { CSSProperties } from 'react';
+
 interface FeeEntry { id: string; semester: string; amount: number; }
 interface ClassEntry { id: string; name: string; studentCount: number; feeStructures: FeeEntry[]; }
 interface Payment { id: string; amount: number; note: string | null; voided: boolean; createdAt: string; }
@@ -9,14 +10,11 @@ interface Student {
   id: string;
   firstName: string;
   lastName: string;
-  classId: string;
-  class: { name: string } | null;
+  class: { id: string; name: string; teacherName: string | null } | null;
   parents: Array<{
-    parent: {
-      id: string;
-      username: string;
-      email: string;
-    }
+    id: string;
+    username: string;
+    email: string;
   }>;
   invoices: Array<{
     id: string;
@@ -174,6 +172,11 @@ export default function SchoolOwnerPaymentsPage() {
       return;
     }
 
+    if (!student.class?.id) {
+      alert('Cet élève n\'a pas de classe assignée.');
+      return;
+    }
+
     const amount = prompt('Montant de la facture (DT):');
     if (!amount || parseFloat(amount) <= 0) {
       alert('Montant invalide');
@@ -192,7 +195,7 @@ export default function SchoolOwnerPaymentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           studentId: student.id, 
-          classId: student.classId, 
+          classId: student.class.id, 
           semester, 
           amount: parseFloat(amount) 
         }),
@@ -200,6 +203,7 @@ export default function SchoolOwnerPaymentsPage() {
       
       if (res.ok) {
         await loadInvoices();
+        await loadStudents();
       } else {
         const data = await res.json();
         alert(data.error || 'Erreur lors de la création de la facture');
@@ -212,7 +216,7 @@ export default function SchoolOwnerPaymentsPage() {
   // Helper function to get parent name
   const getParentName = (student: Student) => {
     if (student.parents && student.parents.length > 0) {
-      return student.parents[0].parent.username;
+      return student.parents[0].username;
     }
     return 'N/A';
   };
@@ -220,7 +224,7 @@ export default function SchoolOwnerPaymentsPage() {
   // Helper function to get parent email
   const getParentEmail = (student: Student) => {
     if (student.parents && student.parents.length > 0) {
-      return student.parents[0].parent.email;
+      return student.parents[0].email;
     }
     return 'N/A';
   };
@@ -524,7 +528,7 @@ export default function SchoolOwnerPaymentsPage() {
   );
 }
 
-const thStyle: React.CSSProperties = { 
+const thStyle: CSSProperties = { 
   padding: '12px 16px', 
   fontSize: 12, 
   color: '#5A6A7A', 
@@ -535,7 +539,7 @@ const thStyle: React.CSSProperties = {
   letterSpacing: '0.5px'
 };
 
-const tdStyle: React.CSSProperties = { 
+const tdStyle: CSSProperties = { 
   padding: '12px 16px', 
   fontSize: 13, 
   color: '#1A1A2E', 
@@ -543,7 +547,7 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: 'middle'
 };
 
-const inputStyle: React.CSSProperties = { 
+const inputStyle: CSSProperties = { 
   padding: '9px 12px', 
   borderRadius: 8, 
   border: '1px solid #DCE1E8', 
@@ -554,7 +558,7 @@ const inputStyle: React.CSSProperties = {
   minWidth: 0
 };
 
-const smallBtnStyle: React.CSSProperties = { 
+const smallBtnStyle: CSSProperties = { 
   color: '#fff', 
   border: 'none', 
   borderRadius: 8, 
