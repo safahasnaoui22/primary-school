@@ -70,26 +70,50 @@ export default async function TeacherDashboard() {
     where: { classId: { in: classIds }, date: { gte: startOfToday, lt: endOfToday } },
   });
 
-  const attendanceSummaryByClass = classes.map((c: any) => {
-    const records = attendanceRecords.filter((a: any) => a.classId === c.id);
-    const present = records.filter((r: any) => r.status === 'PRESENT').length;
-    const absent = records.filter((r: any) => r.status === 'ABSENT').length;
-    const late = records.filter((r: any) => r.status === 'LATE').length;
-    return {
-      classId: c.id,
-      className: c.name,
-      totalStudents: c.students.length,
-      present,
-      absent,
-      late,
-      unmarked: c.students.length - records.length,
-      students: c.students.map((s: any) => {
-        const rec = records.find((r: any) => r.studentId === s.id);
-        return { id: s.id, firstName: s.firstName, lastName: s.lastName, status: rec?.status ?? null };
-      }),
-    };
-  });
+const attendanceSummaryByClass = classes.map((c: any) => {
+  const records = attendanceRecords.filter(
+    (a: any) => a.classId === c.id
+  );
 
+  const present = records.filter(
+    (r: any) => r.status === 'PRESENT'
+  ).length;
+
+  const absent = records.filter(
+    (r: any) => r.status === 'ABSENT'
+  ).length;
+
+  const late = records.filter(
+    (r: any) => r.status === 'LATE'
+  ).length;
+
+  const excused = records.filter(
+    (r: any) => r.status === 'EXCUSED'
+  ).length;
+
+  return {
+    classId: c.id,
+    className: c.name,
+    totalStudents: c.students.length,
+    present,
+    absent,
+    late,
+    excused,
+    unmarked: c.students.length - records.length,
+    students: c.students.map((s: any) => {
+      const rec = records.find(
+        (r: any) => r.studentId === s.id
+      );
+
+      return {
+        id: s.id,
+        firstName: s.firstName,
+        lastName: s.lastName,
+        status: rec?.status ?? null,
+      };
+    }),
+  };
+});
   // --- Upcoming homework (not yet due) ---
   const homeworks = await prisma.homework.findMany({
     where: { teacherId, deadline: { gte: startOfToday } },
@@ -107,28 +131,51 @@ export default async function TeacherDashboard() {
     orderBy: [{ completed: 'asc' }, { createdAt: 'desc' }],
   });
 
-  // --- Student performance (most recent grade per subject) ---
-  const grades = await prisma.grade.findMany({
-    where: { class: { teacherId } },
-    orderBy: { createdAt: 'desc' },
-    select: { studentId: true, subject: true, gradeValue: true },
-  });
+// --- Student performance (most recent grade per subject) ---
+const grades = await prisma.grade.findMany({
+  where: {
+    class: {
+      teacherId,
+    },
+  },
+  orderBy: {
+    createdAt: 'desc',
+  },
+  select: {
+    studentId: true,
+    subject: true,
+    value: true,
+  },
+});
 
-  const gradesByStudent = new Map<string, { subject: string; gradeValue: string }[]>();
-  for (const g of grades) {
-    if (!gradesByStudent.has(g.studentId)) gradesByStudent.set(g.studentId, []);
-    const entries = gradesByStudent.get(g.studentId)!;
-    if (!entries.some((e) => e.subject === g.subject)) {
-      entries.push({ subject: g.subject, gradeValue: g.gradeValue });
-    }
+const gradesByStudent = new Map<
+  string,
+  { subject: string; value: number }[]
+>();
+
+for (const g of grades) {
+  if (!gradesByStudent.has(g.studentId)) {
+    gradesByStudent.set(g.studentId, []);
   }
 
-  const studentPerformance = allStudents.map((s: any) => ({
-    studentId: s.id,
-    studentName: `${s.firstName} ${s.lastName}`,
-    className: s.className,
-    grades: gradesByStudent.get(s.id) ?? [],
-  }));
+  const entries = gradesByStudent.get(g.studentId)!;
+
+  // Since grades are ordered from newest to oldest,
+  // keep only the most recent grade for each subject
+  if (!entries.some((e) => e.subject === g.subject)) {
+    entries.push({
+      subject: g.subject,
+      value: g.value,
+    });
+  }
+}
+
+const studentPerformance = allStudents.map((s: any) => ({
+  studentId: s.id,
+  studentName: `${s.firstName} ${s.lastName}`,
+  className: s.className,
+  grades: gradesByStudent.get(s.id) ?? [],
+}));
 
   // --- Upcoming birthdays (next 30 days, comparing month/day only) ---
   const now = new Date();
