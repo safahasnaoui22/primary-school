@@ -32,7 +32,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'École introuvable' }, { status: 500 });
     }
 
-    // Create enrollment request
+    // Validate that every referenced class actually exists in this school
+    // BEFORE creating the request, so parents get a clear error instead of
+    // a silently-skipped child later at approval time.
+    for (const child of children) {
+      const classRecord = await prisma.class.findFirst({
+        where: { id: child.classId, schoolId },
+      });
+      if (!classRecord) {
+        return NextResponse.json(
+          { error: `Classe invalide pour ${child.firstName || 'un enfant'}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // IMPORTANT: this route only records the *request*. Actual Student,
+    // ParentStudent, and Invoice rows must be created exactly once, in the
+    // approve route (api/school-owner/enrollments/[id]/approve/route.ts),
+    // when a school owner reviews and accepts the request. Creating them
+    // here as well was the cause of children being registered twice.
     const enrollment = await prisma.enrollmentRequest.create({
       data: {
         schoolId,
@@ -44,72 +63,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Create students and link to parent
-    const createdStudents = [];
-    const createdInvoices = [];
-    
-    for (const child of children) {
-      // Check if class exists and belongs to school
-      const classRecord = await prisma.class.findFirst({
-        where: {
-          id: child.classId,
-          schoolId: schoolId
-        }
-      });
-
-      if (!classRecord) {
-        console.warn(`Class ${child.classId} not found for school ${schoolId}`);
-        continue;
-      }
-
-      // Create student (without age/gender since they're not in schema)
-      const student = await prisma.student.create({
-        data: {
-          firstName: child.firstName,
-          lastName: child.lastName,
-          classId: child.classId,
-          schoolId: schoolId,
-        }
-      });
-
-      // Link parent to student through ParentStudent join table
-      await prisma.parentStudent.create({
-        data: {
-          parentId: session.user.id,
-          studentId: student.id,
-        }
-      });
-
-      createdStudents.push(student);
-
-      // Check for fee structures for this class
-      const feeStructures = await prisma.feeStructure.findMany({
-        where: { classId: child.classId }
-      });
-
-      // Create invoices for each fee structure
-      for (const fee of feeStructures) {
-        const invoice = await prisma.invoice.create({
-          data: {
-            studentId: student.id,
-            parentId: session.user.id,
-            classId: child.classId,
-            schoolId: schoolId,
-            amount: fee.amount,
-            semester: fee.semester,
-            dueDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
-            status: 'PENDING'
-          }
-        });
-        createdInvoices.push(invoice);
-      }
-    }
-
-    return NextResponse.json({ 
-      id: enrollment.id,
-      studentsCreated: createdStudents.length,
-      invoicesCreated: createdInvoices.length
-    });
+    return NextResponse.json({ id: enrollment.id });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

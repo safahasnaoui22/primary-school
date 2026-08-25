@@ -204,36 +204,41 @@ export default function EnrollChildPage() {
     }
   };
 
-  const submitEnrollment = async () => {
-    if (!validateStep(3)) {
-      shakeCurrentPane();
-      return;
-    }
+const isSubmittingRef = useRef(false);
 
-    setIsSubmitting(true);
-    setErrors({});
+const submitEnrollment = async () => {
+  if (isSubmittingRef.current) return;
+  if (!validateStep(3)) {
+    shakeCurrentPane();
+    return;
+  }
 
-    try {
-      const res = await fetch('/api/enrollment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parentPhone: phone, children, medical, consent }),
-      });
+  isSubmittingRef.current = true;
+  setIsSubmitting(true);
+  setErrors({});
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t.submitError);
+  try {
+    const res = await fetch('/api/enrollment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ parentPhone: phone, children, medical, consent }),
+    });
 
-      localStorage.removeItem('enrollmentDraft');
-      setSubmitted(true);
-      setStep(4);
-      fireConfetti();
-    } catch (err: any) {
-      setErrors({ submit: err.message || t.submitError });
-      shakeCurrentPane();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || t.submitError);
+
+    localStorage.removeItem('enrollmentDraft');
+    setSubmitted(true);
+    setStep(4);
+    fireConfetti();
+  } catch (err: any) {
+    setErrors({ submit: err.message || t.submitError });
+    shakeCurrentPane();
+    isSubmittingRef.current = false; // allow retry on failure
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const goNext = () => {
     if (step === 3) {

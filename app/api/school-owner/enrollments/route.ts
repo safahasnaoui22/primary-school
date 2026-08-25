@@ -26,5 +26,20 @@ export async function GET(req: Request) {
     orderBy: { createdAt: 'desc' },
   });
 
-  return NextResponse.json(requests);
+  // Flatten the nested `parent` relation so the frontend's
+  // r.parentName / r.parentEmail fields are actually populated
+  // (previously only `r.parent.username` / `r.parent.email` existed,
+  // which the UI never read).
+  return NextResponse.json(
+    requests.map((r: any) => ({
+      id: r.id,
+      parentName: r.parent.username,
+      parentEmail: r.parent.email,
+      parentPhone: r.parentPhone,
+      childrenJson: r.childrenJson,
+      medical: r.medical,
+      status: r.status,
+      createdAt: r.createdAt,
+    }))
+  );
 }
