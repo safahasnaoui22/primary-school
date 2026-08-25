@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import ActionToast, { ToastData } from '@/components/ActionToast';
+import ActionToast, { ToastData } from '@/app/components/ActionToast';
 
 interface ClassOption { id: string; name: string; }
 interface StudentRow {
