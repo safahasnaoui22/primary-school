@@ -88,7 +88,7 @@ model User {
   school        School?   @relation(fields: [schoolId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
+tasks Task[] @relation("TeacherTasks")
   postedResources      Resource[]         @relation("ResourceTeacher")
   childLinks           ParentStudent[]    @relation("ParentLinks")
   taughtClasses        Class[]            @relation("TeacherClasses")
@@ -105,7 +105,7 @@ model User {
   calendarEventsAuthored CalendarEvent[]  @relation("CalendarAuthor")
   progressUpdatesGiven ProgressUpdate[]   @relation("ProgressTeacher")
 
-  tasks                Task[]             @relation("TaskTeacher") // <-- AJOUTÉ
+ 
 }
 
 model School {
@@ -153,7 +153,7 @@ model Student {
   school    School   @relation(fields: [schoolId], references: [id])
   classId   String?
   class     Class?   @relation(fields: [classId], references: [id])
-  birthDate DateTime? // <-- AJOUTÉ pour les anniversaires
+
   createdAt DateTime @default(now())
 
   invoices          Invoice[]
@@ -162,6 +162,7 @@ model Student {
   grades            Grade[]
   homeworkStatuses  HomeworkStatus[]
   progressUpdates   ProgressUpdate[]
+  birthDate DateTime?
 }
 
 model ParentStudent {
@@ -373,15 +374,12 @@ model FeeStructure {
   @@unique([classId, semester])
 }
 
-// ==================== NOUVEAU MODÈLE : TASK (To Do) ====================
-
 model Task {
   id        String    @id @default(cuid())
+  teacherId String
+  teacher   User      @relation("TeacherTasks", fields: [teacherId], references: [id])
   title     String
   dueDate   DateTime?
   completed Boolean   @default(false)
-  teacherId String?
-  teacher   User?     @relation("TaskTeacher", fields: [teacherId], references: [id])
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 }
