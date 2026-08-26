@@ -42,71 +42,129 @@ export default function ParentPaymentsPage() {
     const invoiceNumber = `INV-${printing.id.slice(0, 8).toUpperCase()}`;
 
     return (
-      <div style={{
-        maxWidth: 700,
-        margin: '30px auto',
-        fontFamily: 'Arial, Helvetica, sans-serif',
-        padding: 30,
-        border: '1px solid #ddd',
-        background: '#fff',
-        color: '#333',
-      }}>
+      <div
+        style={{
+          maxWidth: 700,
+          margin: '30px auto',
+          fontFamily: 'Arial, Helvetica, sans-serif',
+          padding: 30,
+          border: '1px solid #ddd',
+          background: '#fff',
+          color: '#333',
+        }}
+      >
+        {/* Global print styles – hide any top bar / sign out / parent info */}
         <style>{`
           @page {
             size: A4;
             margin: 20mm;
           }
           @media print {
-            .no-print { display: none !important; }
-            body { background: #fff; }
+            .no-print, .top-bar, .parent-info, .sign-out-btn {
+              display: none !important;
+            }
+            body {
+              background: #fff !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
           }
         `}</style>
 
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #071B4A', paddingBottom: 15, marginBottom: 20 }}>
+        {/* Header – school identity */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '3px solid #1e3a8a',
+            paddingBottom: 15,
+            marginBottom: 20,
+          }}
+        >
           <div>
-            <h1 style={{ fontSize: 24, color: '#071B4A', margin: 0, fontWeight: 700 }}>École Primaire EduSmart</h1>
-            <p style={{ fontSize: 12, color: '#5A6A7A', margin: '4px 0 0' }}>12 Rue des Écoles, Tunis · Tél: +216 71 234 567 · contact@edusmart.tn</p>
+            <h1 style={{ fontSize: 24, color: '#1e3a8a', margin: 0, fontWeight: 700 }}>
+              École Primaire EduSmart
+            </h1>
+            <p style={{ fontSize: 12, color: '#5A6A7A', margin: '4px 0 0' }}>
+              12 Rue des Écoles, Tunis · Tél: +216 71 234 567 · contact@edusmart.tn
+            </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#071B4A' }}>REÇU DE PAIEMENT</div>
-            <div style={{ fontSize: 12, color: '#5A6A7A', marginTop: 4 }}>N° {invoiceNumber}</div>
+            <div
+              style={{
+                fontSize: 22,
+                fontWeight: 700,
+                color: '#1e3a8a',
+                letterSpacing: 1,
+              }}
+            >
+              REÇU DE PAIEMENT
+            </div>
+            <div style={{ fontSize: 12, color: '#5A6A7A', marginTop: 4 }}>
+              N° {invoiceNumber}
+            </div>
           </div>
         </div>
 
-        {/* Meta information */}
+        {/* Student & invoice meta */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 25 }}>
           <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: 14, color: '#071B4A', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Élève</h2>
+            <h2
+              style={{
+                fontSize: 13,
+                color: '#1e3a8a',
+                margin: '0 0 8px',
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                fontWeight: 700,
+              }}
+            >
+              Élève
+            </h2>
             <p style={{ fontSize: 14, margin: '2px 0' }}>
-              <strong>{printing.student.firstName} {printing.student.lastName}</strong>
+              <strong>
+                {printing.student.firstName} {printing.student.lastName}
+              </strong>
             </p>
-            <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>Classe : {printing.class.name}</p>
-            <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>Semestre : {printing.semester}</p>
+            <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
+              Classe : {printing.class.name}
+            </p>
+            <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
+              Semestre : {printing.semester}
+            </p>
           </div>
           <div style={{ flex: 1, textAlign: 'right' }}>
             <table style={{ fontSize: 13, marginLeft: 'auto' }}>
               <tbody>
                 <tr>
                   <td style={{ padding: '3px 0', color: '#5A6A7A' }}>Date d'émission :</td>
-                  <td style={{ padding: '3px 0 3px 15px', fontWeight: 600 }}>{new Date().toLocaleDateString('fr-FR')}</td>
+                  <td style={{ padding: '3px 0 3px 15px', fontWeight: 600 }}>
+                    {new Date().toLocaleDateString('fr-FR')}
+                  </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '3px 0', color: '#5A6A7A' }}>Date d'échéance :</td>
-                  <td style={{ padding: '3px 0 3px 15px', fontWeight: 600 }}>{new Date(printing.dueDate).toLocaleDateString('fr-FR')}</td>
+                  <td style={{ padding: '3px 0 3px 15px', fontWeight: 600 }}>
+                    {new Date(printing.dueDate).toLocaleDateString('fr-FR')}
+                  </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '3px 0', color: '#5A6A7A' }}>Statut :</td>
                   <td style={{ padding: '3px 0 3px 15px' }}>
-                    <span style={{
-                      background: statusColor[printing.status]?.bg || '#F0F2F5',
-                      color: statusColor[printing.status]?.text || '#5A6A7A',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      padding: '2px 10px',
-                      borderRadius: 10,
-                      display: 'inline-block',
-                    }}>
+                    <span
+                      style={{
+                        background: statusColor[printing.status]?.bg || '#F0F2F5',
+                        color: statusColor[printing.status]?.text || '#5A6A7A',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        padding: '2px 10px',
+                        borderRadius: 10,
+                        display: 'inline-block',
+                      }}
+                    >
                       {statusColor[printing.status]?.label || 'Non payé'}
                     </span>
                   </td>
@@ -117,29 +175,97 @@ export default function ParentPaymentsPage() {
         </div>
 
         {/* Payments table */}
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
+        <table
+          style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            marginBottom: 20,
+            border: '1px solid #e5e9f0',
+          }}
+        >
           <thead>
-            <tr style={{ background: '#F8F9FA', borderBottom: '2px solid #E5E9F0' }}>
-              <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#5A6A7A', fontWeight: 600 }}>Date</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#5A6A7A', fontWeight: 600 }}>Description</th>
-              <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#5A6A7A', fontWeight: 600 }}>Montant</th>
+            <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e5e9f0' }}>
+              <th
+                style={{
+                  padding: '10px 12px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  color: '#5A6A7A',
+                  fontWeight: 600,
+                  borderRight: '1px solid #e5e9f0',
+                }}
+              >
+                Date
+              </th>
+              <th
+                style={{
+                  padding: '10px 12px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  color: '#5A6A7A',
+                  fontWeight: 600,
+                  borderRight: '1px solid #e5e9f0',
+                }}
+              >
+                Description
+              </th>
+              <th
+                style={{
+                  padding: '10px 12px',
+                  textAlign: 'right',
+                  fontSize: 12,
+                  color: '#5A6A7A',
+                  fontWeight: 600,
+                }}
+              >
+                Montant
+              </th>
             </tr>
           </thead>
           <tbody>
             {printing.payments.length === 0 ? (
               <tr>
-                <td colSpan={3} style={{ padding: '15px 12px', textAlign: 'center', fontSize: 13, color: '#5A6A7A' }}>
+                <td
+                  colSpan={3}
+                  style={{
+                    padding: '15px 12px',
+                    textAlign: 'center',
+                    fontSize: 13,
+                    color: '#5A6A7A',
+                  }}
+                >
                   Aucun paiement enregistré pour le moment.
                 </td>
               </tr>
             ) : (
               printing.payments.map((p) => (
-                <tr key={p.id} style={{ borderBottom: '1px solid #F0F2F5' }}>
-                  <td style={{ padding: '8px 12px', fontSize: 13 }}>{new Date(p.createdAt).toLocaleDateString('fr-FR')}</td>
-                  <td style={{ padding: '8px 12px', fontSize: 13 }}>
+                <tr key={p.id} style={{ borderBottom: '1px solid #f0f2f5' }}>
+                  <td
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: 13,
+                      borderRight: '1px solid #e5e9f0',
+                    }}
+                  >
+                    {new Date(p.createdAt).toLocaleDateString('fr-FR')}
+                  </td>
+                  <td
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: 13,
+                      borderRight: '1px solid #e5e9f0',
+                    }}
+                  >
                     {p.note || 'Paiement de frais scolaires'}
                   </td>
-                  <td style={{ padding: '8px 12px', fontSize: 13, textAlign: 'right', fontWeight: 500 }}>
+                  <td
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: 13,
+                      textAlign: 'right',
+                      fontWeight: 500,
+                    }}
+                  >
                     {p.amount.toLocaleString('fr-FR')} DT
                   </td>
                 </tr>
@@ -154,15 +280,34 @@ export default function ParentPaymentsPage() {
             <tbody>
               <tr>
                 <td style={{ padding: '4px 0', color: '#5A6A7A' }}>Montant total dû :</td>
-                <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600 }}>{printing.amount.toLocaleString('fr-FR')} DT</td>
+                <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600 }}>
+                  {printing.amount.toLocaleString('fr-FR')} DT
+                </td>
               </tr>
               <tr>
                 <td style={{ padding: '4px 0', color: '#5A6A7A' }}>Total payé :</td>
-                <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600 }}>{paid.toLocaleString('fr-FR')} DT</td>
+                <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600 }}>
+                  {paid.toLocaleString('fr-FR')} DT
+                </td>
               </tr>
-              <tr style={{ borderTop: '2px solid #071B4A' }}>
-                <td style={{ padding: '6px 0', fontWeight: 700, color: balance > 0 ? '#C0392B' : '#27500A' }}>Solde restant :</td>
-                <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 700, color: balance > 0 ? '#C0392B' : '#27500A' }}>
+              <tr style={{ borderTop: '2px solid #1e3a8a' }}>
+                <td
+                  style={{
+                    padding: '6px 0',
+                    fontWeight: 700,
+                    color: balance > 0 ? '#C0392B' : '#27500A',
+                  }}
+                >
+                  Solde restant :
+                </td>
+                <td
+                  style={{
+                    padding: '6px 0',
+                    textAlign: 'right',
+                    fontWeight: 700,
+                    color: balance > 0 ? '#C0392B' : '#27500A',
+                  }}
+                >
                   {balance.toLocaleString('fr-FR')} DT
                 </td>
               </tr>
@@ -171,7 +316,16 @@ export default function ParentPaymentsPage() {
         </div>
 
         {/* Footer */}
-        <div style={{ borderTop: '1px solid #E5E9F0', paddingTop: 15, fontSize: 12, color: '#5A6A7A', textAlign: 'center' }}>
+        <div
+          style={{
+            borderTop: '1px solid #e5e9f0',
+            paddingTop: 15,
+            fontSize: 12,
+            color: '#5A6A7A',
+            textAlign: 'center',
+            lineHeight: 1.5,
+          }}
+        >
           Merci de votre confiance. Ce reçu fait office de justificatif de paiement.<br />
           Pour toute question, contactez l'administration : contact@edusmart.tn · +216 71 234 567
         </div>
@@ -189,7 +343,7 @@ export default function ParentPaymentsPage() {
             cursor: 'pointer',
             fontSize: 14,
             fontWeight: 600,
-            color: '#071B4A',
+            color: '#1e3a8a',
           }}
         >
           ← Retour
@@ -198,7 +352,7 @@ export default function ParentPaymentsPage() {
     );
   }
 
-  // ... (non‑printing view remains unchanged)
+  // Non‑printing view remains identical to your original
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 1000, margin: '0 auto' }}>
       <h1 style={{ color: '#071B4A', marginBottom: 4 }}>Paiements</h1>
