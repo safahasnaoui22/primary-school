@@ -12,7 +12,7 @@ interface Invoice {
   student: { firstName: string; lastName: string };
   class: { name: string };
   payments: Payment[];
-  parentName?: string; // added parent name field
+  parentName?: string; // optional parent name
 }
 
 const statusColor: Record<string, { bg: string; text: string; label: string }> = {
@@ -106,7 +106,7 @@ export default function ParentPaymentsPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
             {/* Logo PNG – replace with actual path */}
             <img
-              src="/logo.png"
+              src="/logosch.png"
               alt="Logo école"
               style={{ height: 60, width: 'auto' }}
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -153,13 +153,15 @@ export default function ParentPaymentsPage() {
               Informations
             </h2>
             <p style={{ fontSize: 14, margin: '2px 0' }}>
-              <strong style={{ color: '#000' }}> {/* Explicit black */}
+              <strong style={{ color: '#5A6A7A' }}> {/* Student name in gray */}
                 {printing.student.firstName} {printing.student.lastName}
               </strong>
             </p>
-            <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
-              Parent / Tuteur : {printing.parentName || 'Non spécifié'}
-            </p>
+            {printing.parentName && (
+              <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
+                Parent / Tuteur : {printing.parentName}
+              </p>
+            )}
             <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
               Classe : {printing.class.name}
             </p>
