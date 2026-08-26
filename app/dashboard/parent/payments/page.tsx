@@ -43,6 +43,7 @@ export default function ParentPaymentsPage() {
 
     return (
       <div
+        className="receipt-print-area"
         style={{
           maxWidth: 700,
           margin: '30px auto',
@@ -51,25 +52,59 @@ export default function ParentPaymentsPage() {
           border: '1px solid #ddd',
           background: '#fff',
           color: '#333',
+          position: 'relative',
+          zIndex: 1,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
         }}
       >
-        {/* Global print styles – hide any top bar / sign out / parent info */}
+        {/* Professional background design */}
         <style>{`
           @page {
             size: A4;
-            margin: 20mm;
+            margin: 15mm;
           }
           @media print {
-            .no-print, .top-bar, .parent-info, .sign-out-btn {
+            /* Hide everything by default */
+            body * {
+              visibility: hidden;
+            }
+            /* Show only the receipt area */
+            .receipt-print-area, .receipt-print-area * {
+              visibility: visible;
+            }
+            .receipt-print-area {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              margin: 0;
+              padding: 20px;
+              box-shadow: none;
+              border: none;
+              background: #fff;
+            }
+            /* Remove any unwanted top bars / navs */
+            .no-print, .top-bar, .parent-info, .sign-out-btn, header, nav, .navbar, .sidebar {
               display: none !important;
             }
-            body {
-              background: #fff !important;
-            }
+            /* Ensure colors print properly */
             * {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+          }
+          /* Subtle watermark on screen */
+          .receipt-print-area::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.03"><text x="50" y="50" font-family="Arial" font-size="12" fill="%231e3a8a" text-anchor="middle" dominant-baseline="middle">EDUSMART</text></svg>');
+            background-size: 150px 150px;
+            pointer-events: none;
+            z-index: -1;
           }
         `}</style>
 
@@ -352,7 +387,7 @@ export default function ParentPaymentsPage() {
     );
   }
 
-  // Non‑printing view remains identical to your original
+  // Non‑printing view remains unchanged
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 1000, margin: '0 auto' }}>
       <h1 style={{ color: '#071B4A', marginBottom: 4 }}>Paiements</h1>
