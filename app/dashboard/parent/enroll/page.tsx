@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -50,7 +50,6 @@ const translations: Record<Language, Record<string, string>> = {
     contact: 'Nous vous contacterons sous 48h.',
     backHome: 'Retour au tableau de bord',
     phoneTooltip: 'Ex: 55 123 456',
-    saveIndicator: 'Brouillon sauvegardé',
     required: 'Champ obligatoire',
     invalidPhone: 'Numéro invalide (8 chiffres min)',
     childRequired: 'Prénom et nom requis',
@@ -79,51 +78,16 @@ export default function EnrollChildPage() {
   const [consent, setConsent] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [showSave, setShowSave] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableClasses, setAvailableClasses] = useState<{ id: string; name: string }[]>([]);
-  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isFirstRender = useRef(true);
+  const isSubmittingRef = useRef(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetch('/api/classes')
       .then((r) => r.json())
       .then((data) => Array.isArray(data) && setAvailableClasses(data));
   }, []);
-
-  useEffect(() => {
-    const draft = localStorage.getItem('enrollmentDraft');
-    if (draft) {
-      const data = JSON.parse(draft);
-      if (window.confirm(t.saveIndicator + ' – Restaurer ?')) {
-        setPhone(data.phone || '');
-        setMedical(data.medical || '');
-        setConsent(data.consent || false);
-        if (data.children?.length) setChildren(data.children);
-        setStep(data.currentStep || 1);
-      }
-    }
-  }, []);
-
-  const autoSave = useCallback(() => {
-    localStorage.setItem(
-      'enrollmentDraft',
-      JSON.stringify({ phone, children, medical, consent, currentStep: step })
-    );
-    setShowSave(true);
-    setTimeout(() => setShowSave(false), 2500);
-  }, [phone, children, medical, consent, step]);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (saveTimeout.current) clearTimeout(saveTimeout.current);
-    saveTimeout.current = setTimeout(autoSave, 1200);
-    return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
-  }, [phone, children, medical, consent, step, autoSave]);
 
   const validateStep = (s: number): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -204,41 +168,38 @@ export default function EnrollChildPage() {
     }
   };
 
-const isSubmittingRef = useRef(false);
+  const submitEnrollment = async () => {
+    if (isSubmittingRef.current) return;
+    if (!validateStep(3)) {
+      shakeCurrentPane();
+      return;
+    }
 
-const submitEnrollment = async () => {
-  if (isSubmittingRef.current) return;
-  if (!validateStep(3)) {
-    shakeCurrentPane();
-    return;
-  }
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    setErrors({});
 
-  isSubmittingRef.current = true;
-  setIsSubmitting(true);
-  setErrors({});
+    try {
+      const res = await fetch('/api/enrollment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentPhone: phone, children, medical, consent }),
+      });
 
-  try {
-    const res = await fetch('/api/enrollment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ parentPhone: phone, children, medical, consent }),
-    });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t.submitError);
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || t.submitError);
-
-    localStorage.removeItem('enrollmentDraft');
-    setSubmitted(true);
-    setStep(4);
-    fireConfetti();
-  } catch (err: any) {
-    setErrors({ submit: err.message || t.submitError });
-    shakeCurrentPane();
-    isSubmittingRef.current = false; // allow retry on failure
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      setSubmitted(true);
+      setStep(4);
+      fireConfetti();
+    } catch (err: any) {
+      setErrors({ submit: err.message || t.submitError });
+      shakeCurrentPane();
+      isSubmittingRef.current = false; // allow retry on failure
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const goNext = () => {
     if (step === 3) {
@@ -296,12 +257,6 @@ const submitEnrollment = async () => {
 
   return (
     <div className="inscription-page">
-      {showSave && (
-        <div className="save-toast">
-          <i className="fas fa-check-circle"></i> {t.saveIndicator}
-        </div>
-      )}
-
       <div className="card">
         <div className="card-header">
           <div className="brand">
