@@ -422,7 +422,7 @@ export default function EnrollChildPage() {
                 <p>{t.confirmed}</p>
                 <p className="contact">{t.contact}</p>
                 <Link href="/dashboard/parent" className="home-btn">
-                  <i className="fas fa-arrow-left"></i> {t.backHome}
+                 {t.backHome}
                 </Link>
               </div>
             </div>
@@ -431,7 +431,7 @@ export default function EnrollChildPage() {
           {step !== 4 && (
             <div className="nav">
               <button type="button" className="btn btn-secondary" onClick={goPrev} disabled={step === 1 || isSubmitting}>
-                <i className="fas fa-arrow-left"></i> {t.prev}
+              {t.prev}
               </button>
               <button type="button" className="btn btn-primary" onClick={goNext} disabled={isSubmitting}>
                 {isSubmitting ? t.submitting : step === 3 ? t.finish : t.next} <i className="fas fa-arrow-right"></i>
