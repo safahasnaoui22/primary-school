@@ -12,6 +12,7 @@ interface Invoice {
   student: { firstName: string; lastName: string };
   class: { name: string };
   payments: Payment[];
+  parentName?: string; // added parent name field
 }
 
 const statusColor: Record<string, { bg: string; text: string; label: string }> = {
@@ -57,18 +58,16 @@ export default function ParentPaymentsPage() {
           boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
         }}
       >
-        {/* Professional background design */}
+        {/* Print styles – hide everything except receipt */}
         <style>{`
           @page {
             size: A4;
             margin: 15mm;
           }
           @media print {
-            /* Hide everything by default */
             body * {
               visibility: hidden;
             }
-            /* Show only the receipt area */
             .receipt-print-area, .receipt-print-area * {
               visibility: visible;
             }
@@ -83,32 +82,17 @@ export default function ParentPaymentsPage() {
               border: none;
               background: #fff;
             }
-            /* Remove any unwanted top bars / navs */
             .no-print, .top-bar, .parent-info, .sign-out-btn, header, nav, .navbar, .sidebar {
               display: none !important;
             }
-            /* Ensure colors print properly */
             * {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
           }
-          /* Subtle watermark on screen */
-          .receipt-print-area::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.03"><text x="50" y="50" font-family="Arial" font-size="12" fill="%231e3a8a" text-anchor="middle" dominant-baseline="middle">EDUSMART</text></svg>');
-            background-size: 150px 150px;
-            pointer-events: none;
-            z-index: -1;
-          }
         `}</style>
 
-        {/* Header – school identity */}
+        {/* Header with logo */}
         <div
           style={{
             display: 'flex',
@@ -119,13 +103,22 @@ export default function ParentPaymentsPage() {
             marginBottom: 20,
           }}
         >
-          <div>
-            <h1 style={{ fontSize: 24, color: '#1e3a8a', margin: 0, fontWeight: 700 }}>
-              École Primaire EduSmart
-            </h1>
-            <p style={{ fontSize: 12, color: '#5A6A7A', margin: '4px 0 0' }}>
-              12 Rue des Écoles, Tunis · Tél: +216 71 234 567 · contact@edusmart.tn
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
+            {/* Logo PNG – replace with actual path */}
+            <img
+              src="/logo.png"
+              alt="Logo école"
+              style={{ height: 60, width: 'auto' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            />
+            <div>
+              <h1 style={{ fontSize: 24, color: '#1e3a8a', margin: 0, fontWeight: 700 }}>
+                École Primaire EduSmart
+              </h1>
+              <p style={{ fontSize: 12, color: '#5A6A7A', margin: '4px 0 0' }}>
+                12 Rue des Écoles, Tunis · Tél: +216 71 234 567 · contact@edusmart.tn
+              </p>
+            </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div
@@ -157,12 +150,15 @@ export default function ParentPaymentsPage() {
                 fontWeight: 700,
               }}
             >
-              Élève
+              Informations
             </h2>
             <p style={{ fontSize: 14, margin: '2px 0' }}>
-              <strong>
+              <strong style={{ color: '#000' }}> {/* Explicit black */}
                 {printing.student.firstName} {printing.student.lastName}
               </strong>
+            </p>
+            <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
+              Parent / Tuteur : {printing.parentName || 'Non spécifié'}
             </p>
             <p style={{ fontSize: 13, color: '#5A6A7A', margin: '2px 0' }}>
               Classe : {printing.class.name}
