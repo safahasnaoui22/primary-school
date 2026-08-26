@@ -14,6 +14,9 @@ interface ClassOption { id: string; name: string; }
 interface AnnouncementItem { id: string; title: string; body: string; category: string; createdAt: string; }
 interface EventItem { id: string; title: string; description: string | null; date: string; type: string; }
 interface ConversationPreview { id: string; otherName: string; otherRole: string; lastMessage: string | null; unreadCount: number; }
+interface OverdueInvoice { id: string; studentId: string; studentName: string; parentName: string; remaining: number; daysLate: number; }
+interface RevenueByClassRow { className: string; semester: string; total: number; }
+interface CollectionRate { current: number | null; previous: number | null; }
 
 interface Props {
   schoolName: string;
@@ -31,6 +34,10 @@ interface Props {
   announcements: AnnouncementItem[];
   upcomingEvents: EventItem[];
   conversations: ConversationPreview[];
+  overdueInvoices: OverdueInvoice[];
+  overdueCount: number;
+  revenueByClass: RevenueByClassRow[];
+  collectionRate: CollectionRate;
 }
 
 const fontImports =
@@ -120,10 +127,33 @@ function StatusBar({ breakdown }: { breakdown: Record<string, number> }) {
   );
 }
 
+function RevenueByClassBars({ rows }: { rows: RevenueByClassRow[] }) {
+  if (rows.length === 0) {
+    return <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun paiement enregistré pour le moment.</p>;
+  }
+  const max = Math.max(...rows.map((r) => r.total), 1);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {rows.map((r) => (
+        <div key={`${r.className}-${r.semester}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+            <span style={{ color: '#071B4A', fontWeight: 600 }}>{r.className} <span style={{ color: '#5A6A7A', fontWeight: 400 }}>· {r.semester}</span></span>
+            <span style={{ color: '#071B4A', fontWeight: 700 }}>{r.total.toLocaleString('fr-FR')} DT</span>
+          </div>
+          <div style={{ height: 8, borderRadius: 6, background: '#F0F2F6', overflow: 'hidden' }}>
+            <div style={{ width: `${(r.total / max) * 100}%`, height: '100%', background: '#FFB400', transition: 'width .5s ease' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function SchoolOwnerDashboardClient({
   schoolName, ownerName, teacherCount, studentCount, pendingEnrollments, recentTeachers,
   revenueCollected, unpaidCount, trend, invoiceStatusBreakdown, health, classes,
   announcements, upcomingEvents, conversations,
+  overdueInvoices, overdueCount, revenueByClass, collectionRate,
 }: Props) {
   const router = useRouter();
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -188,6 +218,10 @@ export default function SchoolOwnerDashboardClient({
       setToast({ title: 'Échec', message: data.error, emoji: '⚠️', tone: 'error' });
     }
   };
+
+  const rateDelta = collectionRate.current !== null && collectionRate.previous !== null
+    ? collectionRate.current - collectionRate.previous
+    : null;
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F7F8FB', fontFamily: 'Inter, sans-serif' }}>
@@ -260,6 +294,21 @@ export default function SchoolOwnerDashboardClient({
               <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Factures impayées</div>
             </div>
           </Reveal>
+          <Reveal delay={0.4}>
+            <div className="so-card so-stat-card">
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <div className="so-stat-value" style={{ fontSize: 30 }}>
+                  {collectionRate.current !== null ? `${collectionRate.current}%` : '—'}
+                </div>
+                {rateDelta !== null && (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: rateDelta >= 0 ? '#27500A' : '#C0392B' }}>
+                    {rateDelta >= 0 ? '▲' : '▼'} {Math.abs(rateDelta)} pts
+                  </span>
+                )}
+              </div>
+              <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Taux de recouvrement (ce mois)</div>
+            </div>
+          </Reveal>
         </div>
 
         {pendingEnrollments > 0 && (
@@ -277,6 +326,42 @@ export default function SchoolOwnerDashboardClient({
               <Link href="/dashboard/school-owner/enrollments" style={{ background: '#071B4A', color: '#fff', padding: '9px 20px', borderRadius: 20, fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 Examiner →
               </Link>
+            </div>
+          </Reveal>
+        )}
+
+        {/* Overdue invoices — actionable */}
+        {overdueInvoices.length > 0 && (
+          <Reveal delay={0.1}>
+            <div className="so-card" style={{ padding: 24, marginBottom: 20, borderLeft: '4px solid #C0392B' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h2 className="so-heading" style={{ fontSize: 17 }}>
+                  Factures en retard {overdueCount > 0 && <span style={{ color: '#C0392B' }}>({overdueCount})</span>}
+                </h2>
+                <Link href="/dashboard/school-owner/payments" className="so-link-btn">Gérer les paiements →</Link>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {overdueInvoices.map((inv) => (
+                  <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F5F5F5' }}>
+                    <div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: '#071B4A' }}>{inv.studentName}</div>
+                      <div style={{ fontSize: 12, color: '#5A6A7A' }}>Parent : {inv.parentName}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 700, color: '#C0392B' }}>{inv.remaining.toLocaleString('fr-FR')} DT</div>
+                        <div style={{ fontSize: 11.5, color: '#5A6A7A' }}>{inv.daysLate} jour{inv.daysLate > 1 ? 's' : ''} de retard</div>
+                      </div>
+                      <Link
+                        href={`/dashboard/school-owner/students/${inv.studentId}`}
+                        style={{ fontSize: 12.5, fontWeight: 700, color: '#071B4A', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+                      >
+                        Voir
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </Reveal>
         )}
@@ -319,7 +404,7 @@ export default function SchoolOwnerDashboardClient({
         </Reveal>
 
         {/* Chart section */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.6fr) minmax(0,1fr)', gap: 16, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.6fr) minmax(0,1fr)', gap: 16, marginBottom: 16 }}>
           <Reveal delay={0.1}>
             <div className="so-card" style={{ padding: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -336,6 +421,19 @@ export default function SchoolOwnerDashboardClient({
             <div className="so-card" style={{ padding: 24 }}>
               <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16 }}>État des factures</h2>
               <StatusBar breakdown={invoiceStatusBreakdown} />
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Revenue by class/semester */}
+        <div style={{ marginBottom: 20 }}>
+          <Reveal delay={0.14}>
+            <div className="so-card" style={{ padding: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h2 className="so-heading" style={{ fontSize: 17 }}>Revenus par classe et semestre</h2>
+                <Link href="/dashboard/school-owner/payments" className="so-link-btn">Détails →</Link>
+              </div>
+              <RevenueByClassBars rows={revenueByClass} />
             </div>
           </Reveal>
         </div>

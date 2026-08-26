@@ -18,10 +18,17 @@ export default async function SchoolOwnerDashboard() {
   }
 
   const schoolId = session.user.schoolId;
+  const now = new Date();
+
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
   sixMonthsAgo.setDate(1);
   sixMonthsAgo.setHours(0, 0, 0, 0);
+
+  // Month boundaries for the collection-rate comparison (this month vs last).
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
   const [
     school,
@@ -41,6 +48,11 @@ export default async function SchoolOwnerDashboard() {
     announcements,
     upcomingEvents,
     conversations,
+    // --- Financial additions ---
+    overdueInvoicesRaw,
+    overdueCount,
+    paymentsForClassRevenue,
+    invoicesForCollectionRate,
   ] = await Promise.all([
     prisma.school.findUnique({ where: { id: schoolId } }),
     prisma.user.count({ where: { schoolId, role: 'TEACHER' } }),
@@ -87,6 +99,43 @@ export default async function SchoolOwnerDashboard() {
       orderBy: { createdAt: 'desc' },
       take: 4,
     }),
+    // Overdue invoices — anything past its due date and not fully paid,
+    // regardless of whether the `status` field has been flipped to
+    // OVERDUE elsewhere, so this is never silently stale.
+    prisma.invoice.findMany({
+      where: { schoolId, dueDate: { lt: now }, status: { notIn: ['PAID', 'CANCELLED'] } },
+      orderBy: { dueDate: 'asc' },
+      take: 5,
+      include: {
+        student: { select: { id: true, firstName: true, lastName: true } },
+        parent: { select: { username: true } },
+        payments: { where: { voided: false }, select: { amount: true } },
+      },
+    }),
+    prisma.invoice.count({
+      where: { schoolId, dueDate: { lt: now }, status: { notIn: ['PAID', 'CANCELLED'] } },
+    }),
+    // Revenue by class/semester — every non-voided payment, joined to its
+    // invoice's class + semester. Aggregated in JS below since Prisma's
+    // groupBy can't group on a related model's fields.
+    prisma.payment.findMany({
+      where: { voided: false, invoice: { schoolId } },
+      select: {
+        amount: true,
+        invoice: { select: { semester: true, class: { select: { id: true, name: true } } } },
+      },
+    }),
+    // Collection rate — invoices due this month and last month, with their
+    // non-voided payments, so we can compute amount-collected / amount-due
+    // for both months in a single pass.
+    prisma.invoice.findMany({
+      where: { schoolId, dueDate: { gte: lastMonthStart, lt: thisMonthEnd } },
+      select: {
+        amount: true,
+        dueDate: true,
+        payments: { where: { voided: false }, select: { amount: true } },
+      },
+    }),
   ]);
 
   const buckets: { key: string; label: string; revenue: number; students: number }[] = [];
@@ -129,6 +178,58 @@ export default async function SchoolOwnerDashboard() {
     })
   );
 
+  // --- Financial shaping ---
+
+  const overdueInvoices = overdueInvoicesRaw.map((inv: any) => {
+    const paid = inv.payments.reduce((s: number, p: any) => s + p.amount, 0);
+    const remaining = inv.amount - paid;
+    const daysLate = Math.max(0, Math.floor((now.getTime() - new Date(inv.dueDate).getTime()) / 86400000));
+    return {
+      id: inv.id,
+      studentId: inv.student.id,
+      studentName: `${inv.student.firstName} ${inv.student.lastName}`,
+      parentName: inv.parent.username,
+      remaining,
+      daysLate,
+    };
+  });
+
+  const revenueByClassMap = new Map<string, { className: string; semester: string; total: number }>();
+  paymentsForClassRevenue.forEach((p: any) => {
+    const cls = p.invoice.class;
+    const semester = p.invoice.semester;
+    const key = `${cls.id}|${semester}`;
+    const existing = revenueByClassMap.get(key);
+    if (existing) {
+      existing.total += p.amount;
+    } else {
+      revenueByClassMap.set(key, { className: cls.name, semester, total: p.amount });
+    }
+  });
+  const revenueByClass = Array.from(revenueByClassMap.values())
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6);
+
+  function computeRate(bucket: 'this' | 'last') {
+    let due = 0;
+    let collected = 0;
+    invoicesForCollectionRate.forEach((inv: any) => {
+      const d = new Date(inv.dueDate);
+      const isThisMonth = d >= thisMonthStart && d < thisMonthEnd;
+      const isLastMonth = d >= lastMonthStart && d < thisMonthStart;
+      if ((bucket === 'this' && isThisMonth) || (bucket === 'last' && isLastMonth)) {
+        due += inv.amount;
+        collected += inv.payments.reduce((s: number, p: any) => s + p.amount, 0);
+      }
+    });
+    return due > 0 ? Math.round((collected / due) * 100) : null;
+  }
+
+  const collectionRate = {
+    current: computeRate('this'),
+    previous: computeRate('last'),
+  };
+
   return (
     <SchoolOwnerDashboardClient
       schoolName={school?.name ?? 'Votre école'}
@@ -163,6 +264,10 @@ export default async function SchoolOwnerDashboard() {
         type: e.type,
       }))}
       conversations={conversationsShaped}
+      overdueInvoices={overdueInvoices}
+      overdueCount={overdueCount}
+      revenueByClass={revenueByClass}
+      collectionRate={collectionRate}
     />
   );
 }
