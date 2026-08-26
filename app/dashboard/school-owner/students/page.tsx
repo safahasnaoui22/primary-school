@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useCallback   } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import ActionToast, { ToastData } from '@/app/components/ActionToast';
-import Link from 'next/link'
+
 interface ClassOption { id: string; name: string; }
 interface StudentRow {
   id: string;
@@ -132,11 +132,12 @@ export default function StudentsPage() {
                 <tr key={s.id}>
                   {isEditing ? (
                     <>
-                     <td style={{ ...tdStyle, fontWeight: 600, color: '#071B4A' }}>
-  <Link href={`/dashboard/school-owner/students/${s.id}`} style={{ color: '#071B4A', textDecoration: 'none' }}>
-    {s.firstName} {s.lastName}
-  </Link>
-</td>
+                      <td style={tdStyle}>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <input value={editFirstName} onChange={(e) => setEditFirstName(e.target.value)} style={{ ...inputStyle, padding: '6px 8px', width: 90 }} />
+                          <input value={editLastName} onChange={(e) => setEditLastName(e.target.value)} style={{ ...inputStyle, padding: '6px 8px', width: 90 }} />
+                        </div>
+                      </td>
                       <td style={tdStyle}>
                         <select value={editClassId} onChange={(e) => setEditClassId(e.target.value)} style={{ ...inputStyle, padding: '6px 8px' }}>
                           <option value="">— aucune —</option>

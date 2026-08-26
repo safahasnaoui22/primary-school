@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface ChildEntry {
   firstName: string;
@@ -13,7 +13,8 @@ interface ChildEntry {
 
 interface EnrollmentRequest {
   id: string;
-  parent: { username: string; email: string };
+  parentName: string;
+  parentEmail: string;
   parentPhone: string;
   childrenJson: ChildEntry[];
   medical: string | null;
@@ -37,6 +38,13 @@ export default function EnrollmentsPage() {
   const [lastResult, setLastResult] = useState<{ studentsCreated: number } | null>(null);
   const [classMap, setClassMap] = useState<Record<string, string>>({});
 
+  // Synchronous guard against double-clicks: React state (busyId) only
+  // updates on next render, so a fast double-click can fire approve()/reject()
+  // twice before the button visually disables. This ref blocks the second
+  // call immediately, regardless of render timing. (The approve route also
+  // has its own atomic server-side guard as a second line of defense.)
+  const busyIdsRef = useRef<Set<string>>(new Set());
+
   const load = useCallback(async () => {
     const res = await fetch(`/api/school-owner/enrollments?status=${filter}`);
     if (res.ok) setRequests(await res.json());
@@ -57,29 +65,41 @@ export default function EnrollmentsPage() {
   }, []);
 
   const approve = async (id: string) => {
+    if (busyIdsRef.current.has(id)) return;
+    busyIdsRef.current.add(id);
     setBusyId(id);
     setLastResult(null);
-    const res = await fetch(`/api/school-owner/enrollments/${id}/approve`, { method: 'POST' });
-    const data = await res.json();
-    setBusyId(null);
-    if (res.ok) {
-      setLastResult({ studentsCreated: data.studentsCreated });
-      load();
-    } else {
-      alert(data.error || "Échec de l'approbation");
+    try {
+      const res = await fetch(`/api/school-owner/enrollments/${id}/approve`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setLastResult({ studentsCreated: data.studentsCreated });
+        load();
+      } else {
+        alert(data.error || "Échec de l'approbation");
+      }
+    } finally {
+      busyIdsRef.current.delete(id);
+      setBusyId(null);
     }
   };
 
   const reject = async (id: string) => {
+    if (busyIdsRef.current.has(id)) return;
     if (!confirm("Refuser cette demande d'inscription ?")) return;
+    busyIdsRef.current.add(id);
     setBusyId(id);
-    const res = await fetch(`/api/school-owner/enrollments/${id}/reject`, { method: 'POST' });
-    setBusyId(null);
-    if (res.ok) {
-      load();
-    } else {
-      const data = await res.json();
-      alert(data.error || 'Échec du refus');
+    try {
+      const res = await fetch(`/api/school-owner/enrollments/${id}/reject`, { method: 'POST' });
+      if (res.ok) {
+        load();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Échec du refus');
+      }
+    } finally {
+      busyIdsRef.current.delete(id);
+      setBusyId(null);
     }
   };
 
@@ -141,7 +161,7 @@ export default function EnrollmentsPage() {
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 600, color: '#071B4A', fontSize: 15 }}>{r.parent.username}</div>
+                  <div style={{ fontWeight: 600, color: '#071B4A', fontSize: 15 }}>{r.parentName}</div>
                   <div style={{ fontSize: 13, color: '#5A6A7A' }}>
                     {r.childrenJson.length} enfant{r.childrenJson.length > 1 ? 's' : ''} · {new Date(r.createdAt).toLocaleDateString('fr-FR')}
                   </div>
@@ -154,7 +174,7 @@ export default function EnrollmentsPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16, marginBottom: 16 }}>
                     <div>
                       <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Compte parent (email)</div>
-                      <div style={{ fontSize: 14 }}>{r.parent.email}</div>
+                      <div style={{ fontSize: 14 }}>{r.parentEmail}</div>
                     </div>
                     <div>
                       <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 2 }}>Téléphone</div>
