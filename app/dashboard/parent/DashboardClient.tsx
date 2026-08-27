@@ -173,12 +173,15 @@ export default function ParentDashboardClient({
   const sidebarWidth = sidebarOpen ? 260 : 72;
   const mainMarginLeft = sidebarOpen ? 260 : 72;
 
-  // Mobile shortcut items
-  const shortcuts = [
+  // Mobile shortcut items – first four general, last four quick actions
+  const generalShortcuts = [
     { title: 'Frais de scolarité', subtitle: 'Historique →', link: '/dashboard/parent/payments', icon: '💳' },
     { title: 'Messages', subtitle: 'Boîte de réception →', link: '/dashboard/messages', icon: '💬' },
     { title: 'Annonces de l’école', subtitle: 'Voir toutes les actualités →', link: '/news-events', icon: '📢' },
     { title: 'Événements à venir', subtitle: 'Calendrier scolaire →', link: '/news-events', icon: '📅' },
+  ];
+
+  const quickActionShortcuts = [
     { title: 'Inscrire un enfant', subtitle: 'Nouvelle demande d’inscription', link: '/dashboard/parent/enroll', icon: '➕' },
     { title: 'Message à un enseignant', subtitle: 'Démarrer une conversation', link: '/dashboard/messages', icon: '✉️' },
     { title: 'Payer les frais', subtitle: 'Voir les factures et payer en ligne', link: '/dashboard/parent/payments', icon: '💳' },
@@ -938,8 +941,25 @@ export default function ParentDashboardClient({
 
           {/* MOBILE ONLY SHORTCUT GRID */}
           <div className="mobile-shortcuts">
+            {/* General shortcuts */}
             <div className="mobile-shortcuts-grid">
-              {shortcuts.map((item, idx) => (
+              {generalShortcuts.map((item, idx) => (
+                <Link key={idx} href={item.link} className="mobile-shortcut-card">
+                  <span className="mobile-shortcut-icon">{item.icon}</span>
+                  <span className="mobile-shortcut-title">{item.title}</span>
+                  <span className="mobile-shortcut-subtitle">{item.subtitle}</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Actions rapides title (mobile only) */}
+            <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12, marginTop: 24 }}>
+              Actions rapides
+            </h2>
+
+            {/* Quick action shortcuts */}
+            <div className="mobile-shortcuts-grid">
+              {quickActionShortcuts.map((item, idx) => (
                 <Link key={idx} href={item.link} className="mobile-shortcut-card">
                   <span className="mobile-shortcut-icon">{item.icon}</span>
                   <span className="mobile-shortcut-title">{item.title}</span>
@@ -949,7 +969,7 @@ export default function ParentDashboardClient({
             </div>
           </div>
 
-          {/* SECTION FRAIS + MESSAGES – hidden on mobile */}
+          {/* DESKTOP SECTIONS (hidden on mobile) */}
           <div className="desktop-sections" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -1008,7 +1028,6 @@ export default function ParentDashboardClient({
             </div>
           </div>
 
-          {/* ANNONCES DE L'ÉCOLE – hidden on mobile */}
           <div className="pd-card desktop-sections" style={{ marginBottom: 28 }}>
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Annonces de l'école</h2>
             {announcements.length === 0 ? (
@@ -1035,7 +1054,6 @@ export default function ParentDashboardClient({
             </Link>
           </div>
 
-          {/* ÉVÉNEMENTS À VENIR – hidden on mobile */}
           <div className="pd-card desktop-sections" style={{ marginBottom: 28 }}>
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Événements à venir</h2>
             {upcomingEvents.length === 0 ? (
@@ -1067,7 +1085,6 @@ export default function ParentDashboardClient({
             )}
           </div>
 
-          {/* ACTIONS RAPIDES – hidden on mobile */}
           <div className="desktop-sections">
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
             <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
