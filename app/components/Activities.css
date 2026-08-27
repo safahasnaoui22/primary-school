@@ -403,3 +403,66 @@ img {
     width: 85%;
   }
 }
+/* iPad Horizontal / Landscape */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .content {
+    gap: 2rem;
+    padding: 0 0.5rem;
+  }
+
+  .cube-container {
+    width: 240px;
+    flex-shrink: 1;
+    min-width: 220px;
+  }
+
+  .photo-cube,
+  .front,
+  .back,
+  .left,
+  .right {
+    width: 240px;
+    height: 220px;
+  }
+
+  .front {
+    transform: translate3d(0, 0, 96px);
+  }
+
+  .back {
+    transform: translateZ(-96px) rotateY(270deg);
+    transform-origin: center left;
+  }
+
+  .left {
+    transform: rotateY(-270deg) translate3d(96px, 0, 0);
+    transform-origin: top right;
+  }
+
+  .right {
+    transform: translateZ(-96px) rotateY(180deg);
+  }
+
+  .photo-desc {
+    padding: 1.4em 1em 0;
+  }
+
+  .photo-desc h3 {
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 0.2em;
+  }
+
+  .photo-desc p {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    margin-bottom: 0.7em;
+  }
+
+  .button {
+    font-size: 0.65em;
+    padding: 0.7em 0;
+    margin: 1em auto 0.6em;
+    width: 85%;
+  }
+}
