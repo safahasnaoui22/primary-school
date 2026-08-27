@@ -363,6 +363,11 @@ export default function ParentDashboardClient({
           box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
+        /* Hide the "Inscrire un enfant" button on mobile */
+        .hide-on-mobile {
+          display: inline-flex;
+        }
+
         @media (max-width: 768px) {
           .hamburger-btn {
             display: block;
@@ -394,6 +399,11 @@ export default function ParentDashboardClient({
 
           .pd-heading {
             font-size: 18px !important;
+          }
+
+          /* Hide the "Inscrire un enfant" button */
+          .hide-on-mobile {
+            display: none !important;
           }
 
           /* Header action button */
@@ -688,6 +698,7 @@ export default function ParentDashboardClient({
             </div>
             <Link
               href="/dashboard/parent/enroll"
+              className="hide-on-mobile"   // 👈 AJOUTÉ ICI
               style={{ background: '#FFB400', color: '#071B4A', padding: '10px 20px', borderRadius: 20, fontSize: 14, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'transform 0.2s, box-shadow 0.2s' }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
@@ -844,6 +855,7 @@ export default function ParentDashboardClient({
             </>
           )}
 
+          {/* SECTION FRAIS + MESSAGES – toujours en colonne sur mobile grâce aux media queries */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
