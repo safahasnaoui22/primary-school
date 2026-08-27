@@ -467,7 +467,12 @@ img {
   }
 }
 @media (max-width: 768px) {
-  .about__teacher {
-    display: none;
-  }
+  .about { padding: 52px 28px; gap: 36px; }
+  .about__teacher { display: none !important;  }  
+  .about__teacher img { height: 380px; }
+  .about__bg-orb--1 { width: 200px; height: 200px; }
+  .about__bg-orb--2 { width: 160px; height: 160px; }
+  .about__bg-orb--3 { width: 130px; height: 130px; }
+  .about__bg-orb--4 { width: 110px; height: 110px; }
+  .about__bg-orb--5 { width: 100px; height: 100px; }
 }
