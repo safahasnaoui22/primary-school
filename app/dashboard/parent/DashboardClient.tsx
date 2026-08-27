@@ -434,14 +434,15 @@ export default function ParentDashboardClient({
             border-radius: 12px !important;
           }
 
-          /* Two-column grids -> single column (except specific ones) */
+          /* Two-column grids -> single column (except .pd-duo-grid) */
           .pd-card > div[style*="display: grid; grid-template-columns: 1fr 1fr;"] {
             grid-template-columns: 1fr !important;
             gap: 16px !important;
           }
 
           /* Main two-column layout (frais + messages) – now handled by .pd-duo-grid */
-          /* Keep as is */
+          /* Remove the old rule that forced single column for the old grid */
+          /* Keep it for other inline-styled grids, but we override with .pd-duo-grid below */
 
           /* Quick actions grid */
           .pd-quick-grid {
@@ -578,13 +579,6 @@ export default function ParentDashboardClient({
             color: #5A6A7A;
             margin-top: 2px;
           }
-
-          /* New: Annonces & Événements side by side on mobile */
-          .pd-announcements-events {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-          }
         }
 
         @media (max-width: 480px) {
@@ -637,20 +631,7 @@ export default function ParentDashboardClient({
           .pd-mobile-sub {
             font-size: 10px;
           }
-
-          .pd-announcements-events {
-            gap: 8px;
-          }
         }
-
-        /* Desktop: Show full cards for Frais/Messages, hide mobile cards */
-        .pd-mobile-card {
-          display: none;
-        }
-        .pd-desktop-card {
-          display: block;
-        }
-        /* But on mobile we flip via media query above */
       `}</style>
 
       {/* HAMBURGER BUTTON (visible only on mobile via CSS) */}
@@ -920,7 +901,7 @@ export default function ParentDashboardClient({
             </>
           )}
 
-          {/* SECTION FRAIS + MESSAGES – desktop and mobile versions */}
+          {/* SECTION FRAIS + MESSAGES – now with desktop and mobile versions */}
           <div className="pd-duo-grid" style={{ marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             {/* Desktop cards */}
             <div className="pd-card pd-desktop-card">
@@ -992,67 +973,63 @@ export default function ParentDashboardClient({
             </Link>
           </div>
 
-          {/* ANNOUNCEMENTS & EVENTS SIDE BY SIDE */}
-          <div className="pd-announcements-events" style={{ marginBottom: 28 }}>
-            <div className="pd-card">
-              <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Annonces de l'école</h2>
-              {announcements.length === 0 ? (
-                <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucune annonce pour le moment.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {announcements.map((a) => (
-                    <div key={a.id} style={{ borderLeft: `3px solid ${categoryColor[a.category] ?? '#071B4A'}`, paddingLeft: 12 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: categoryColor[a.category] ?? '#071B4A' }}>
-                          {categoryLabel[a.category] ?? a.category}
-                        </span>
-                        <span style={{ fontSize: 11, color: '#5A6A7A', fontFamily: "'IBM Plex Mono', monospace" }}>
-                          {new Date(a.createdAt).toLocaleDateString('fr-FR')}
-                        </span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: 14, color: '#1A1A2E' }}>{a.title}</p>
+          <div className="pd-card" style={{ marginBottom: 28 }}>
+            <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Annonces de l'école</h2>
+            {announcements.length === 0 ? (
+              <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucune annonce pour le moment.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {announcements.map((a) => (
+                  <div key={a.id} style={{ borderLeft: `3px solid ${categoryColor[a.category] ?? '#071B4A'}`, paddingLeft: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: categoryColor[a.category] ?? '#071B4A' }}>
+                        {categoryLabel[a.category] ?? a.category}
+                      </span>
+                      <span style={{ fontSize: 11, color: '#5A6A7A', fontFamily: "'IBM Plex Mono', monospace" }}>
+                        {new Date(a.createdAt).toLocaleDateString('fr-FR')}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-              <Link href="/news-events" className="pd-link-btn" style={{ display: 'inline-block', marginTop: 14 }}>
-                Voir toutes les actualités →
-              </Link>
-            </div>
-
-            <div className="pd-card">
-              <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Événements à venir</h2>
-              {upcomingEvents.length === 0 ? (
-                <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucun événement à venir.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {upcomingEvents.map((e) => {
-                    const et = eventTypeLabel[e.type] ?? eventTypeLabel.EVENT;
-                    return (
-                      <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
-                          <div style={{ fontSize: 10, fontWeight: 600, color: '#FFB400', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>
-                            {new Date(e.date).toLocaleDateString('fr-FR', { month: 'short' })}
-                          </div>
-                          <div style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 600, color: '#071B4A' }}>
-                            {new Date(e.date).getDate()}
-                          </div>
-                        </div>
-                        <div>
-                          <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#071B4A' }}>
-                            {et.emoji} {e.title}
-                          </p>
-                          <p style={{ margin: 0, fontSize: 12, color: et.color, fontWeight: 600 }}>{et.label}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                    <p style={{ margin: 0, fontSize: 14, color: '#1A1A2E' }}>{a.title}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Link href="/news-events" className="pd-link-btn" style={{ display: 'inline-block', marginTop: 14 }}>
+              Voir toutes les actualités →
+            </Link>
           </div>
 
-          {/* QUICK ACTIONS */}
+          <div className="pd-card" style={{ marginBottom: 28 }}>
+            <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Événements à venir</h2>
+            {upcomingEvents.length === 0 ? (
+              <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucun événement à venir.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {upcomingEvents.map((e) => {
+                  const et = eventTypeLabel[e.type] ?? eventTypeLabel.EVENT;
+                  return (
+                    <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: '#FFB400', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>
+                          {new Date(e.date).toLocaleDateString('fr-FR', { month: 'short' })}
+                        </div>
+                        <div style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 600, color: '#071B4A' }}>
+                          {new Date(e.date).getDate()}
+                        </div>
+                      </div>
+                      <div>
+                        <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#071B4A' }}>
+                          {et.emoji} {e.title}
+                        </p>
+                        <p style={{ margin: 0, fontSize: 12, color: et.color, fontWeight: 600 }}>{et.label}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
           <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
             <Link href="/dashboard/parent/enroll">
