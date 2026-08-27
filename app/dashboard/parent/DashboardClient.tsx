@@ -148,7 +148,6 @@ export default function ParentDashboardClient({
 }: Props) {
   const [activeChildId, setActiveChildId] = useState(children[0]?.id ?? null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
   const child = children.find((c) => c.id === activeChildId) ?? null;
 
   // Fade-in on mount
@@ -160,12 +159,10 @@ export default function ParentDashboardClient({
   // Auto-close sidebar on mobile and detect mobile
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile) {
+      if (window.innerWidth < 768) {
         setSidebarOpen(false);
       } else {
-        setSidebarOpen(true); // reopen on desktop
+        setSidebarOpen(true);
       }
     };
     handleResize();
@@ -443,7 +440,7 @@ export default function ParentDashboardClient({
             gap: 16px !important;
           }
 
-          /* Main two-column layout (frais + messages) */
+          /* Main two-column layout (frais + messages) – Messages will go under Frais */
           div[style*="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;"] {
             grid-template-columns: 1fr !important;
             gap: 16px !important;
@@ -696,9 +693,10 @@ export default function ParentDashboardClient({
               </h1>
               <p style={{ color: '#5A6A7A', fontSize: 15, margin: 0 }}>Voici un aperçu de la scolarité de vos enfants.</p>
             </div>
+            {/* Le bouton est masqué sur mobile grâce à la classe hide-on-mobile */}
             <Link
               href="/dashboard/parent/enroll"
-              className="hide-on-mobile"   // 👈 AJOUTÉ ICI
+              className="hide-on-mobile"
               style={{ background: '#FFB400', color: '#071B4A', padding: '10px 20px', borderRadius: 20, fontSize: 14, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'transform 0.2s, box-shadow 0.2s' }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
@@ -855,7 +853,7 @@ export default function ParentDashboardClient({
             </>
           )}
 
-          {/* SECTION FRAIS + MESSAGES – toujours en colonne sur mobile grâce aux media queries */}
+          {/* SECTION FRAIS + MESSAGES – sur mobile, la grille passe en 1 colonne, donc Messages sera sous Frais */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
