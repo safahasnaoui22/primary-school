@@ -434,15 +434,17 @@ export default function ParentDashboardClient({
             border-radius: 12px !important;
           }
 
-          /* Two-column grids -> single column (except .pd-duo-grid) */
+          /* Two-column grids -> single column */
           .pd-card > div[style*="display: grid; grid-template-columns: 1fr 1fr;"] {
             grid-template-columns: 1fr !important;
             gap: 16px !important;
           }
 
-          /* Main two-column layout (frais + messages) – now handled by .pd-duo-grid */
-          /* Remove the old rule that forced single column for the old grid */
-          /* Keep it for other inline-styled grids, but we override with .pd-duo-grid below */
+          /* Main two-column layout (frais + messages) – Messages will go under Frais */
+          div[style*="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;"] {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
 
           /* Quick actions grid */
           .pd-quick-grid {
@@ -538,47 +540,6 @@ export default function ParentDashboardClient({
           h1 .typewriter {
             font-size: 24px !important;
           }
-
-          /* ===== New: Duo Grid for Frais & Messages on Mobile ===== */
-          .pd-duo-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-          }
-          .pd-desktop-card {
-            display: none !important;
-          }
-          .pd-mobile-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #fff;
-            border-radius: 16px;
-            padding: 16px 10px;
-            text-decoration: none;
-            box-shadow: 0 3px 10px rgba(7,27,74,0.06);
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-align: center;
-            color: #071B4A;
-          }
-          .pd-mobile-card:active {
-            transform: scale(0.98);
-          }
-          .pd-mobile-icon {
-            font-size: 28px;
-            margin-bottom: 6px;
-          }
-          .pd-mobile-title {
-            font-weight: 600;
-            font-size: 14px;
-            color: #071B4A;
-          }
-          .pd-mobile-sub {
-            font-size: 11px;
-            color: #5A6A7A;
-            margin-top: 2px;
-          }
         }
 
         @media (max-width: 480px) {
@@ -620,16 +581,6 @@ export default function ParentDashboardClient({
 
           .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
             font-size: 20px !important;
-          }
-
-          .pd-mobile-icon {
-            font-size: 24px;
-          }
-          .pd-mobile-title {
-            font-size: 13px;
-          }
-          .pd-mobile-sub {
-            font-size: 10px;
           }
         }
       `}</style>
@@ -742,6 +693,7 @@ export default function ParentDashboardClient({
               </h1>
               <p style={{ color: '#5A6A7A', fontSize: 15, margin: 0 }}>Voici un aperçu de la scolarité de vos enfants.</p>
             </div>
+            {/* Le bouton est masqué sur mobile grâce à la classe hide-on-mobile */}
             <Link
               href="/dashboard/parent/enroll"
               className="hide-on-mobile"
@@ -901,10 +853,9 @@ export default function ParentDashboardClient({
             </>
           )}
 
-          {/* SECTION FRAIS + MESSAGES – now with desktop and mobile versions */}
-          <div className="pd-duo-grid" style={{ marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
-            {/* Desktop cards */}
-            <div className="pd-card pd-desktop-card">
+          {/* SECTION FRAIS + MESSAGES – sur mobile, la grille passe en 1 colonne, donc Messages sera sous Frais */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
+            <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h2 className="pd-heading" style={{ fontSize: 17 }}>Frais de scolarité</h2>
                 <Link href="/dashboard/parent/payments" className="pd-link-btn">Historique →</Link>
@@ -928,7 +879,7 @@ export default function ParentDashboardClient({
               )}
             </div>
 
-            <div className="pd-card pd-desktop-card">
+            <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h2 className="pd-heading" style={{ fontSize: 17 }}>
                   Messages {unreadCount > 0 && (
@@ -959,18 +910,6 @@ export default function ParentDashboardClient({
                 </div>
               )}
             </div>
-
-            {/* Mobile shortcut cards */}
-            <Link href="/dashboard/parent/payments" className="pd-mobile-card">
-              <span className="pd-mobile-icon">💳</span>
-              <span className="pd-mobile-title">Frais de scolarité</span>
-              <span className="pd-mobile-sub">Voir les paiements</span>
-            </Link>
-            <Link href="/dashboard/messages" className="pd-mobile-card">
-              <span className="pd-mobile-icon">💬</span>
-              <span className="pd-mobile-title">Messages</span>
-              <span className="pd-mobile-sub">{unreadCount > 0 ? `${unreadCount} non lu(s)` : 'Aucun message'}</span>
-            </Link>
           </div>
 
           <div className="pd-card" style={{ marginBottom: 28 }}>
