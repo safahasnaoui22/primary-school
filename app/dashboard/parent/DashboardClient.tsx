@@ -148,12 +148,29 @@ export default function ParentDashboardClient({
 }: Props) {
   const [activeChildId, setActiveChildId] = useState(children[0]?.id ?? null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const child = children.find((c) => c.id === activeChildId) ?? null;
 
   // Fade-in on mount
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Auto-close sidebar on mobile and detect mobile
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true); // reopen on desktop
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const sidebarWidth = sidebarOpen ? 260 : 72;
@@ -312,25 +329,266 @@ export default function ParentDashboardClient({
         .pd-resource-item:last-child {
           border-bottom: none;
         }
+
+        /* ===== MOBILE RESPONSIVENESS ===== */
+        .sidebar {
+          position: fixed;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 260px;
+          background: linear-gradient(180deg, #071B4A 0%, #0A2540 100%);
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
+          overflow-x: hidden;
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Hamburger button – hidden by default on desktop */
+        .hamburger-btn {
+          display: none;
+          position: fixed;
+          top: 12px;
+          left: 12px;
+          z-index: 1001;
+          background: #071B4A;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 20px;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+          .hamburger-btn {
+            display: block;
+          }
+
+          .sidebar {
+            transform: translateX(-100%);
+            width: 260px !important;
+          }
+          .sidebar.open {
+            transform: translateX(0);
+          }
+
+          /* Main content takes full width */
+          main {
+            margin-left: 0 !important;
+            padding: 12px 16px !important;
+          }
+
+          /* General layout & typography */
+          .pd-fade-in {
+            padding: 0 !important;
+          }
+
+          h1 {
+            font-size: 24px !important;
+            min-height: auto !important;
+          }
+
+          .pd-heading {
+            font-size: 18px !important;
+          }
+
+          /* Header action button */
+          .pd-fade-in > div:first-child {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+          }
+
+          /* Child folder tabs – horizontal scroll */
+          .pd-folder-tab {
+            padding: 8px 14px !important;
+            font-size: 13px !important;
+            white-space: nowrap;
+          }
+          .pd-folder-tab .pd-avatar {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 10px !important;
+          }
+          /* Container of tabs (the flex row) – add scroll */
+          div[style*="display: flex; gap: 6px; margin-top: 28px;"] {
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            padding-bottom: 8px !important;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          /* Cards */
+          .pd-card {
+            padding: 16px !important;
+            border-radius: 12px !important;
+          }
+
+          /* Two-column grids -> single column */
+          .pd-card > div[style*="display: grid; grid-template-columns: 1fr 1fr;"] {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
+          /* Main two-column layout (frais + messages) */
+          div[style*="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;"] {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
+          /* Quick actions grid */
+          .pd-quick-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .pd-quick-grid a {
+            padding: 12px !important;
+          }
+          .pd-quick-grid a .label {
+            font-size: 13px !important;
+          }
+          .pd-quick-grid a .sub {
+            font-size: 11px !important;
+          }
+
+          /* Attendance dots */
+          .pd-card div[style*="display: flex; gap: 6px;"] {
+            gap: 4px !important;
+            flex-wrap: wrap !important;
+          }
+          .pd-card div[style*="display: flex; gap: 14px; margin-top: 10px;"] {
+            gap: 8px !important;
+            font-size: 11px !important;
+            flex-wrap: wrap !important;
+          }
+
+          /* Resources list */
+          .pd-resource-item {
+            padding: 8px 0 !important;
+          }
+          .pd-resource-item span {
+            font-size: 13px !important;
+          }
+
+          /* Grades grid */
+          div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));"] {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));"] > div {
+            padding: 8px 10px !important;
+          }
+
+          /* Event items */
+          .pd-card div[style*="display: flex; align-items: center; gap: 12px;"] {
+            gap: 8px !important;
+          }
+          .pd-card div[style*="width: 44px; text-align: center;"] {
+            width: 36px !important;
+          }
+          .pd-card div[style*="font-family: 'Fraunces', serif; font-size: 20px;"] {
+            font-size: 16px !important;
+          }
+
+          /* Announcement items */
+          .pd-card div[style*="border-left: 3px solid"] {
+            padding-left: 8px !important;
+          }
+          .pd-card div[style*="border-left: 3px solid"] p {
+            font-size: 13px !important;
+          }
+
+          /* Invoice amount */
+          .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
+            font-size: 24px !important;
+          }
+
+          /* Messages preview */
+          .pd-card div[style*="display: flex; flex-direction: column; gap: 10px;"] > div {
+            flex-wrap: wrap !important;
+          }
+          .pd-card div[style*="max-width: 160px; overflow: hidden;"] {
+            max-width: 120px !important;
+          }
+
+          /* Buttons */
+          .pd-card a[style*="background: #FFB400;"] {
+            padding: 6px 14px !important;
+            font-size: 13px !important;
+          }
+          a[style*="background: #FFB400; color: #071B4A; padding: 10px 20px;"] {
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+          }
+
+          /* Link buttons */
+          .pd-link-btn {
+            font-size: 12px !important;
+          }
+
+          /* Typewriter effect – reduce size */
+          h1 .typewriter {
+            font-size: 24px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .pd-fade-in {
+            padding: 0 !important;
+          }
+
+          h1 {
+            font-size: 20px !important;
+          }
+
+          .pd-card {
+            padding: 12px !important;
+          }
+
+          .pd-quick-grid {
+            grid-template-columns: 1fr !important;
+          }
+
+          div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));"] {
+            grid-template-columns: 1fr 1fr !important;
+          }
+
+          .pd-folder-tab {
+            font-size: 12px !important;
+            padding: 6px 10px !important;
+          }
+
+          .pd-folder-tab .pd-avatar {
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 9px !important;
+          }
+
+          span[title][style*="width: 10px; height: 10px;"] {
+            width: 8px !important;
+            height: 8px !important;
+          }
+
+          .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
+            font-size: 20px !important;
+          }
+        }
       `}</style>
 
-      {/* SIDEBAR */}
-      <aside
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: sidebarWidth,
-          background: 'linear-gradient(180deg, #071B4A 0%, #0A2540 100%)',
-          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          overflowX: 'hidden',
-          zIndex: 1000,
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '4px 0 20px rgba(0,0,0,0.1)',
-        }}
+      {/* HAMBURGER BUTTON (visible only on mobile via CSS) */}
+      <button
+        className="hamburger-btn"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Toggle sidebar"
       >
+        ☰
+      </button>
+
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {sidebarOpen ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
