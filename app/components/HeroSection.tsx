@@ -446,9 +446,7 @@ export default function HeroSection() {
               <Link href="/authentification" className={styles.btnGhost}>
                 Espace Parents
               </Link>
-              <Link href="/Inscription" className={styles.btnAmber}>
-                Inscription
-              </Link>
+             
               <InstallButton compact={true} />
               <button
                 className={styles.navToggle}
@@ -511,13 +509,7 @@ export default function HeroSection() {
             >
               Espace Parents
             </Link>
-            <Link
-              href="/Inscription"
-              className={styles.mobileActionsBtn}
-              style={{ background: 'var(--gold, #C6872B)', color: '#fff' }}
-            >
-              Inscription
-            </Link>
+         
           </div>
         </div>
 
@@ -563,28 +555,7 @@ export default function HeroSection() {
     Connexion
   </a>
 
-  <a
-    href="https://primary-school-two.vercel.app/Inscription"
-    ref={btnOutlineRef}
-    className={styles.btnHeroOutline}
-  >
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7" />
-      <line x1="19" y1="8" x2="19" y2="12" />
-      <line x1="21" y1="10" x2="17" y2="10" />
-    </svg>
-    Inscription
-  </a>
+
 </div>
               <div className={styles.heroBadges} ref={heroBadgesRef}>
                 <div className={styles.heroBadgeItem}>
