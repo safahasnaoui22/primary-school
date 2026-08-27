@@ -327,55 +327,6 @@ export default function ParentDashboardClient({
           border-bottom: none;
         }
 
-        /* ===== NOUVEAU : RACCOURCIS MOBILE (uniquement sur mobile) ===== */
-        .mobile-racourcis {
-          display: none; /* caché sur desktop */
-        }
-        .mobile-racourcis-section {
-          margin-bottom: 24px;
-        }
-        .mobile-racourcis-heading {
-          font-size: 15px;
-          font-weight: 600;
-          color: var(--navy);
-          margin-bottom: 12px;
-          font-family: 'Fraunces', serif;
-        }
-        .mobile-racourcis-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-        }
-        .mobile-racourcis-card {
-          background: #fff;
-          border-radius: 14px;
-          padding: 16px;
-          box-shadow: 0 3px 10px rgba(7,27,74,0.08);
-          text-decoration: none;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .mobile-racourcis-card:active {
-          transform: scale(0.98);
-        }
-        .mobile-racourcis-icon {
-          font-size: 24px;
-          line-height: 1;
-        }
-        .mobile-racourcis-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--navy);
-          line-height: 1.2;
-        }
-        .mobile-racourcis-desc {
-          font-size: 12px;
-          color: var(--muted);
-          line-height: 1.3;
-        }
-
         /* ===== MOBILE RESPONSIVENESS ===== */
         .sidebar {
           position: fixed;
@@ -412,6 +363,11 @@ export default function ParentDashboardClient({
         /* Hide the "Inscrire un enfant" button on mobile */
         .hide-on-mobile {
           display: inline-flex;
+        }
+
+        /* Mobile Shortcut Cards - Only visible on mobile */
+        .mobile-shortcuts {
+          display: none;
         }
 
         @media (max-width: 768px) {
@@ -590,13 +546,81 @@ export default function ParentDashboardClient({
             font-size: 24px !important;
           }
 
-          /* ===== Afficher les raccourcis mobile et masquer les actions rapides desktop ===== */
-          .mobile-racourcis {
-            display: block;
-            margin-top: 16px;
+          /* ===== MOBILE SHORTCUT CARDS ===== */
+          .mobile-shortcuts {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            margin: 16px 0 !important;
           }
-          .desktop-actions-rapides {
-            display: none !important;
+
+          .mobile-shortcut-card {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+            padding: 16px !important;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%) !important;
+            border-radius: 14px !important;
+            text-decoration: none !important;
+            box-shadow: 0 2px 12px rgba(7, 27, 74, 0.08) !important;
+            border: 1px solid #e9eef5 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: hidden !important;
+          }
+
+          .mobile-shortcut-card::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 3px !important;
+            background: linear-gradient(90deg, #FFB400, #FFD700) !important;
+            border-radius: 14px 14px 0 0 !important;
+          }
+
+          .mobile-shortcut-card:active {
+            transform: scale(0.98) !important;
+            box-shadow: 0 4px 16px rgba(7, 27, 74, 0.15) !important;
+          }
+
+          .mobile-shortcut-icon {
+            width: 36px !important;
+            height: 36px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: linear-gradient(135deg, #071B4A 0%, #0A2540 100%) !important;
+            border-radius: 10px !important;
+            font-size: 18px !important;
+            box-shadow: 0 2px 8px rgba(7, 27, 74, 0.2) !important;
+          }
+
+          .mobile-shortcut-label {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #071B4A !important;
+            line-height: 1.2 !important;
+          }
+
+          .mobile-shortcut-sub {
+            font-size: 11px !important;
+            color: #5A6A7A !important;
+            line-height: 1.3 !important;
+          }
+
+          .mobile-shortcut-badge {
+            position: absolute !important;
+            top: 8px !important;
+            right: 8px !important;
+            background: #FFB400 !important;
+            color: #071B4A !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            padding: 2px 6px !important;
+            border-radius: 8px !important;
           }
         }
 
@@ -639,6 +663,30 @@ export default function ParentDashboardClient({
 
           .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
             font-size: 20px !important;
+          }
+
+          .mobile-shortcuts {
+            gap: 8px !important;
+            margin: 12px 0 !important;
+          }
+
+          .mobile-shortcut-card {
+            padding: 12px !important;
+            border-radius: 12px !important;
+          }
+
+          .mobile-shortcut-icon {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 16px !important;
+          }
+
+          .mobile-shortcut-label {
+            font-size: 12px !important;
+          }
+
+          .mobile-shortcut-sub {
+            font-size: 10px !important;
           }
         }
       `}</style>
@@ -769,59 +817,57 @@ export default function ParentDashboardClient({
             </div>
           )}
 
-          {/* ===== RACCOURCIS MOBILE (visible uniquement sur mobile) ===== */}
-          <div className="mobile-racourcis">
-            <div className="mobile-racourcis-section">
-              <h2 className="mobile-racourcis-heading">Accès rapide</h2>
-              <div className="mobile-racourcis-grid">
-                <Link href="/dashboard/parent/payments" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">💳</span>
-                  <span className="mobile-racourcis-title">Frais de scolarité</span>
-                  <span className="mobile-racourcis-desc">Suivre les paiements</span>
-                </Link>
-                <Link href="/dashboard/messages" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">💬</span>
-                  <span className="mobile-racourcis-title">Messages</span>
-                  <span className="mobile-racourcis-desc">Boîte de réception</span>
-                </Link>
-                <Link href="/news-events" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">📢</span>
-                  <span className="mobile-racourcis-title">Annonces de l'école</span>
-                  <span className="mobile-racourcis-desc">Actualités importantes</span>
-                </Link>
-                <Link href="/news-events" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">📅</span>
-                  <span className="mobile-racourcis-title">Événements à venir</span>
-                  <span className="mobile-racourcis-desc">Calendrier scolaire</span>
-                </Link>
+          {/* ===== MOBILE SHORTCUT CARDS (Only visible on mobile) ===== */}
+          <div className="mobile-shortcuts">
+            <Link href="/dashboard/parent/payments" className="mobile-shortcut-card">
+              <div className="mobile-shortcut-icon">💳</div>
+              <div className="mobile-shortcut-label">Frais de scolarité</div>
+              <div className="mobile-shortcut-sub">
+                {invoice ? `${invoice.amount.toLocaleString('fr-FR')} DT - ${invoice.status === 'OVERDUE' ? 'En retard' : 'En attente'}` : 'Tous les frais sont réglés'}
               </div>
-            </div>
+              {invoice && (
+                <span className="mobile-shortcut-badge">
+                  {invoice.status === 'OVERDUE' ? 'URGENT' : 'À PAYER'}
+                </span>
+              )}
+            </Link>
 
-            <div className="mobile-racourcis-section">
-              <h2 className="mobile-racourcis-heading">Actions rapides</h2>
-              <div className="mobile-racourcis-grid">
-                <Link href="/dashboard/parent/enroll" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">➕</span>
-                  <span className="mobile-racourcis-title">Inscrire un enfant</span>
-                  <span className="mobile-racourcis-desc">Nouvelle demande d'inscription</span>
-                </Link>
-                <Link href="/dashboard/messages" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">✉️</span>
-                  <span className="mobile-racourcis-title">Message à un enseignant</span>
-                  <span className="mobile-racourcis-desc">Démarrer une conversation</span>
-                </Link>
-                <Link href="/dashboard/parent/payments" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">💰</span>
-                  <span className="mobile-racourcis-title">Payer les frais</span>
-                  <span className="mobile-racourcis-desc">Voir les factures et payer en ligne</span>
-                </Link>
-                <Link href="/dashboard/parent/classroom" className="mobile-racourcis-card">
-                  <span className="mobile-racourcis-icon">📚</span>
-                  <span className="mobile-racourcis-title">ClassRoom</span>
-                  <span className="mobile-racourcis-desc">Accéder à la classe</span>
-                </Link>
+            <Link href="/dashboard/messages" className="mobile-shortcut-card">
+              <div className="mobile-shortcut-icon">💬</div>
+              <div className="mobile-shortcut-label">Messages</div>
+              <div className="mobile-shortcut-sub">Boîte de réception</div>
+              {unreadCount > 0 && (
+                <span className="mobile-shortcut-badge">
+                  {unreadCount} NOUV.
+                </span>
+              )}
+            </Link>
+
+            <Link href="/news-events" className="mobile-shortcut-card">
+              <div className="mobile-shortcut-icon">📢</div>
+              <div className="mobile-shortcut-label">Annonces</div>
+              <div className="mobile-shortcut-sub">
+                {announcements.length > 0 ? `${announcements.length} nouvelle${announcements.length > 1 ? 's' : ''}` : 'Aucune annonce'}
               </div>
-            </div>
+              {announcements.length > 0 && (
+                <span className="mobile-shortcut-badge">
+                  {announcements.length}
+                </span>
+              )}
+            </Link>
+
+            <Link href="/news-events" className="mobile-shortcut-card">
+              <div className="mobile-shortcut-icon">📅</div>
+              <div className="mobile-shortcut-label">Événements</div>
+              <div className="mobile-shortcut-sub">
+                {upcomingEvents.length > 0 ? `${upcomingEvents.length} à venir` : 'Aucun événement'}
+              </div>
+              {upcomingEvents.length > 0 && (
+                <span className="mobile-shortcut-badge">
+                  {upcomingEvents.length}
+                </span>
+              )}
+            </Link>
           </div>
 
           {children.length === 0 ? (
@@ -1082,27 +1128,24 @@ export default function ParentDashboardClient({
             )}
           </div>
 
-          {/* ===== ACTIONS RAPIDES (desktop uniquement, masqué sur mobile) ===== */}
-          <div className="desktop-actions-rapides">
-            <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
-            <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
-              <Link href="/dashboard/parent/enroll">
-                <span className="label">Inscrire un enfant</span>
-                <span className="sub">Nouvelle demande d'inscription</span>
-              </Link>
-              <Link href="/dashboard/messages">
-                <span className="label">Message à un enseignant</span>
-                <span className="sub">Démarrer une conversation</span>
-              </Link>
-              <Link href="/dashboard/parent/payments">
-                <span className="label">Payer les frais</span>
-                <span className="sub">Voir les factures et payer en ligne</span>
-              </Link>
-              <Link href="/dashboard/parent/classroom">
-                <span className="label">ClassRoom</span>
-                <span className="sub">classroom</span>
-              </Link>
-            </div>
+          <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
+          <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
+            <Link href="/dashboard/parent/enroll">
+              <span className="label">Inscrire un enfant</span>
+              <span className="sub">Nouvelle demande d'inscription</span>
+            </Link>
+            <Link href="/dashboard/messages">
+              <span className="label">Message à un enseignant</span>
+              <span className="sub">Démarrer une conversation</span>
+            </Link>
+            <Link href="/dashboard/parent/payments">
+              <span className="label">Payer les frais</span>
+              <span className="sub">Voir les factures et payer en ligne</span>
+            </Link>
+            <Link href="/dashboard/parent/classroom">
+              <span className="label">ClassRoom</span>
+              <span className="sub">classroom</span>
+            </Link>
           </div>
         </div>
       </main>
