@@ -32,6 +32,31 @@ const roleLabel: Record<string, string> = {
   PARENT: 'Parent',
 };
 
+// Simple avatar component
+function Avatar({ name, role }: { name: string; role: string }) {
+  const initial = name.charAt(0).toUpperCase();
+  const bg = role === 'TEACHER' ? '#4C7C59' : role === 'PARENT' ? '#FFB400' : '#071B4A';
+  return (
+    <div
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: '50%',
+        background: bg,
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 16,
+        fontWeight: 600,
+        flexShrink: 0,
+      }}
+    >
+      {initial}
+    </div>
+  );
+}
+
 export default function MessagesPage() {
   const { data: session } = useSession();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -41,6 +66,7 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState('');
   const [showContacts, setShowContacts] = useState(false);
+  const [mobileView, setMobileView] = useState<'list' | 'thread'>('list');
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const loadConversations = useCallback(async () => {
@@ -56,6 +82,7 @@ export default function MessagesPage() {
   const openConversation = useCallback(async (id: string) => {
     setActiveId(id);
     setShowContacts(false);
+    setMobileView('thread');
     const res = await fetch(`/api/messages/conversations/${id}`);
     if (res.ok) {
       const data = await res.json();
@@ -116,47 +143,163 @@ export default function MessagesPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Reset mobile view to list when no active conversation
+  useEffect(() => {
+    if (!activeId && mobileView === 'thread') setMobileView('list');
+  }, [activeId, mobileView]);
+
+  const handleBackToList = () => {
+    setMobileView('list');
+    setActiveId(null);
+    setActiveOther(null);
+    setMessages([]);
+  };
+
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 140px)', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
+    <div
+      style={{
+        display: 'flex',
+        height: 'calc(100vh - 140px)',
+        border: '1px solid #E5E9F0',
+        borderRadius: 12,
+        overflow: 'hidden',
+        fontFamily: 'Inter, sans-serif',
+        position: 'relative',
+      }}
+      className="messages-container"
+    >
+      {/* Global responsive styles */}
+      <style>{`
+        .messages-sidebar {
+          width: 280px;
+          border-right: 1px solid #E5E9F0;
+          display: flex;
+          flex-direction: column;
+          transition: all 0.3s ease;
+        }
+        .messages-thread {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+        .mobile-back-btn {
+          display: none;
+        }
+        @media (max-width: 768px) {
+          .messages-container {
+            height: calc(100vh - 100px);
+            border-radius: 0;
+            border: none;
+          }
+          .messages-sidebar {
+            width: 100%;
+            border-right: none;
+            display: ${mobileView === 'list' ? 'flex' : 'none'};
+          }
+          .messages-thread {
+            display: ${mobileView === 'thread' ? 'flex' : 'none'};
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            z-index: 2;
+          }
+          .mobile-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #071B4A;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+          }
+          .mobile-back-btn:hover {
+            background: #f0f2f5;
+          }
+        }
+        @media (max-width: 480px) {
+          .messages-sidebar {
+            width: 100%;
+          }
+          .messages-thread {
+            padding: 0;
+          }
+        }
+      `}</style>
+
       {/* Sidebar */}
-      <div style={{ width: 280, borderRight: '1px solid #E5E9F0', display: 'flex', flexDirection: 'column' }}>
+      <div className="messages-sidebar">
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #E5E9F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <strong style={{ color: '#071B4A', fontSize: 15 }}>Messages</strong>
+          <strong style={{ color: '#071B4A', fontSize: 15 }}>💬 Messages</strong>
           <button
             onClick={() => setShowContacts((s) => !s)}
-            style={{ background: '#FFB400', color: '#071B4A', border: 'none', borderRadius: 14, padding: '4px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            style={{
+              background: '#FFB400',
+              color: '#071B4A',
+              border: 'none',
+              borderRadius: 14,
+              padding: '4px 10px',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
           >
-            {showContacts ? 'Retour' : '+ Nouveau'}
+            {showContacts ? '← Retour' : '✉️ Nouveau'}
           </button>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-         {showContacts ? (
-  contacts.length === 0 ? (
-    <p style={{ padding: 16, fontSize: 13, color: '#5A6A7A' }}>
-      Aucun contact disponible pour le moment.
-    </p>
-  ) : (
-    contacts.map((c) => (
-      <button
-        key={c.id}
-        onClick={() => startConversation(c)}
-        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', borderBottom: '1px solid #F5F5F5' }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.username}</div>
-        <div style={{ fontSize: 12, color: '#5A6A7A' }}>
-          {c.context ?? (roleLabel[c.role] ?? c.role)}
-        </div>
-      </button>
-    ))
-  )
-) : (
+          {showContacts ? (
+            contacts.length === 0 ? (
+              <p style={{ padding: 16, fontSize: 13, color: '#5A6A7A' }}>
+                Aucun contact disponible pour le moment.
+              </p>
+            ) : (
+              contacts.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => startConversation(c)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '10px 16px',
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    borderBottom: '1px solid #F5F5F5',
+                  }}
+                >
+                  <Avatar name={c.username} role={c.role} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.username}</div>
+                    <div style={{ fontSize: 12, color: '#5A6A7A' }}>
+                      {c.context ?? (roleLabel[c.role] ?? c.role)}
+                    </div>
+                  </div>
+                </button>
+              ))
+            )
+          ) : (
             conversations.map((c) => (
               <button
                 key={c.id}
                 onClick={() => openConversation(c.id)}
                 style={{
-                  display: 'block',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
                   width: '100%',
                   textAlign: 'left',
                   padding: '12px 16px',
@@ -166,20 +309,23 @@ export default function MessagesPage() {
                   borderBottom: '1px solid #F5F5F5',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.other.username}</span>
-                  {c.unreadCount > 0 && (
-                    <span style={{ background: '#FFB400', color: '#071B4A', fontSize: 11, fontWeight: 700, borderRadius: 10, padding: '1px 7px' }}>
-                      {c.unreadCount}
-                    </span>
+                <Avatar name={c.other.username} role={c.other.role} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: '#071B4A' }}>{c.other.username}</span>
+                    {c.unreadCount > 0 && (
+                      <span style={{ background: '#FFB400', color: '#071B4A', fontSize: 11, fontWeight: 700, borderRadius: 10, padding: '1px 7px' }}>
+                        {c.unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.other.role] ?? c.other.role}</div>
+                  {c.lastMessage && (
+                    <div style={{ fontSize: 12, color: '#5A6A7A', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {c.lastMessage.content}
+                    </div>
                   )}
                 </div>
-                <div style={{ fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.other.role] ?? c.other.role}</div>
-                {c.lastMessage && (
-                  <div style={{ fontSize: 12, color: '#5A6A7A', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {c.lastMessage.content}
-                  </div>
-                )}
               </button>
             ))
           )}
@@ -187,12 +333,19 @@ export default function MessagesPage() {
       </div>
 
       {/* Thread */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="messages-thread">
         {activeId && activeOther ? (
           <>
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid #E5E9F0' }}>
-              <strong style={{ color: '#071B4A', fontSize: 15 }}>{activeOther.username}</strong>
-              <span style={{ marginLeft: 8, fontSize: 12, color: '#5A6A7A' }}>{roleLabel[activeOther.role] ?? activeOther.role}</span>
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid #E5E9F0', display: 'flex', alignItems: 'center', gap: 10 }}>
+              {/* Mobile back button */}
+              <button className="mobile-back-btn" onClick={handleBackToList}>
+                ← Retour
+              </button>
+              <Avatar name={activeOther.username} role={activeOther.role} />
+              <div style={{ flex: 1 }}>
+                <strong style={{ color: '#071B4A', fontSize: 15 }}>{activeOther.username}</strong>
+                <span style={{ marginLeft: 8, fontSize: 12, color: '#5A6A7A' }}>{roleLabel[activeOther.role] ?? activeOther.role}</span>
+              </div>
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -228,9 +381,21 @@ export default function MessagesPage() {
               />
               <button
                 onClick={sendMessage}
-                style={{ background: '#FFB400', color: '#071B4A', border: 'none', borderRadius: 20, padding: '0 20px', fontWeight: 600, cursor: 'pointer' }}
+                style={{
+                  background: '#FFB400',
+                  color: '#071B4A',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '0 20px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
               >
                 Envoyer
+                <span style={{ fontSize: 16 }}>➤</span>
               </button>
             </div>
           </>
