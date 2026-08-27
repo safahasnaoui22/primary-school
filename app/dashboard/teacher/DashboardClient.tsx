@@ -1038,8 +1038,7 @@ export default function TeacherDashboardClient({
                 fontSize: 16,
               }}
             >
-              📚 Devoirs à venir
-            </h2>
+📚 Activités à venir            </h2>
 
             <Link
               href="/dashboard/teacher/classroom"
