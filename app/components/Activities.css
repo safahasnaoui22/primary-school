@@ -466,3 +466,8 @@ img {
     width: 85%;
   }
 }
+@media (max-width: 768px) {
+  .about__teacher {
+    display: none;
+  }
+}
