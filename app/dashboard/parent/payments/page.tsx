@@ -12,14 +12,14 @@ interface Invoice {
   student: { firstName: string; lastName: string };
   class: { name: string };
   payments: Payment[];
-  parentName?: string; // optional parent name
+  parentName?: string;
 }
 
-const statusColor: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING: { bg: '#F0F2F5', text: '#5A6A7A', label: 'Non payé' },
-  PARTIAL: { bg: '#FAEEDA', text: '#633806', label: 'Partiel' },
-  PAID: { bg: '#EAF3DE', text: '#27500A', label: 'Payé' },
-  OVERDUE: { bg: '#FAECE7', text: '#712B13', label: 'En retard' },
+const statusColor: Record<string, { bg: string; text: string; label: string; icon: string }> = {
+  PENDING: { bg: '#F0F2F5', text: '#5A6A7A', label: 'Non payé', icon: '⏳' },
+  PARTIAL: { bg: '#FAEEDA', text: '#633806', label: 'Partiel', icon: '⚠️' },
+  PAID: { bg: '#EAF3DE', text: '#27500A', label: 'Payé', icon: '✅' },
+  OVERDUE: { bg: '#FAECE7', text: '#712B13', label: 'En retard', icon: '🔴' },
 };
 
 export default function ParentPaymentsPage() {
@@ -104,7 +104,6 @@ export default function ParentPaymentsPage() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-            {/* Logo PNG – replace with actual path */}
             <img
               src="/logosch.png"
               alt="Logo école"
@@ -153,7 +152,7 @@ export default function ParentPaymentsPage() {
               Informations
             </h2>
             <p style={{ fontSize: 14, margin: '2px 0' }}>
-              <strong style={{ color: '#5A6A7A' }}> {/* Student name in gray */}
+              <strong style={{ color: '#5A6A7A' }}>
                 {printing.student.firstName} {printing.student.lastName}
               </strong>
             </p>
@@ -385,60 +384,205 @@ export default function ParentPaymentsPage() {
     );
   }
 
-  // Non‑printing view remains unchanged
+  // Non‑printing view
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 1000, margin: '0 auto' }}>
-      <h1 style={{ color: '#071B4A', marginBottom: 4 }}>Paiements</h1>
-      <p style={{ color: '#5A6A7A', marginBottom: 24 }}>Ce que vous devez payer pour chacun de vos enfants.</p>
+    <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 1000, margin: '0 auto', padding: '0 16px' }}>
+      {/* Responsive styles */}
+      <style>{`
+        .desktop-table { display: block; }
+        .mobile-cards { display: none; }
 
-      <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#F8F9FA', textAlign: 'left' }}>
-              <th style={thStyle}>Élève</th>
-              <th style={thStyle}>Classe / Semestre</th>
-              <th style={thStyle}>Dû</th>
-              <th style={thStyle}>Payé</th>
-              <th style={thStyle}>Reste</th>
-              <th style={thStyle}>Statut</th>
-              <th style={thStyle}>Reçu</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices.length === 0 && (
-              <tr><td style={tdStyle} colSpan={7}>Aucune facture pour le moment.</td></tr>
-            )}
-            {invoices.map((inv) => {
-              const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
-              const remaining = inv.amount - paid;
-              const sc = statusColor[inv.status] ?? statusColor.PENDING;
-              return (
-                <tr key={inv.id}>
-                  <td style={tdStyle}>{inv.student.firstName} {inv.student.lastName}</td>
-                  <td style={tdStyle}>{inv.class.name} — {inv.semester}</td>
-                  <td style={tdStyle}>{inv.amount.toLocaleString('fr-FR')} DT</td>
-                  <td style={tdStyle}>{paid.toLocaleString('fr-FR')} DT</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: remaining > 0 ? '#C0392B' : '#27500A' }}>
+        @media (max-width: 768px) {
+          .desktop-table { display: none; }
+          .mobile-cards { display: block; }
+          h1 { font-size: 24px !important; }
+          p { font-size: 14px !important; }
+          .mobile-invoice-card {
+            background: #fff;
+            border: 1px solid #E5E9F0;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(7,27,74,0.06);
+          }
+          .mobile-invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+          .mobile-invoice-student {
+            font-weight: 600;
+            color: #071B4A;
+            font-size: 16px;
+          }
+          .mobile-invoice-badge {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+          .mobile-invoice-meta {
+            font-size: 13px;
+            color: #5A6A7A;
+            margin-bottom: 8px;
+          }
+          .mobile-invoice-amounts {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+          }
+          .mobile-invoice-amount-item {
+            font-size: 13px;
+          }
+          .mobile-invoice-amount-label {
+            color: #5A6A7A;
+            font-size: 11px;
+          }
+          .mobile-invoice-amount-value {
+            font-weight: 600;
+            color: #1A1A2E;
+          }
+          .mobile-invoice-print-btn {
+            width: 100%;
+            background: #071B4A;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+          }
+          .mobile-invoice-print-btn:active {
+            background: #0A2540;
+          }
+        }
+        @media (max-width: 480px) {
+          .mobile-invoice-amount-item {
+            font-size: 12px;
+          }
+          .mobile-invoice-student {
+            font-size: 15px;
+          }
+        }
+      `}</style>
+
+      <h1 style={{ color: '#071B4A', marginBottom: 4, fontSize: 28 }}>Paiements</h1>
+      <p style={{ color: '#5A6A7A', marginBottom: 24, fontSize: 15 }}>Ce que vous devez payer pour chacun de vos enfants.</p>
+
+      {/* Desktop table (hidden on mobile via CSS) */}
+      <div className="desktop-table">
+        <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#F8F9FA', textAlign: 'left' }}>
+                <th style={thStyle}>Élève</th>
+                <th style={thStyle}>Classe / Semestre</th>
+                <th style={thStyle}>Dû</th>
+                <th style={thStyle}>Payé</th>
+                <th style={thStyle}>Reste</th>
+                <th style={thStyle}>Statut</th>
+                <th style={thStyle}>Reçu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.length === 0 && (
+                <tr><td style={tdStyle} colSpan={7}>Aucune facture pour le moment.</td></tr>
+              )}
+              {invoices.map((inv) => {
+                const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
+                const remaining = inv.amount - paid;
+                const sc = statusColor[inv.status] ?? statusColor.PENDING;
+                return (
+                  <tr key={inv.id}>
+                    <td style={tdStyle}>{inv.student.firstName} {inv.student.lastName}</td>
+                    <td style={tdStyle}>{inv.class.name} — {inv.semester}</td>
+                    <td style={tdStyle}>{inv.amount.toLocaleString('fr-FR')} DT</td>
+                    <td style={tdStyle}>{paid.toLocaleString('fr-FR')} DT</td>
+                    <td style={{ ...tdStyle, fontWeight: 700, color: remaining > 0 ? '#C0392B' : '#27500A' }}>
+                      {remaining.toLocaleString('fr-FR')} DT
+                    </td>
+                    <td style={tdStyle}>
+                      <span style={{ background: sc.bg, color: sc.text, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 10, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <span>{sc.icon}</span> {sc.label}
+                      </span>
+                    </td>
+                    <td style={tdStyle}>
+                      <button
+                        onClick={() => setPrinting(inv)}
+                        style={{ background: '#071B4A', color: '#fff', border: 'none', borderRadius: 16, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        🖨️ Imprimer
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Mobile cards (shown only on mobile via CSS) */}
+      <div className="mobile-cards">
+        {invoices.length === 0 && (
+          <div style={{ textAlign: 'center', color: '#5A6A7A', padding: 30 }}>
+            Aucune facture pour le moment.
+          </div>
+        )}
+        {invoices.map((inv) => {
+          const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
+          const remaining = inv.amount - paid;
+          const sc = statusColor[inv.status] ?? statusColor.PENDING;
+          return (
+            <div key={inv.id} className="mobile-invoice-card">
+              <div className="mobile-invoice-header">
+                <span className="mobile-invoice-student">
+                  {inv.student.firstName} {inv.student.lastName}
+                </span>
+                <span
+                  className="mobile-invoice-badge"
+                  style={{ background: sc.bg, color: sc.text }}
+                >
+                  {sc.icon} {sc.label}
+                </span>
+              </div>
+              <div className="mobile-invoice-meta">
+                {inv.class.name} — {inv.semester}
+              </div>
+              <div className="mobile-invoice-amounts">
+                <div className="mobile-invoice-amount-item">
+                  <div className="mobile-invoice-amount-label">Dû</div>
+                  <div className="mobile-invoice-amount-value">{inv.amount.toLocaleString('fr-FR')} DT</div>
+                </div>
+                <div className="mobile-invoice-amount-item">
+                  <div className="mobile-invoice-amount-label">Payé</div>
+                  <div className="mobile-invoice-amount-value">{paid.toLocaleString('fr-FR')} DT</div>
+                </div>
+                <div className="mobile-invoice-amount-item">
+                  <div className="mobile-invoice-amount-label">Reste</div>
+                  <div className="mobile-invoice-amount-value" style={{ color: remaining > 0 ? '#C0392B' : '#27500A' }}>
                     {remaining.toLocaleString('fr-FR')} DT
-                  </td>
-                  <td style={tdStyle}>
-                    <span style={{ background: sc.bg, color: sc.text, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 10 }}>
-                      {sc.label}
-                    </span>
-                  </td>
-                  <td style={tdStyle}>
-                    <button
-                      onClick={() => setPrinting(inv)}
-                      style={{ background: '#071B4A', color: '#fff', border: 'none', borderRadius: 16, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                    >
-                      Imprimer
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </div>
+                </div>
+              </div>
+              <button
+                className="mobile-invoice-print-btn"
+                onClick={() => setPrinting(inv)}
+              >
+                🖨️ Imprimer le reçu
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
