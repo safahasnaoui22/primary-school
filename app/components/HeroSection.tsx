@@ -6,12 +6,11 @@ import InstallButton from './InstallButton';
 
 import Link from 'next/link';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import RefreshButton from './RefreshButton';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(SplitText);
 
 export default function HeroSection() {
   const [scrolled, setScrolled] = useState(false);
@@ -56,19 +55,13 @@ export default function HeroSection() {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.5,
-      // REMOVED: normalizeWheel and infinite (not valid options in this version)
-    });
-
-    // Update ScrollTrigger on Lenis scroll
-    lenis.on('scroll', () => {
-      ScrollTrigger.update();
     });
 
     // Proper GSAP ticker integration
     const update = (time: number) => {
       lenis.raf(time * 1000);
     };
-    
+
     gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
 
@@ -80,7 +73,6 @@ export default function HeroSection() {
     return () => {
       gsap.ticker.remove(update);
       lenis.destroy();
-      ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, [isMounted]);
 
@@ -96,10 +88,10 @@ export default function HeroSection() {
       setProgress(height > 0 ? (winScroll / height) * 100 : 0);
       setScrolled(window.scrollY > 20);
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-    
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMounted]);
 
@@ -165,61 +157,6 @@ export default function HeroSection() {
             0.3
           );
 
-        // ── Scroll‑triggered fade‑out of hero content ──
-        if (heroContentRef.current) {
-          gsap.to(heroContentRef.current, {
-            opacity: 0,
-            y: 40,
-            ease: 'power1.inOut',
-            scrollTrigger: {
-              trigger: rootRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true,
-            },
-          });
-        }
-
-        // ── Parallax on scroll ──
-        if (heroFrameRef.current) {
-          gsap.to(heroFrameRef.current, {
-            yPercent: -8,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: rootRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true,
-            },
-          });
-        }
-        
-        if (doodleArrowRef.current) {
-          gsap.to(doodleArrowRef.current, {
-            yPercent: 40,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: rootRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true,
-            },
-          });
-        }
-        
-        if (heroEyebrowRef.current) {
-          gsap.to(heroEyebrowRef.current, {
-            yPercent: -60,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: rootRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true,
-            },
-          });
-        }
-
         // ── Continuous floating badges ──
         if (admissionsFloatRef.current) {
           gsap.to(admissionsFloatRef.current, {
@@ -230,7 +167,7 @@ export default function HeroSection() {
             ease: 'sine.inOut',
           });
         }
-        
+
         if (ratingsFloatRef.current) {
           gsap.to(ratingsFloatRef.current, {
             y: 7,
@@ -242,24 +179,18 @@ export default function HeroSection() {
           });
         }
 
-        // ── Animated counters with ScrollTrigger ──
+        // ── Animated counters (play shortly after load) ──
         const counters = gsap.utils.toArray<HTMLElement>('[data-target]');
         counters.forEach((el) => {
           const target = parseInt(el.getAttribute('data-target') || '0', 10);
           const counterObj = { val: 0 };
-          ScrollTrigger.create({
-            trigger: statsRef.current,
-            start: 'top 85%',
-            once: true,
-            onEnter: () => {
-              gsap.to(counterObj, {
-                val: target,
-                duration: 1.8,
-                ease: 'power2.out',
-                onUpdate: () => {
-                  el.textContent = Math.floor(counterObj.val).toString();
-                },
-              });
+          gsap.to(counterObj, {
+            val: target,
+            duration: 1.8,
+            ease: 'power2.out',
+            delay: 0.9,
+            onUpdate: () => {
+              el.textContent = Math.floor(counterObj.val).toString();
             },
           });
         });
@@ -274,11 +205,7 @@ export default function HeroSection() {
               y: 0,
               duration: 0.8,
               ease: 'power2.out',
-              scrollTrigger: {
-                trigger: statsRef.current,
-                start: 'top 85%',
-                toggleActions: 'play none none none',
-              },
+              delay: 0.9,
             }
           );
         }
@@ -439,14 +366,14 @@ export default function HeroSection() {
               <li><a href="#" className={styles.active}>Accueil</a></li>
               <li><a href="#">Programme Scolaire</a></li>
               <li><a href="#">Vie Scolaire</a></li>
-          
+
               <li><a href="#">Contact</a></li>
             </ul>
             <div className={styles.navActions}>
               <Link href="/authentification" className={styles.btnGhost}>
                 Espace Parents
               </Link>
-             
+
               <InstallButton compact={true} />
               <button
                 className={styles.navToggle}
@@ -498,7 +425,7 @@ export default function HeroSection() {
             <li><a href="#" onClick={closeDrawer}>Accueil</a></li>
             <li><a href="#" onClick={closeDrawer}>Programme Scolaire</a></li>
             <li><a href="#" onClick={closeDrawer}>Vie Scolaire</a></li>
-          
+
             <li><a href="#" onClick={closeDrawer}>Contact</a></li>
           </ul>
           <div className={styles.mobileActions}>
@@ -509,7 +436,7 @@ export default function HeroSection() {
             >
               Espace Parents
             </Link>
-         
+
           </div>
         </div>
 
