@@ -173,6 +173,18 @@ export default function ParentDashboardClient({
   const sidebarWidth = sidebarOpen ? 260 : 72;
   const mainMarginLeft = sidebarOpen ? 260 : 72;
 
+  // Mobile shortcut items
+  const shortcuts = [
+    { title: 'Frais de scolarité', subtitle: 'Historique →', link: '/dashboard/parent/payments', icon: '💳' },
+    { title: 'Messages', subtitle: 'Boîte de réception →', link: '/dashboard/messages', icon: '💬' },
+    { title: 'Annonces de l’école', subtitle: 'Voir toutes les actualités →', link: '/news-events', icon: '📢' },
+    { title: 'Événements à venir', subtitle: 'Calendrier scolaire →', link: '/news-events', icon: '📅' },
+    { title: 'Inscrire un enfant', subtitle: 'Nouvelle demande d’inscription', link: '/dashboard/parent/enroll', icon: '➕' },
+    { title: 'Message à un enseignant', subtitle: 'Démarrer une conversation', link: '/dashboard/messages', icon: '✉️' },
+    { title: 'Payer les frais', subtitle: 'Voir les factures et payer en ligne', link: '/dashboard/parent/payments', icon: '💳' },
+    { title: 'ClassRoom', subtitle: 'Accéder à la classe', link: '/dashboard/parent/classroom', icon: '📚' },
+  ];
+
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#F8F9FC', display: 'flex' }}>
       <style>{`
@@ -365,6 +377,11 @@ export default function ParentDashboardClient({
           display: inline-flex;
         }
 
+        /* ===== NEW: Mobile Shortcut Grid ===== */
+        .mobile-shortcuts {
+          display: none;
+        }
+
         @media (max-width: 768px) {
           .hamburger-btn {
             display: block;
@@ -540,6 +557,57 @@ export default function ParentDashboardClient({
           h1 .typewriter {
             font-size: 24px !important;
           }
+
+          /* ===== SHORTCUTS GRID VISIBLE ON MOBILE ===== */
+          .mobile-shortcuts {
+            display: block;
+            margin-top: 24px;
+          }
+
+          .mobile-shortcuts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+          }
+
+          .mobile-shortcut-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(7, 27, 74, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          .mobile-shortcut-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(7, 27, 74, 0.12);
+          }
+
+          .mobile-shortcut-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+          }
+
+          .mobile-shortcut-title {
+            font-weight: 600;
+            color: var(--navy);
+            font-size: 14px;
+            line-height: 1.3;
+          }
+
+          .mobile-shortcut-subtitle {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 2px;
+          }
+
+          /* Hide original detailed sections on mobile */
+          .desktop-sections {
+            display: none !important;
+          }
         }
 
         @media (max-width: 480px) {
@@ -581,6 +649,22 @@ export default function ParentDashboardClient({
 
           .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
             font-size: 20px !important;
+          }
+
+          .mobile-shortcuts-grid {
+            gap: 8px;
+          }
+          .mobile-shortcut-card {
+            padding: 12px;
+          }
+          .mobile-shortcut-icon {
+            font-size: 20px;
+          }
+          .mobile-shortcut-title {
+            font-size: 12px;
+          }
+          .mobile-shortcut-subtitle {
+            font-size: 10px;
           }
         }
       `}</style>
@@ -693,7 +777,6 @@ export default function ParentDashboardClient({
               </h1>
               <p style={{ color: '#5A6A7A', fontSize: 15, margin: 0 }}>Voici un aperçu de la scolarité de vos enfants.</p>
             </div>
-            {/* Le bouton est masqué sur mobile grâce à la classe hide-on-mobile */}
             <Link
               href="/dashboard/parent/enroll"
               className="hide-on-mobile"
@@ -853,8 +936,21 @@ export default function ParentDashboardClient({
             </>
           )}
 
-          {/* SECTION FRAIS + MESSAGES – sur mobile, la grille passe en 1 colonne, donc Messages sera sous Frais */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
+          {/* MOBILE ONLY SHORTCUT GRID */}
+          <div className="mobile-shortcuts">
+            <div className="mobile-shortcuts-grid">
+              {shortcuts.map((item, idx) => (
+                <Link key={idx} href={item.link} className="mobile-shortcut-card">
+                  <span className="mobile-shortcut-icon">{item.icon}</span>
+                  <span className="mobile-shortcut-title">{item.title}</span>
+                  <span className="mobile-shortcut-subtitle">{item.subtitle}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* SECTION FRAIS + MESSAGES – hidden on mobile */}
+          <div className="desktop-sections" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h2 className="pd-heading" style={{ fontSize: 17 }}>Frais de scolarité</h2>
@@ -912,7 +1008,8 @@ export default function ParentDashboardClient({
             </div>
           </div>
 
-          <div className="pd-card" style={{ marginBottom: 28 }}>
+          {/* ANNONCES DE L'ÉCOLE – hidden on mobile */}
+          <div className="pd-card desktop-sections" style={{ marginBottom: 28 }}>
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Annonces de l'école</h2>
             {announcements.length === 0 ? (
               <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucune annonce pour le moment.</p>
@@ -938,7 +1035,8 @@ export default function ParentDashboardClient({
             </Link>
           </div>
 
-          <div className="pd-card" style={{ marginBottom: 28 }}>
+          {/* ÉVÉNEMENTS À VENIR – hidden on mobile */}
+          <div className="pd-card desktop-sections" style={{ marginBottom: 28 }}>
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Événements à venir</h2>
             {upcomingEvents.length === 0 ? (
               <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucun événement à venir.</p>
@@ -969,24 +1067,27 @@ export default function ParentDashboardClient({
             )}
           </div>
 
-          <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
-          <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
-            <Link href="/dashboard/parent/enroll">
-              <span className="label">Inscrire un enfant</span>
-              <span className="sub">Nouvelle demande d'inscription</span>
-            </Link>
-            <Link href="/dashboard/messages">
-              <span className="label">Message à un enseignant</span>
-              <span className="sub">Démarrer une conversation</span>
-            </Link>
-            <Link href="/dashboard/parent/payments">
-              <span className="label">Payer les frais</span>
-              <span className="sub">Voir les factures et payer en ligne</span>
-            </Link>
-            <Link href="/dashboard/parent/classroom">
-              <span className="label">ClassRoom</span>
-              <span className="sub">classroom</span>
-            </Link>
+          {/* ACTIONS RAPIDES – hidden on mobile */}
+          <div className="desktop-sections">
+            <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
+            <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
+              <Link href="/dashboard/parent/enroll">
+                <span className="label">Inscrire un enfant</span>
+                <span className="sub">Nouvelle demande d'inscription</span>
+              </Link>
+              <Link href="/dashboard/messages">
+                <span className="label">Message à un enseignant</span>
+                <span className="sub">Démarrer une conversation</span>
+              </Link>
+              <Link href="/dashboard/parent/payments">
+                <span className="label">Payer les frais</span>
+                <span className="sub">Voir les factures et payer en ligne</span>
+              </Link>
+              <Link href="/dashboard/parent/classroom">
+                <span className="label">ClassRoom</span>
+                <span className="sub">classroom</span>
+              </Link>
+            </div>
           </div>
         </div>
       </main>
