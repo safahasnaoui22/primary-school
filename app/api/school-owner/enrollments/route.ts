@@ -26,10 +26,6 @@ export async function GET(req: Request) {
     orderBy: { createdAt: 'desc' },
   });
 
-  // Flatten the nested `parent` relation so the frontend's
-  // r.parentName / r.parentEmail fields are actually populated
-  // (previously only `r.parent.username` / `r.parent.email` existed,
-  // which the UI never read).
   return NextResponse.json(
     requests.map((r: any) => ({
       id: r.id,
@@ -38,6 +34,7 @@ export async function GET(req: Request) {
       parentPhone: r.parentPhone,
       childrenJson: r.childrenJson,
       medical: r.medical,
+      documents: Array.isArray(r.documents) ? r.documents : [],
       status: r.status,
       createdAt: r.createdAt,
     }))

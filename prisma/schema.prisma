@@ -305,6 +305,8 @@ model Payment {
   createdAt    DateTime @default(now())
 }
 
+
+
 model EnrollmentRequest {
   id           String           @id @default(cuid())
   schoolId     String
@@ -315,11 +317,15 @@ model EnrollmentRequest {
   childrenJson Json
   medical      String?
   consent      Boolean          @default(false)
+  documents    Json?            // <-- ADD THIS LINE: array of { name: string, url: string }
   status       EnrollmentStatus @default(PENDING)
   createdAt    DateTime         @default(now())
   reviewedAt   DateTime?
 }
 
+// After editing schema.prisma, run:
+//   npx prisma migrate dev --name add_enrollment_documents
+// (or `npx prisma db push` if you're not using migrations)
 model Conversation {
   id        String   @id @default(cuid())
   schoolId  String
@@ -383,3 +389,8 @@ model Task {
   completed Boolean   @default(false)
   createdAt DateTime  @default(now())
 }
+
+
+
+
+

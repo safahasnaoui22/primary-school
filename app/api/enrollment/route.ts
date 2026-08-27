@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { parentPhone, children, medical, consent } = body;
+    const { parentPhone, children, medical, consent, documents } = body;
 
     if (!parentPhone || !parentPhone.trim()) {
       return NextResponse.json({ error: 'Numéro de téléphone requis' }, { status: 400 });
@@ -32,9 +32,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'École introuvable' }, { status: 500 });
     }
 
-    // Validate that every referenced class actually exists in this school
-    // BEFORE creating the request, so parents get a clear error instead of
-    // a silently-skipped child later at approval time.
     for (const child of children) {
       const classRecord = await prisma.class.findFirst({
         where: { id: child.classId, schoolId },
@@ -47,11 +44,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // IMPORTANT: this route only records the *request*. Actual Student,
-    // ParentStudent, and Invoice rows must be created exactly once, in the
-    // approve route (api/school-owner/enrollments/[id]/approve/route.ts),
-    // when a school owner reviews and accepts the request. Creating them
-    // here as well was the cause of children being registered twice.
     const enrollment = await prisma.enrollmentRequest.create({
       data: {
         schoolId,
@@ -60,6 +52,7 @@ export async function POST(req: Request) {
         childrenJson: children,
         medical: medical || null,
         consent,
+        documents: Array.isArray(documents) ? documents : [],
       },
     });
 

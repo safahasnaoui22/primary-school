@@ -45,6 +45,7 @@ const translations: Record<Language, Record<string, string>> = {
     next: 'Suivant',
     finish: 'Finaliser',
     submitting: 'Envoi en cours...',
+    uploadingDocs: 'Envoi des documents...',
     thankYou: 'Merci !',
     confirmed: "Votre inscription a été envoyée à l'administration.",
     contact: 'Nous vous contacterons sous 48h.',
@@ -58,6 +59,7 @@ const translations: Record<Language, Record<string, string>> = {
     fileUploaded: 'Fichier sélectionné',
     consentRequired: 'Vous devez accepter pour continuer',
     submitError: "Une erreur s'est produite. Veuillez réessayer.",
+    uploadError: "Échec de l'envoi des documents. Veuillez réessayer.",
     loginRequired: 'Vous devez être connecté pour inscrire un enfant.',
     goToLogin: 'Se connecter',
   },
@@ -80,6 +82,7 @@ export default function EnrollChildPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingDocs, setIsUploadingDocs] = useState(false);
   const [availableClasses, setAvailableClasses] = useState<{ id: string; name: string }[]>([]);
   const isSubmittingRef = useRef(false);
 
@@ -168,6 +171,24 @@ export default function EnrollChildPage() {
     }
   };
 
+  // Uploads any selected files to Vercel Blob via our API route and
+  // returns their public URLs. Returns [] immediately if no files were
+  // picked, so step 3 stays fully optional.
+  const uploadDocuments = async (): Promise<{ name: string; url: string }[]> => {
+    if (files.length === 0) return [];
+    setIsUploadingDocs(true);
+    try {
+      const formData = new FormData();
+      files.forEach((f) => formData.append('files', f));
+      const res = await fetch('/api/enrollment/upload', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error(t.uploadError);
+      const data = await res.json();
+      return data.files as { name: string; url: string }[];
+    } finally {
+      setIsUploadingDocs(false);
+    }
+  };
+
   const submitEnrollment = async () => {
     if (isSubmittingRef.current) return;
     if (!validateStep(3)) {
@@ -180,10 +201,12 @@ export default function EnrollChildPage() {
     setErrors({});
 
     try {
+      const uploadedDocs = await uploadDocuments();
+
       const res = await fetch('/api/enrollment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parentPhone: phone, children, medical, consent }),
+        body: JSON.stringify({ parentPhone: phone, children, medical, consent, documents: uploadedDocs }),
       });
 
       const data = await res.json();
@@ -229,6 +252,10 @@ export default function EnrollChildPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) setFiles(Array.from(e.target.files));
+  };
+
+  const removeFile = (idx: number) => {
+    setFiles(files.filter((_, i) => i !== idx));
   };
 
   const getStepClass = (s: number) => {
@@ -397,6 +424,22 @@ export default function EnrollChildPage() {
                     <p>{files.length ? `${files.length} ${t.fileUploaded}` : t.upload}</p>
                   </label>
                 </div>
+                {files.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+                    {files.map((f, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAFAFA', padding: '8px 12px', borderRadius: 8, fontSize: 13 }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>{f.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(i)}
+                          style={{ background: 'none', border: 'none', color: '#C0392B', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+                        >
+                          Retirer
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="field full">
                 <label><i className="fas fa-heartbeat"></i> {t.medical}</label>
@@ -434,7 +477,7 @@ export default function EnrollChildPage() {
               {t.prev}
               </button>
               <button type="button" className="btn btn-primary" onClick={goNext} disabled={isSubmitting}>
-                {isSubmitting ? t.submitting : step === 3 ? t.finish : t.next} <i className="fas fa-arrow-right"></i>
+                {isSubmitting ? (isUploadingDocs ? t.uploadingDocs : t.submitting) : step === 3 ? t.finish : t.next} <i className="fas fa-arrow-right"></i>
               </button>
             </div>
           )}
