@@ -327,6 +327,55 @@ export default function ParentDashboardClient({
           border-bottom: none;
         }
 
+        /* ===== NOUVEAU : RACCOURCIS MOBILE (uniquement sur mobile) ===== */
+        .mobile-racourcis {
+          display: none; /* caché sur desktop */
+        }
+        .mobile-racourcis-section {
+          margin-bottom: 24px;
+        }
+        .mobile-racourcis-heading {
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--navy);
+          margin-bottom: 12px;
+          font-family: 'Fraunces', serif;
+        }
+        .mobile-racourcis-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .mobile-racourcis-card {
+          background: #fff;
+          border-radius: 14px;
+          padding: 16px;
+          box-shadow: 0 3px 10px rgba(7,27,74,0.08);
+          text-decoration: none;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .mobile-racourcis-card:active {
+          transform: scale(0.98);
+        }
+        .mobile-racourcis-icon {
+          font-size: 24px;
+          line-height: 1;
+        }
+        .mobile-racourcis-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--navy);
+          line-height: 1.2;
+        }
+        .mobile-racourcis-desc {
+          font-size: 12px;
+          color: var(--muted);
+          line-height: 1.3;
+        }
+
         /* ===== MOBILE RESPONSIVENESS ===== */
         .sidebar {
           position: fixed;
@@ -540,6 +589,15 @@ export default function ParentDashboardClient({
           h1 .typewriter {
             font-size: 24px !important;
           }
+
+          /* ===== Afficher les raccourcis mobile et masquer les actions rapides desktop ===== */
+          .mobile-racourcis {
+            display: block;
+            margin-top: 16px;
+          }
+          .desktop-actions-rapides {
+            display: none !important;
+          }
         }
 
         @media (max-width: 480px) {
@@ -710,6 +768,61 @@ export default function ParentDashboardClient({
               Une demande d'inscription est en cours d'examen par l'école.
             </div>
           )}
+
+          {/* ===== RACCOURCIS MOBILE (visible uniquement sur mobile) ===== */}
+          <div className="mobile-racourcis">
+            <div className="mobile-racourcis-section">
+              <h2 className="mobile-racourcis-heading">Accès rapide</h2>
+              <div className="mobile-racourcis-grid">
+                <Link href="/dashboard/parent/payments" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">💳</span>
+                  <span className="mobile-racourcis-title">Frais de scolarité</span>
+                  <span className="mobile-racourcis-desc">Suivre les paiements</span>
+                </Link>
+                <Link href="/dashboard/messages" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">💬</span>
+                  <span className="mobile-racourcis-title">Messages</span>
+                  <span className="mobile-racourcis-desc">Boîte de réception</span>
+                </Link>
+                <Link href="/news-events" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">📢</span>
+                  <span className="mobile-racourcis-title">Annonces de l'école</span>
+                  <span className="mobile-racourcis-desc">Actualités importantes</span>
+                </Link>
+                <Link href="/news-events" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">📅</span>
+                  <span className="mobile-racourcis-title">Événements à venir</span>
+                  <span className="mobile-racourcis-desc">Calendrier scolaire</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="mobile-racourcis-section">
+              <h2 className="mobile-racourcis-heading">Actions rapides</h2>
+              <div className="mobile-racourcis-grid">
+                <Link href="/dashboard/parent/enroll" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">➕</span>
+                  <span className="mobile-racourcis-title">Inscrire un enfant</span>
+                  <span className="mobile-racourcis-desc">Nouvelle demande d'inscription</span>
+                </Link>
+                <Link href="/dashboard/messages" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">✉️</span>
+                  <span className="mobile-racourcis-title">Message à un enseignant</span>
+                  <span className="mobile-racourcis-desc">Démarrer une conversation</span>
+                </Link>
+                <Link href="/dashboard/parent/payments" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">💰</span>
+                  <span className="mobile-racourcis-title">Payer les frais</span>
+                  <span className="mobile-racourcis-desc">Voir les factures et payer en ligne</span>
+                </Link>
+                <Link href="/dashboard/parent/classroom" className="mobile-racourcis-card">
+                  <span className="mobile-racourcis-icon">📚</span>
+                  <span className="mobile-racourcis-title">ClassRoom</span>
+                  <span className="mobile-racourcis-desc">Accéder à la classe</span>
+                </Link>
+              </div>
+            </div>
+          </div>
 
           {children.length === 0 ? (
             <div className="pd-card" style={{ marginTop: 24, textAlign: 'center', padding: 48 }}>
@@ -969,24 +1082,27 @@ export default function ParentDashboardClient({
             )}
           </div>
 
-          <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
-          <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
-            <Link href="/dashboard/parent/enroll">
-              <span className="label">Inscrire un enfant</span>
-              <span className="sub">Nouvelle demande d'inscription</span>
-            </Link>
-            <Link href="/dashboard/messages">
-              <span className="label">Message à un enseignant</span>
-              <span className="sub">Démarrer une conversation</span>
-            </Link>
-            <Link href="/dashboard/parent/payments">
-              <span className="label">Payer les frais</span>
-              <span className="sub">Voir les factures et payer en ligne</span>
-            </Link>
-            <Link href="/dashboard/parent/classroom">
-              <span className="label">ClassRoom</span>
-              <span className="sub">classroom</span>
-            </Link>
+          {/* ===== ACTIONS RAPIDES (desktop uniquement, masqué sur mobile) ===== */}
+          <div className="desktop-actions-rapides">
+            <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12 }}>Actions rapides</h2>
+            <div className="pd-quick-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 40 }}>
+              <Link href="/dashboard/parent/enroll">
+                <span className="label">Inscrire un enfant</span>
+                <span className="sub">Nouvelle demande d'inscription</span>
+              </Link>
+              <Link href="/dashboard/messages">
+                <span className="label">Message à un enseignant</span>
+                <span className="sub">Démarrer une conversation</span>
+              </Link>
+              <Link href="/dashboard/parent/payments">
+                <span className="label">Payer les frais</span>
+                <span className="sub">Voir les factures et payer en ligne</span>
+              </Link>
+              <Link href="/dashboard/parent/classroom">
+                <span className="label">ClassRoom</span>
+                <span className="sub">classroom</span>
+              </Link>
+            </div>
           </div>
         </div>
       </main>
