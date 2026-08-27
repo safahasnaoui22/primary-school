@@ -178,7 +178,7 @@ export default function ParentDashboardClient({
     { title: 'Frais de scolarité', subtitle: 'Historique →', link: '/dashboard/parent/payments', icon: '💳' },
     { title: 'Messages', subtitle: 'Boîte de réception →', link: '/dashboard/messages', icon: '💬' },
     { title: 'Annonces de l’école', subtitle: 'Voir toutes les actualités →', link: '/news-events', icon: '📢' },
-    { title: 'Événements à venir', subtitle: 'Calendrier scolaire →', link: '/news-events', icon: '📅' },
+    { title: 'Événements à venir', subtitle: 'Calendrier scolaire →', link: '/dashboard/parent/events', icon: '📅' },
   ];
 
   const quickActionShortcuts = [
