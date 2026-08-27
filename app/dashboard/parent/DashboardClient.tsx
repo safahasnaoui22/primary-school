@@ -113,38 +113,6 @@ function AttendanceDot({ status }: { status: string }) {
   return <span title={status} style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }} />;
 }
 
-// --- Professional SVG Icons ---
-const IconInvoice = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
-    <line x1="16" y1="13" x2="8" y2="13" />
-    <line x1="16" y1="17" x2="8" y2="17" />
-    <polyline points="10 9 9 9 8 9" />
-  </svg>
-);
-
-const IconMessage = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
-
-const IconAnnouncement = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0" />
-  </svg>
-);
-
-const IconCalendar = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-
 // --- Typewriter Component ---
 function Typewriter({ text }: { text: string }) {
   const [displayed, setDisplayed] = useState('');
@@ -397,11 +365,6 @@ export default function ParentDashboardClient({
           display: inline-flex;
         }
 
-        /* Mobile Shortcut Cards - Only visible on mobile */
-        .mobile-shortcuts {
-          display: none;
-        }
-
         @media (max-width: 768px) {
           .hamburger-btn {
             display: block;
@@ -437,11 +400,6 @@ export default function ParentDashboardClient({
 
           /* Hide the "Inscrire un enfant" button */
           .hide-on-mobile {
-            display: none !important;
-          }
-
-          /* Hide desktop cards on mobile to avoid duplication */
-          .desktop-only {
             display: none !important;
           }
 
@@ -582,71 +540,6 @@ export default function ParentDashboardClient({
           h1 .typewriter {
             font-size: 24px !important;
           }
-
-          /* ===== MOBILE SHORTCUT CARDS ===== */
-          .mobile-shortcuts {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 10px !important;
-            margin: 16px 0 !important;
-          }
-
-          .mobile-shortcut-card {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 8px !important;
-            padding: 16px !important;
-            background: #ffffff !important;
-            border-radius: 12px !important;
-            text-decoration: none !important;
-            box-shadow: 0 2px 12px rgba(7, 27, 74, 0.08) !important;
-            border: 1px solid #e9eef5 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            position: relative !important;
-            overflow: hidden !important;
-          }
-
-          .mobile-shortcut-card:active {
-            transform: scale(0.98) !important;
-            box-shadow: 0 4px 16px rgba(7, 27, 74, 0.15) !important;
-          }
-
-          .mobile-shortcut-icon {
-            width: 36px !important;
-            height: 36px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: #071B4A !important;
-            border-radius: 8px !important;
-            color: #FFB400 !important;
-          }
-
-          .mobile-shortcut-label {
-            font-size: 13px !important;
-            font-weight: 600 !important;
-            color: #071B4A !important;
-            line-height: 1.2 !important;
-          }
-
-          .mobile-shortcut-sub {
-            font-size: 11px !important;
-            color: #5A6A7A !important;
-            line-height: 1.3 !important;
-          }
-
-          .mobile-shortcut-badge {
-            position: absolute !important;
-            top: 8px !important;
-            right: 8px !important;
-            background: #FFB400 !important;
-            color: #071B4A !important;
-            font-size: 10px !important;
-            font-weight: 700 !important;
-            padding: 2px 6px !important;
-            border-radius: 8px !important;
-          }
         }
 
         @media (max-width: 480px) {
@@ -688,29 +581,6 @@ export default function ParentDashboardClient({
 
           .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
             font-size: 20px !important;
-          }
-
-          .mobile-shortcuts {
-            gap: 8px !important;
-            margin: 12px 0 !important;
-          }
-
-          .mobile-shortcut-card {
-            padding: 12px !important;
-            border-radius: 10px !important;
-          }
-
-          .mobile-shortcut-icon {
-            width: 32px !important;
-            height: 32px !important;
-          }
-
-          .mobile-shortcut-label {
-            font-size: 12px !important;
-          }
-
-          .mobile-shortcut-sub {
-            font-size: 10px !important;
           }
         }
       `}</style>
@@ -840,67 +710,6 @@ export default function ParentDashboardClient({
               Une demande d'inscription est en cours d'examen par l'école.
             </div>
           )}
-
-          {/* ===== MOBILE SHORTCUT CARDS (Only visible on mobile) ===== */}
-          <div className="mobile-shortcuts">
-            <Link href="/dashboard/parent/payments" className="mobile-shortcut-card">
-              <div className="mobile-shortcut-icon">
-                <IconInvoice />
-              </div>
-              <div className="mobile-shortcut-label">Frais de scolarité</div>
-              <div className="mobile-shortcut-sub">
-                {invoice ? `${invoice.amount.toLocaleString('fr-FR')} DT - ${invoice.status === 'OVERDUE' ? 'En retard' : 'En attente'}` : 'Tous les frais sont réglés'}
-              </div>
-              {invoice && (
-                <span className="mobile-shortcut-badge">
-                  {invoice.status === 'OVERDUE' ? 'URGENT' : 'À PAYER'}
-                </span>
-              )}
-            </Link>
-
-            <Link href="/dashboard/messages" className="mobile-shortcut-card">
-              <div className="mobile-shortcut-icon">
-                <IconMessage />
-              </div>
-              <div className="mobile-shortcut-label">Messages</div>
-              <div className="mobile-shortcut-sub">Boîte de réception</div>
-              {unreadCount > 0 && (
-                <span className="mobile-shortcut-badge">
-                  {unreadCount} NOUV.
-                </span>
-              )}
-            </Link>
-
-            <Link href="/news-events" className="mobile-shortcut-card">
-              <div className="mobile-shortcut-icon">
-                <IconAnnouncement />
-              </div>
-              <div className="mobile-shortcut-label">Annonces</div>
-              <div className="mobile-shortcut-sub">
-                {announcements.length > 0 ? `${announcements.length} nouvelle${announcements.length > 1 ? 's' : ''}` : 'Aucune annonce'}
-              </div>
-              {announcements.length > 0 && (
-                <span className="mobile-shortcut-badge">
-                  {announcements.length}
-                </span>
-              )}
-            </Link>
-
-            <Link href="/news-events" className="mobile-shortcut-card">
-              <div className="mobile-shortcut-icon">
-                <IconCalendar />
-              </div>
-              <div className="mobile-shortcut-label">Événements</div>
-              <div className="mobile-shortcut-sub">
-                {upcomingEvents.length > 0 ? `${upcomingEvents.length} à venir` : 'Aucun événement'}
-              </div>
-              {upcomingEvents.length > 0 && (
-                <span className="mobile-shortcut-badge">
-                  {upcomingEvents.length}
-                </span>
-              )}
-            </Link>
-          </div>
 
           {children.length === 0 ? (
             <div className="pd-card" style={{ marginTop: 24, textAlign: 'center', padding: 48 }}>
@@ -1044,8 +853,8 @@ export default function ParentDashboardClient({
             </>
           )}
 
-          {/* SECTION FRAIS + MESSAGES – Hide on mobile since we have shortcut cards */}
-          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
+          {/* SECTION FRAIS + MESSAGES – sur mobile, la grille passe en 1 colonne, donc Messages sera sous Frais */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h2 className="pd-heading" style={{ fontSize: 17 }}>Frais de scolarité</h2>
@@ -1103,7 +912,7 @@ export default function ParentDashboardClient({
             </div>
           </div>
 
-          <div className="desktop-only pd-card" style={{ marginBottom: 28 }}>
+          <div className="pd-card" style={{ marginBottom: 28 }}>
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Annonces de l'école</h2>
             {announcements.length === 0 ? (
               <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucune annonce pour le moment.</p>
@@ -1129,7 +938,7 @@ export default function ParentDashboardClient({
             </Link>
           </div>
 
-          <div className="desktop-only pd-card" style={{ marginBottom: 28 }}>
+          <div className="pd-card" style={{ marginBottom: 28 }}>
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 14 }}>Événements à venir</h2>
             {upcomingEvents.length === 0 ? (
               <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucun événement à venir.</p>
