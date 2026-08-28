@@ -170,8 +170,9 @@ export default function ParentDashboardClient({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const sidebarWidth = sidebarOpen ? 260 : 72;
-  const mainMarginLeft = sidebarOpen ? 260 : 72;
+  // Adjusted widths for collapsed sidebar
+  const sidebarWidth = sidebarOpen ? 260 : 60;
+  const mainMarginLeft = sidebarOpen ? 260 : 60;
 
   // Mobile shortcut items – first four general, last four quick actions
   const generalShortcuts = [
@@ -225,11 +226,29 @@ export default function ParentDashboardClient({
           border-radius: 10px;
           color: #E6EAF2;
           text-decoration: none;
-          transition: background 0.2s, color 0.2s;
+          transition: background 0.2s, color 0.2s, padding 0.2s;
           font-size: 14px;
           font-weight: 500;
           white-space: nowrap;
           overflow: hidden;
+        }
+
+        .sidebar.collapsed .pd-sidebar-link {
+          padding: 12px 10px;
+          justify-content: center;
+          gap: 0;
+        }
+
+        .sidebar.collapsed .pd-sidebar-link span:not(.icon) {
+          display: none;
+        }
+
+        .sidebar.collapsed .pd-sidebar-link .icon {
+          margin: 0;
+        }
+
+        .sidebar.collapsed .pd-sidebar-link .unread-badge {
+          display: none;
         }
 
         .pd-sidebar-link:hover {
@@ -356,6 +375,25 @@ export default function ParentDashboardClient({
           display: flex;
           flex-direction: column;
           box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.collapsed {
+          width: 60px;
+        }
+
+        .sidebar.collapsed .logo-area {
+          justify-content: center;
+          padding: 20px 0;
+        }
+
+        .sidebar.collapsed .logo-area .logo-text {
+          display: none;
+        }
+
+        .sidebar.collapsed .toggle-btn {
+          position: absolute;
+          right: -12px;
+          top: 20px;
         }
 
         /* Hamburger button – hidden by default on desktop */
@@ -682,14 +720,14 @@ export default function ParentDashboardClient({
       </button>
 
       {/* SIDEBAR */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <aside className={`sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
+        <div className="logo-area" style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {sidebarOpen ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#071B4A', fontWeight: 700, fontSize: 18 }}>
                 S
               </div>
-              <span style={{ color: '#fff', fontFamily: 'Fraunces, serif', fontWeight: 600, fontSize: 18 }}>SchoolApp</span>
+              <span className="logo-text" style={{ color: '#fff', fontFamily: 'Fraunces, serif', fontWeight: 600, fontSize: 18 }}>SchoolApp</span>
             </div>
           ) : (
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#071B4A', fontWeight: 700, fontSize: 18, margin: '0 auto' }}>
@@ -698,6 +736,7 @@ export default function ParentDashboardClient({
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="toggle-btn"
             style={{
               background: 'transparent',
               border: 'none',
@@ -707,6 +746,9 @@ export default function ParentDashboardClient({
               padding: 6,
               borderRadius: 6,
               transition: 'background 0.2s',
+              position: 'absolute',
+              right: '-12px',
+              top: '20px',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -717,28 +759,28 @@ export default function ParentDashboardClient({
 
         <nav style={{ flex: 1, padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
           <Link href="/dashboard/parent" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
-            <span>🏠</span>
+            <span className="icon">🏠</span>
             {sidebarOpen && <span>Tableau de bord</span>}
           </Link>
           <Link href="/dashboard/messages" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
-            <span>💬</span>
+            <span className="icon">💬</span>
             {sidebarOpen && <span>Messages</span>}
             {unreadCount > 0 && sidebarOpen && (
-              <span style={{ marginLeft: 'auto', background: 'var(--gold)', color: '#071B4A', borderRadius: 10, padding: '2px 8px', fontSize: 12, fontWeight: 600 }}>
+              <span className="unread-badge" style={{ marginLeft: 'auto', background: 'var(--gold)', color: '#071B4A', borderRadius: 10, padding: '2px 8px', fontSize: 12, fontWeight: 600 }}>
                 {unreadCount}
               </span>
             )}
           </Link>
           <Link href="/dashboard/parent/payments" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
-            <span>💳</span>
+            <span className="icon">💳</span>
             {sidebarOpen && <span>Paiements</span>}
           </Link>
           <Link href="/dashboard/parent/classroom" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
-            <span>📚</span>
+            <span className="icon">📚</span>
             {sidebarOpen && <span>ClassRoom</span>}
           </Link>
           <Link href="/dashboard/parent/enroll" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
-            <span>➕</span>
+            <span className="icon">➕</span>
             {sidebarOpen && <span>Inscrire un enfant</span>}
           </Link>
         </nav>
