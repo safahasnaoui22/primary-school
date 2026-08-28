@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 interface Subject {
   name: string;
   grade: string;
   trend: 'up' | 'down' | 'flat';
-  /** Optional recent numeric history (e.g. last 5 assessments, 0-100) for the sparkline */
-  history?: number[];
 }
 
 interface Resource {
@@ -20,11 +18,6 @@ interface Resource {
   createdAt: string;
 }
 
-interface AttendanceDay {
-  date: string; // ISO date
-  status: 'present' | 'late' | 'absent';
-}
-
 interface ChildData {
   id: string;
   firstName: string;
@@ -34,8 +27,6 @@ interface ChildData {
   teacherId: string | null;
   attendancePct: number | null;
   attendanceLast10: string[];
-  /** Optional fuller attendance record for the calendar modal. Falls back to attendanceLast10 if absent. */
-  attendanceMonth?: AttendanceDay[];
   subjects: Subject[];
   resources: Resource[];
 }
@@ -45,7 +36,6 @@ interface ConversationPreview {
   otherName: string;
   otherRole: string;
   lastMessage: string | null;
-  unread?: boolean;
 }
 
 interface AnnouncementPreview {
@@ -68,23 +58,6 @@ interface InvoicePreview {
   status: string;
 }
 
-interface PaymentHistoryEntry {
-  id: string;
-  amount: number;
-  date: string;
-  status: 'PAID' | 'OVERDUE' | 'PENDING';
-  description: string;
-}
-
-interface NotificationItem {
-  id: string;
-  type: 'grade' | 'resource' | 'attendance' | 'message' | 'announcement' | 'payment';
-  message: string;
-  createdAt: string;
-  read: boolean;
-  childId?: string;
-}
-
 interface Props {
   parentName: string;
   children: ChildData[];
@@ -94,13 +67,6 @@ interface Props {
   announcements: AnnouncementPreview[];
   upcomingEvents: EventPreview[];
   invoice: InvoicePreview | null;
-  /** Optional — richer payment history. If absent, only the current invoice card is shown. */
-  paymentHistory?: PaymentHistoryEntry[];
-  /** Optional — notification feed for the bell icon. If absent, the bell is hidden. */
-  notifications?: NotificationItem[];
-  onMarkAllMessagesRead?: () => void;
-  onMarkAllNotificationsRead?: () => void;
-  onLogout?: () => void;
 }
 
 const categoryColor: Record<string, string> = {
@@ -129,21 +95,6 @@ const eventTypeLabel: Record<string, { label: string; color: string; emoji: stri
   EVENT: { label: 'Événement', color: '#8A5A00', emoji: '🎉' },
 };
 
-const paymentStatusLabel: Record<string, { label: string; bg: string; text: string }> = {
-  PAID: { label: 'Payé', bg: '#EAF3DE', text: '#27500A' },
-  OVERDUE: { label: 'En retard', bg: '#FAECE7', text: '#712B13' },
-  PENDING: { label: 'En attente', bg: '#FAEEDA', text: '#633806' },
-};
-
-const notificationIcon: Record<NotificationItem['type'], string> = {
-  grade: '📊',
-  resource: '📎',
-  attendance: '🕒',
-  message: '💬',
-  announcement: '📢',
-  payment: '💳',
-};
-
 function gradeColor(grade: string) {
   const letter = grade[0];
   if (letter === 'A') return { bg: '#EAF3DE', text: '#27500A' };
@@ -151,76 +102,24 @@ function gradeColor(grade: string) {
   return { bg: '#FAECE7', text: '#712B13' };
 }
 
-function attendanceStatusLabel(status: string) {
-  if (status === 'present') return 'Présent';
-  if (status === 'late') return 'Retard';
-  return 'Absent';
-}
-
 function TrendIcon({ trend }: { trend: Subject['trend'] }) {
-  const label = trend === 'up' ? 'en progression' : trend === 'down' ? 'en baisse' : 'stable';
-  if (trend === 'up') return <span role="img" aria-label={label} style={{ color: '#4C7C59' }}>&#8593;</span>;
-  if (trend === 'down') return <span role="img" aria-label={label} style={{ color: '#C0392B' }}>&#8595;</span>;
-  return <span role="img" aria-label={label} style={{ color: '#5A6A7A' }}>&#8212;</span>;
+  if (trend === 'up') return <span style={{ color: '#4C7C59' }}>&#8593;</span>;
+  if (trend === 'down') return <span style={{ color: '#C0392B' }}>&#8595;</span>;
+  return <span style={{ color: '#5A6A7A' }}>&#8212;</span>;
 }
 
 function AttendanceDot({ status }: { status: string }) {
   const color = status === 'present' ? '#4C7C59' : status === 'late' ? '#FFB400' : '#C0392B';
-  return (
-    <span
-      role="img"
-      aria-label={attendanceStatusLabel(status)}
-      title={attendanceStatusLabel(status)}
-      style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }}
-    />
-  );
+  return <span title={status} style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }} />;
 }
 
-/** Tiny inline sparkline for a subject's recent grade history. No chart library needed. */
-function Sparkline({ values }: { values: number[] }) {
-  if (!values || values.length < 2) return null;
-  const w = 72;
-  const h = 24;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const points = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * w;
-      const y = h - ((v - min) / range) * h;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(' ');
-  const last = values[values.length - 1];
-  const first = values[0];
-  const stroke = last >= first ? '#4C7C59' : '#C0392B';
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true" style={{ display: 'block', marginTop: 4 }}>
-      <polyline points={points} fill="none" stroke={stroke} strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-// --- Typewriter Component (respects prefers-reduced-motion) ---
+// --- Typewriter Component ---
 function Typewriter({ text }: { text: string }) {
   const [displayed, setDisplayed] = useState('');
   const [index, setIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setDisplayed(text);
-      return;
-    }
     if (index < text.length) {
       intervalRef.current = setInterval(() => {
         setDisplayed((prev) => prev + text[index]);
@@ -232,41 +131,9 @@ function Typewriter({ text }: { text: string }) {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [index, text, reducedMotion]);
+  }, [index, text]);
 
-  return (
-    <span aria-label={text}>
-      <span aria-hidden="true">
-        {displayed}
-        {!reducedMotion && <span style={{ animation: 'blink 1s step-end infinite' }}>|</span>}
-      </span>
-    </span>
-  );
-}
-
-/** Simple month calendar built from attendance records. Falls back to a message if no monthly data given. */
-function AttendanceCalendar({ days }: { days: AttendanceDay[] }) {
-  if (!days || days.length === 0) {
-    return <p style={{ fontSize: 13, color: '#5A6A7A' }}>Le calendrier détaillé n'est pas encore disponible pour cet enfant.</p>;
-  }
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-      {days.map((d) => {
-        const date = new Date(d.date);
-        const color = d.status === 'present' ? '#EAF3DE' : d.status === 'late' ? '#FAEEDA' : '#FAECE7';
-        const text = d.status === 'present' ? '#27500A' : d.status === 'late' ? '#633806' : '#712B13';
-        return (
-          <div
-            key={d.date}
-            title={`${date.toLocaleDateString('fr-FR')} · ${attendanceStatusLabel(d.status)}`}
-            style={{ background: color, color: text, borderRadius: 8, padding: '8px 4px', textAlign: 'center', fontSize: 12, fontWeight: 600 }}
-          >
-            {date.getDate()}
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <span>{displayed}<span style={{ animation: 'blink 1s step-end infinite' }}>|</span></span>;
 }
 
 export default function ParentDashboardClient({
@@ -278,23 +145,10 @@ export default function ParentDashboardClient({
   announcements,
   upcomingEvents,
   invoice,
-  paymentHistory,
-  notifications,
-  onMarkAllMessagesRead,
-  onMarkAllNotificationsRead,
-  onLogout,
 }: Props) {
   const [activeChildId, setActiveChildId] = useState(children[0]?.id ?? null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const child = children.find((c) => c.id === activeChildId) ?? null;
-
-  // Sidebar: desktop collapse and mobile open/close are independent concerns now.
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [resourceQuery, setResourceQuery] = useState('');
 
   // Fade-in on mount
   const [mounted, setMounted] = useState(false);
@@ -302,34 +156,22 @@ export default function ParentDashboardClient({
     setMounted(true);
   }, []);
 
+  // Auto-close sidebar on mobile and detect mobile
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (!mobile) setMobileOpen(false);
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const sidebarOpenVisual = isMobile ? mobileOpen : !desktopCollapsed;
-  const mainMarginLeft = isMobile ? 0 : desktopCollapsed ? 72 : 260;
-
-  const unreadNotifCount = (notifications ?? []).filter((n) => !n.read).length;
-
-  const filteredResources = useMemo(() => {
-    if (!child) return [];
-    const q = resourceQuery.trim().toLowerCase();
-    if (!q) return child.resources;
-    return child.resources.filter(
-      (r) => r.title.toLowerCase().includes(q) || (r.description ?? '').toLowerCase().includes(q) || r.teacherName.toLowerCase().includes(q)
-    );
-  }, [child, resourceQuery]);
-
-  const handlePrintReportCard = () => {
-    window.print();
-  };
+  const sidebarWidth = sidebarOpen ? 260 : 72;
+  const mainMarginLeft = sidebarOpen ? 260 : 72;
 
   // Mobile shortcut items – first four general, last four quick actions
   const generalShortcuts = [
@@ -370,10 +212,6 @@ export default function ParentDashboardClient({
           to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          .pd-fade-in { animation: none !important; opacity: 1 !important; }
-        }
-
         .pd-fade-in {
           animation: fadeInUp 0.5s ease forwards;
           opacity: 0;
@@ -392,12 +230,6 @@ export default function ParentDashboardClient({
           font-weight: 500;
           white-space: nowrap;
           overflow: hidden;
-          background: transparent;
-          border: none;
-          width: 100%;
-          text-align: left;
-          cursor: pointer;
-          font-family: inherit;
         }
 
         .pd-sidebar-link:hover {
@@ -438,12 +270,6 @@ export default function ParentDashboardClient({
           border-bottom: 1px solid var(--gold);
           padding-bottom: 1px;
           transition: color 0.2s, border-color 0.2s;
-          background: none;
-          border-left: none;
-          border-right: none;
-          border-top: none;
-          cursor: pointer;
-          font-family: inherit;
         }
         .pd-link-btn:hover {
           color: var(--gold);
@@ -516,154 +342,6 @@ export default function ParentDashboardClient({
           border-bottom: none;
         }
 
-        /* ===== Layout helper classes (replace fragile attribute selectors) ===== */
-        .pd-two-col {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
-        }
-        .pd-child-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          margin-top: 24px;
-        }
-        .pd-subjects-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 10px;
-        }
-        .pd-attendance-row {
-          display: flex;
-          gap: 6px;
-          flex-wrap: wrap;
-        }
-        .pd-attendance-legend {
-          display: flex;
-          gap: 14px;
-          margin-top: 10px;
-          font-size: 12px;
-          color: var(--muted);
-          flex-wrap: wrap;
-        }
-        .pd-event-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .pd-summary-row {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 12px;
-          margin-top: 20px;
-        }
-        .pd-summary-card {
-          background: #fff;
-          border-radius: 12px;
-          padding: 14px 16px;
-          box-shadow: 0 3px 10px rgba(7,27,74,0.06);
-          cursor: pointer;
-          border: 2px solid transparent;
-          text-align: left;
-          font-family: inherit;
-        }
-        .pd-summary-card.active {
-          border-color: var(--gold);
-        }
-
-        /* Notification bell */
-        .pd-bell-wrap { position: relative; }
-        .pd-bell-btn {
-          background: #fff;
-          border: 1px solid var(--border);
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          cursor: pointer;
-          position: relative;
-        }
-        .pd-bell-badge {
-          position: absolute;
-          top: -4px;
-          right: -4px;
-          background: #C0392B;
-          color: #fff;
-          font-size: 10px;
-          font-weight: 700;
-          border-radius: 10px;
-          padding: 1px 5px;
-          min-width: 16px;
-          text-align: center;
-        }
-        .pd-notif-panel {
-          position: absolute;
-          right: 0;
-          top: 48px;
-          width: 320px;
-          max-height: 380px;
-          overflow-y: auto;
-          background: #fff;
-          border-radius: 12px;
-          box-shadow: 0 12px 32px rgba(7,27,74,0.18);
-          z-index: 1200;
-          padding: 8px;
-        }
-        .pd-notif-item {
-          display: flex;
-          gap: 10px;
-          padding: 10px;
-          border-radius: 8px;
-        }
-        .pd-notif-item.unread { background: #FFF8E8; }
-
-        .pd-resource-search {
-          width: 100%;
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid var(--border);
-          font-size: 13px;
-          margin-bottom: 10px;
-          font-family: inherit;
-        }
-
-        .pd-modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(7,27,74,0.45);
-          z-index: 1300;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-        }
-        .pd-modal {
-          background: #fff;
-          border-radius: 16px;
-          padding: 24px;
-          max-width: 440px;
-          width: 100%;
-          max-height: 80vh;
-          overflow-y: auto;
-        }
-
-        .pd-sidebar-footer-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: transparent;
-          border: none;
-          color: #A0B0C0;
-          font-size: 12px;
-          cursor: pointer;
-          padding: 6px 0;
-          font-family: inherit;
-        }
-        .pd-sidebar-footer-btn:hover { color: #fff; }
-
         /* ===== MOBILE RESPONSIVENESS ===== */
         .sidebar {
           position: fixed;
@@ -680,6 +358,7 @@ export default function ParentDashboardClient({
           box-shadow: 4px 0 20px rgba(0,0,0,0.1);
         }
 
+        /* Hamburger button – hidden by default on desktop */
         .hamburger-btn {
           display: none;
           position: fixed;
@@ -696,95 +375,316 @@ export default function ParentDashboardClient({
           box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
+        /* Hide the "Inscrire un enfant" button on mobile */
         .hide-on-mobile {
           display: inline-flex;
         }
 
+        /* ===== NEW: Mobile Shortcut Grid ===== */
         .mobile-shortcuts {
           display: none;
         }
 
-        @media print {
-          .sidebar, .hamburger-btn, .pd-bell-wrap, .mobile-shortcuts, .hide-on-mobile,
-          .desktop-sections, .pd-summary-row, .pd-resource-search { display: none !important; }
-          main { margin-left: 0 !important; padding: 0 !important; }
-          body { background: #fff !important; }
-        }
-
         @media (max-width: 768px) {
-          .hamburger-btn { display: block; }
-          .sidebar { transform: translateX(-100%); width: 260px !important; }
-          .sidebar.open { transform: translateX(0); }
-          main { margin-left: 0 !important; padding: 12px 16px !important; }
-          .pd-fade-in { padding: 0 !important; }
-          h1 { font-size: 24px !important; min-height: auto !important; }
-          .pd-heading { font-size: 18px !important; }
-          .hide-on-mobile { display: none !important; }
-          .pd-fade-in > div:first-child { flex-direction: column !important; align-items: flex-start !important; }
-          .pd-folder-tab { padding: 8px 14px !important; font-size: 13px !important; white-space: nowrap; }
-          .pd-folder-tab .pd-avatar { width: 24px !important; height: 24px !important; font-size: 10px !important; }
-          .pd-child-tabs-row { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch; }
-          .pd-card { padding: 16px !important; border-radius: 12px !important; }
-          .pd-child-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
-          .pd-two-col { grid-template-columns: 1fr !important; gap: 16px !important; }
-          .pd-quick-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-          .pd-quick-grid a { padding: 12px !important; }
-          .pd-quick-grid a .label { font-size: 13px !important; }
-          .pd-quick-grid a .sub { font-size: 11px !important; }
-          .pd-attendance-row { gap: 4px !important; }
-          .pd-attendance-legend { gap: 8px !important; font-size: 11px !important; }
-          .pd-resource-item { padding: 8px 0 !important; }
-          .pd-resource-item span { font-size: 13px !important; }
-          .pd-subjects-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-          .pd-subjects-grid > div { padding: 8px 10px !important; }
-          .pd-event-item { gap: 8px !important; }
-          .pd-event-item .pd-event-date { width: 36px !important; }
-          .pd-event-item .pd-event-day { font-size: 16px !important; }
-          .pd-card div[style*="border-left: 3px solid"] { padding-left: 8px !important; }
-          .pd-card div[style*="border-left: 3px solid"] p { font-size: 13px !important; }
-          .pd-invoice-amount { font-size: 24px !important; }
-          .pd-message-preview { max-width: 120px !important; }
-          .pd-card a[style*="background: #FFB400;"] { padding: 6px 14px !important; font-size: 13px !important; }
-          a[style*="background: #FFB400; color: #071B4A; padding: 10px 20px;"] { padding: 8px 16px !important; font-size: 13px !important; }
-          .pd-link-btn { font-size: 12px !important; }
-          h1 .typewriter { font-size: 24px !important; }
-          .pd-notif-panel { width: 90vw; right: -8px; }
-          .mobile-shortcuts { display: block; margin-top: 24px; }
-          .mobile-shortcuts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-          .mobile-shortcut-card { background: #ffffff; border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(7, 27, 74, 0.08); display: flex; flex-direction: column; align-items: flex-start; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
-          .mobile-shortcut-card:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(7, 27, 74, 0.12); }
-          .mobile-shortcut-icon { font-size: 24px; margin-bottom: 8px; }
-          .mobile-shortcut-title { font-weight: 600; color: var(--navy); font-size: 14px; line-height: 1.3; }
-          .mobile-shortcut-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
-          .desktop-sections { display: none !important; }
+          .hamburger-btn {
+            display: block;
+          }
+
+          .sidebar {
+            transform: translateX(-100%);
+            width: 260px !important;
+          }
+          .sidebar.open {
+            transform: translateX(0);
+          }
+
+          /* Main content takes full width */
+          main {
+            margin-left: 0 !important;
+            padding: 12px 16px !important;
+          }
+
+          /* General layout & typography */
+          .pd-fade-in {
+            padding: 0 !important;
+          }
+
+          h1 {
+            font-size: 24px !important;
+            min-height: auto !important;
+          }
+
+          .pd-heading {
+            font-size: 18px !important;
+          }
+
+          /* Hide the "Inscrire un enfant" button */
+          .hide-on-mobile {
+            display: none !important;
+          }
+
+          /* Header action button */
+          .pd-fade-in > div:first-child {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+          }
+
+          /* Child folder tabs – horizontal scroll */
+          .pd-folder-tab {
+            padding: 8px 14px !important;
+            font-size: 13px !important;
+            white-space: nowrap;
+          }
+          .pd-folder-tab .pd-avatar {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 10px !important;
+          }
+          /* Container of tabs (the flex row) – add scroll */
+          div[style*="display: flex; gap: 6px; margin-top: 28px;"] {
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            padding-bottom: 8px !important;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          /* Cards */
+          .pd-card {
+            padding: 16px !important;
+            border-radius: 12px !important;
+          }
+
+          /* Two-column grids -> single column */
+          .pd-card > div[style*="display: grid; grid-template-columns: 1fr 1fr;"] {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
+          /* Main two-column layout (frais + messages) – Messages will go under Frais */
+          div[style*="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;"] {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
+          /* Quick actions grid */
+          .pd-quick-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .pd-quick-grid a {
+            padding: 12px !important;
+          }
+          .pd-quick-grid a .label {
+            font-size: 13px !important;
+          }
+          .pd-quick-grid a .sub {
+            font-size: 11px !important;
+          }
+
+          /* Attendance dots */
+          .pd-card div[style*="display: flex; gap: 6px;"] {
+            gap: 4px !important;
+            flex-wrap: wrap !important;
+          }
+          .pd-card div[style*="display: flex; gap: 14px; margin-top: 10px;"] {
+            gap: 8px !important;
+            font-size: 11px !important;
+            flex-wrap: wrap !important;
+          }
+
+          /* Resources list */
+          .pd-resource-item {
+            padding: 8px 0 !important;
+          }
+          .pd-resource-item span {
+            font-size: 13px !important;
+          }
+
+          /* Grades grid */
+          div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));"] {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));"] > div {
+            padding: 8px 10px !important;
+          }
+
+          /* Event items */
+          .pd-card div[style*="display: flex; align-items: center; gap: 12px;"] {
+            gap: 8px !important;
+          }
+          .pd-card div[style*="width: 44px; text-align: center;"] {
+            width: 36px !important;
+          }
+          .pd-card div[style*="font-family: 'Fraunces', serif; font-size: 20px;"] {
+            font-size: 16px !important;
+          }
+
+          /* Announcement items */
+          .pd-card div[style*="border-left: 3px solid"] {
+            padding-left: 8px !important;
+          }
+          .pd-card div[style*="border-left: 3px solid"] p {
+            font-size: 13px !important;
+          }
+
+          /* Invoice amount */
+          .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
+            font-size: 24px !important;
+          }
+
+          /* Messages preview */
+          .pd-card div[style*="display: flex; flex-direction: column; gap: 10px;"] > div {
+            flex-wrap: wrap !important;
+          }
+          .pd-card div[style*="max-width: 160px; overflow: hidden;"] {
+            max-width: 120px !important;
+          }
+
+          /* Buttons */
+          .pd-card a[style*="background: #FFB400;"] {
+            padding: 6px 14px !important;
+            font-size: 13px !important;
+          }
+          a[style*="background: #FFB400; color: #071B4A; padding: 10px 20px;"] {
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+          }
+
+          /* Link buttons */
+          .pd-link-btn {
+            font-size: 12px !important;
+          }
+
+          /* Typewriter effect – reduce size */
+          h1 .typewriter {
+            font-size: 24px !important;
+          }
+
+          /* ===== SHORTCUTS GRID VISIBLE ON MOBILE ===== */
+          .mobile-shortcuts {
+            display: block;
+            margin-top: 24px;
+          }
+
+          .mobile-shortcuts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+          }
+
+          .mobile-shortcut-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(7, 27, 74, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          .mobile-shortcut-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(7, 27, 74, 0.12);
+          }
+
+          .mobile-shortcut-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+          }
+
+          .mobile-shortcut-title {
+            font-weight: 600;
+            color: var(--navy);
+            font-size: 14px;
+            line-height: 1.3;
+          }
+
+          .mobile-shortcut-subtitle {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 2px;
+          }
+
+          /* Hide original detailed sections on mobile */
+          .desktop-sections {
+            display: none !important;
+          }
         }
 
         @media (max-width: 480px) {
-          .pd-fade-in { padding: 0 !important; }
-          h1 { font-size: 20px !important; }
-          .pd-card { padding: 12px !important; }
-          .pd-quick-grid { grid-template-columns: 1fr !important; }
-          .pd-subjects-grid { grid-template-columns: 1fr 1fr !important; }
-          .pd-folder-tab { font-size: 12px !important; padding: 6px 10px !important; }
-          .pd-folder-tab .pd-avatar { width: 20px !important; height: 20px !important; font-size: 9px !important; }
-          span[title][style*="width: 10px; height: 10px;"] { width: 8px !important; height: 8px !important; }
-          .pd-invoice-amount { font-size: 20px !important; }
-          .mobile-shortcuts-grid { gap: 8px; }
-          .mobile-shortcut-card { padding: 12px; }
-          .mobile-shortcut-icon { font-size: 20px; }
-          .mobile-shortcut-title { font-size: 12px; }
-          .mobile-shortcut-subtitle { font-size: 10px; }
+          .pd-fade-in {
+            padding: 0 !important;
+          }
+
+          h1 {
+            font-size: 20px !important;
+          }
+
+          .pd-card {
+            padding: 12px !important;
+          }
+
+          .pd-quick-grid {
+            grid-template-columns: 1fr !important;
+          }
+
+          div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));"] {
+            grid-template-columns: 1fr 1fr !important;
+          }
+
+          .pd-folder-tab {
+            font-size: 12px !important;
+            padding: 6px 10px !important;
+          }
+
+          .pd-folder-tab .pd-avatar {
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 9px !important;
+          }
+
+          span[title][style*="width: 10px; height: 10px;"] {
+            width: 8px !important;
+            height: 8px !important;
+          }
+
+          .pd-card span[style*="font-family: 'Fraunces', serif; font-size: 28px;"] {
+            font-size: 20px !important;
+          }
+
+          .mobile-shortcuts-grid {
+            gap: 8px;
+          }
+          .mobile-shortcut-card {
+            padding: 12px;
+          }
+          .mobile-shortcut-icon {
+            font-size: 20px;
+          }
+          .mobile-shortcut-title {
+            font-size: 12px;
+          }
+          .mobile-shortcut-subtitle {
+            font-size: 10px;
+          }
         }
       `}</style>
 
-      <button className="hamburger-btn" onClick={() => setMobileOpen((o) => !o)} aria-label="Ouvrir/fermer le menu" aria-expanded={mobileOpen}>
+      {/* HAMBURGER BUTTON (visible only on mobile via CSS) */}
+      <button
+        className="hamburger-btn"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Toggle sidebar"
+      >
         ☰
       </button>
 
       {/* SIDEBAR */}
-      <aside className={`sidebar ${sidebarOpenVisual && isMobile ? 'open' : ''}`}>
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {(!isMobile ? !desktopCollapsed : true) ? (
+          {sidebarOpen ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#071B4A', fontWeight: 700, fontSize: 18 }}>
                 S
@@ -796,72 +696,65 @@ export default function ParentDashboardClient({
               S
             </div>
           )}
-          {!isMobile && (
-            <button
-              onClick={() => setDesktopCollapsed((c) => !c)}
-              aria-label={desktopCollapsed ? 'Développer le menu' : 'Réduire le menu'}
-              style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 20, padding: 6, borderRadius: 6, transition: 'background 0.2s' }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-            >
-              {desktopCollapsed ? '▶' : '◀'}
-            </button>
-          )}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: 20,
+              padding: 6,
+              borderRadius: 6,
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          >
+            {sidebarOpen ? '◀' : '▶'}
+          </button>
         </div>
 
         <nav style={{ flex: 1, padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <Link href="/dashboard/parent" className="pd-sidebar-link active">
+          <Link href="/dashboard/parent" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span>🏠</span>
-            {(isMobile || !desktopCollapsed) && <span>Tableau de bord</span>}
+            {sidebarOpen && <span>Tableau de bord</span>}
           </Link>
-          <Link href="/dashboard/messages" className="pd-sidebar-link">
+          <Link href="/dashboard/messages" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span>💬</span>
-            {(isMobile || !desktopCollapsed) && <span>Messages</span>}
-            {unreadCount > 0 && (isMobile || !desktopCollapsed) && (
+            {sidebarOpen && <span>Messages</span>}
+            {unreadCount > 0 && sidebarOpen && (
               <span style={{ marginLeft: 'auto', background: 'var(--gold)', color: '#071B4A', borderRadius: 10, padding: '2px 8px', fontSize: 12, fontWeight: 600 }}>
                 {unreadCount}
               </span>
             )}
-            {unreadCount > 0 && !isMobile && desktopCollapsed && (
-              <span aria-hidden="true" style={{ position: 'absolute', marginLeft: 18, marginTop: -18, width: 8, height: 8, borderRadius: '50%', background: 'var(--gold)' }} />
-            )}
           </Link>
-          <Link href="/dashboard/parent/payments" className="pd-sidebar-link">
+          <Link href="/dashboard/parent/payments" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span>💳</span>
-            {(isMobile || !desktopCollapsed) && <span>Paiements</span>}
+            {sidebarOpen && <span>Paiements</span>}
           </Link>
-          <Link href="/dashboard/parent/classroom" className="pd-sidebar-link">
+          <Link href="/dashboard/parent/classroom" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span>📚</span>
-            {(isMobile || !desktopCollapsed) && <span>ClassRoom</span>}
+            {sidebarOpen && <span>ClassRoom</span>}
           </Link>
-          <Link href="/dashboard/parent/enroll" className="pd-sidebar-link">
+          <Link href="/dashboard/parent/enroll" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span>➕</span>
-            {(isMobile || !desktopCollapsed) && <span>Inscrire un enfant</span>}
+            {sidebarOpen && <span>Inscrire un enfant</span>}
           </Link>
         </nav>
 
         <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="pd-avatar" style={{ background: 'var(--gold)', color: '#071B4A', width: 32, height: 32 }}>
               {parentName.charAt(0)}
             </div>
-            {(isMobile || !desktopCollapsed) && (
+            {sidebarOpen && (
               <div>
                 <p style={{ margin: 0, color: '#fff', fontSize: 13, fontWeight: 600 }}>{parentName}</p>
                 <p style={{ margin: 0, color: '#A0B0C0', fontSize: 11 }}>Parent</p>
               </div>
             )}
           </div>
-          {(isMobile || !desktopCollapsed) && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Link href="/dashboard/parent/settings" className="pd-sidebar-footer-btn" style={{ textDecoration: 'none' }}>
-                <span>⚙️</span> Paramètres du compte
-              </Link>
-              <button className="pd-sidebar-footer-btn" onClick={onLogout}>
-                <span>🚪</span> Se déconnecter
-              </button>
-            </div>
-          )}
         </div>
       </aside>
 
@@ -887,57 +780,15 @@ export default function ParentDashboardClient({
               </h1>
               <p style={{ color: '#5A6A7A', fontSize: 15, margin: 0 }}>Voici un aperçu de la scolarité de vos enfants.</p>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {notifications && (
-                <div className="pd-bell-wrap">
-                  <button
-                    className="pd-bell-btn"
-                    aria-label={`Notifications${unreadNotifCount > 0 ? `, ${unreadNotifCount} non lues` : ''}`}
-                    onClick={() => setNotifOpen((o) => !o)}
-                  >
-                    🔔
-                    {unreadNotifCount > 0 && <span className="pd-bell-badge">{unreadNotifCount}</span>}
-                  </button>
-                  {notifOpen && (
-                    <div className="pd-notif-panel" role="dialog" aria-label="Notifications">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 6px 8px' }}>
-                        <span style={{ fontWeight: 700, fontSize: 13, color: '#071B4A' }}>Notifications</span>
-                        {unreadNotifCount > 0 && (
-                          <button className="pd-link-btn" style={{ fontSize: 11 }} onClick={onMarkAllNotificationsRead}>
-                            Tout marquer comme lu
-                          </button>
-                        )}
-                      </div>
-                      {notifications.length === 0 ? (
-                        <p style={{ fontSize: 13, color: '#5A6A7A', padding: '0 6px 6px' }}>Aucune notification.</p>
-                      ) : (
-                        notifications.map((n) => (
-                          <div key={n.id} className={`pd-notif-item ${!n.read ? 'unread' : ''}`}>
-                            <span aria-hidden="true">{notificationIcon[n.type]}</span>
-                            <div>
-                              <p style={{ margin: 0, fontSize: 12.5, color: '#1A1A2E' }}>{n.message}</p>
-                              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#5A6A7A' }}>
-                                {new Date(n.createdAt).toLocaleDateString('fr-FR')}
-                              </p>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-              <Link
-                href="/dashboard/parent/enroll"
-                className="hide-on-mobile"
-                style={{ background: '#FFB400', color: '#071B4A', padding: '10px 20px', borderRadius: 20, fontSize: 14, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'transform 0.2s, box-shadow 0.2s' }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-              >
-                + Inscrire un enfant
-              </Link>
-            </div>
+            <Link
+              href="/dashboard/parent/enroll"
+              className="hide-on-mobile"
+              style={{ background: '#FFB400', color: '#071B4A', padding: '10px 20px', borderRadius: 20, fontSize: 14, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+            >
+              + Inscrire un enfant
+            </Link>
           </div>
 
           {pendingEnrollment && (
@@ -960,37 +811,8 @@ export default function ParentDashboardClient({
             </div>
           ) : (
             <>
-              {/* MULTI-CHILD SUMMARY ROW — quick glance before drilling into a child */}
               {children.length > 1 && (
-                <div className="pd-summary-row" role="tablist" aria-label="Résumé par enfant">
-                  {children.map((c) => {
-                    const avg = c.subjects.length
-                      ? Math.round((c.subjects.filter((s) => s.grade[0] === 'A').length / c.subjects.length) * 100)
-                      : null;
-                    return (
-                      <button
-                        key={c.id}
-                        className={`pd-summary-card ${c.id === activeChildId ? 'active' : ''}`}
-                        role="tab"
-                        aria-selected={c.id === activeChildId}
-                        onClick={() => setActiveChildId(c.id)}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                          <span className="pd-avatar" style={{ background: '#071B4A' }}>{c.firstName[0]}{c.lastName[0]}</span>
-                          <span style={{ fontWeight: 600, fontSize: 13, color: '#071B4A' }}>{c.firstName}</span>
-                        </div>
-                        <p style={{ margin: 0, fontSize: 11, color: '#5A6A7A' }}>
-                          Assiduité : {c.attendancePct !== null ? `${c.attendancePct}%` : '—'}
-                        </p>
-                        {avg !== null && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#5A6A7A' }}>{avg}% de mentions A</p>}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {children.length > 1 && (
-                <div className="pd-child-tabs-row" style={{ display: 'flex', gap: 6, marginTop: 20 }}>
+                <div style={{ display: 'flex', gap: 6, marginTop: 28 }}>
                   {children.map((c) => (
                     <button
                       key={c.id}
@@ -1020,19 +842,14 @@ export default function ParentDashboardClient({
                         </p>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                      <button className="pd-link-btn" onClick={handlePrintReportCard}>
-                        Télécharger le bulletin (PDF) →
-                      </button>
-                      {child.teacherId && (
-                        <Link href="/dashboard/messages" className="pd-link-btn">
-                          Message {child.teacherName} →
-                        </Link>
-                      )}
-                    </div>
+                    {child.teacherId && (
+                      <Link href="/dashboard/messages" className="pd-link-btn">
+                        Message {child.teacherName} →
+                      </Link>
+                    )}
                   </div>
 
-                  <div className="pd-child-grid">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
                         <h3 style={{ fontSize: 13, fontWeight: 600, color: '#5A6A7A', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -1048,19 +865,16 @@ export default function ParentDashboardClient({
                         <p style={{ fontSize: 13, color: '#5A6A7A' }}>Aucune donnée d'assiduité pour le moment.</p>
                       ) : (
                         <>
-                          <div className="pd-attendance-row">
+                          <div style={{ display: 'flex', gap: 6 }}>
                             {child.attendanceLast10.map((s, i) => (
                               <AttendanceDot key={i} status={s} />
                             ))}
                           </div>
-                          <div className="pd-attendance-legend">
+                          <div style={{ display: 'flex', gap: 14, marginTop: 10, fontSize: 12, color: '#5A6A7A' }}>
                             <span><AttendanceDot status="present" /> Présent</span>
                             <span><AttendanceDot status="late" /> Retard</span>
                             <span><AttendanceDot status="absent" /> Absent</span>
                           </div>
-                          <button className="pd-link-btn" style={{ marginTop: 10 }} onClick={() => setAttendanceModalOpen(true)}>
-                            Voir le calendrier complet →
-                          </button>
                         </>
                       )}
                     </div>
@@ -1069,23 +883,11 @@ export default function ParentDashboardClient({
                       <h3 style={{ fontSize: 13, fontWeight: 600, color: '#5A6A7A', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                         Ressources de classe
                       </h3>
-                      {child.resources.length > 3 && (
-                        <input
-                          className="pd-resource-search"
-                          type="search"
-                          placeholder="Rechercher une ressource…"
-                          value={resourceQuery}
-                          onChange={(e) => setResourceQuery(e.target.value)}
-                          aria-label="Rechercher une ressource"
-                        />
-                      )}
                       {child.resources.length === 0 ? (
                         <p style={{ fontSize: 13, color: '#5A6A7A' }}>Aucune ressource publiée pour le moment.</p>
-                      ) : filteredResources.length === 0 ? (
-                        <p style={{ fontSize: 13, color: '#5A6A7A' }}>Aucun résultat pour « {resourceQuery} ».</p>
                       ) : (
                         <div>
-                          {filteredResources.map((r) => (
+                          {child.resources.map((r) => (
                             <div key={r.id} className="pd-resource-item">
                               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ fontSize: 13.5, fontWeight: 600, color: '#071B4A' }}>{r.title}</span>
@@ -1114,7 +916,7 @@ export default function ParentDashboardClient({
                     {child.subjects.length === 0 ? (
                       <p style={{ fontSize: 13, color: '#5A6A7A' }}>Aucune note enregistrée pour le moment.</p>
                     ) : (
-                      <div className="pd-subjects-grid">
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                         {child.subjects.map((s) => {
                           const c = gradeColor(s.grade);
                           return (
@@ -1126,7 +928,6 @@ export default function ParentDashboardClient({
                               <span style={{ display: 'inline-block', marginTop: 6, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, fontSize: 13, padding: '2px 10px', borderRadius: 8, background: c.bg, color: c.text }}>
                                 {s.grade}
                               </span>
-                              {s.history && s.history.length >= 2 && <Sparkline values={s.history} />}
                             </div>
                           );
                         })}
@@ -1140,6 +941,7 @@ export default function ParentDashboardClient({
 
           {/* MOBILE ONLY SHORTCUT GRID */}
           <div className="mobile-shortcuts">
+            {/* General shortcuts */}
             <div className="mobile-shortcuts-grid">
               {generalShortcuts.map((item, idx) => (
                 <Link key={idx} href={item.link} className="mobile-shortcut-card">
@@ -1150,10 +952,12 @@ export default function ParentDashboardClient({
               ))}
             </div>
 
+            {/* Actions rapides title (mobile only) */}
             <h2 className="pd-heading" style={{ fontSize: 17, marginBottom: 12, marginTop: 24 }}>
               Actions rapides
             </h2>
 
+            {/* Quick action shortcuts */}
             <div className="mobile-shortcuts-grid">
               {quickActionShortcuts.map((item, idx) => (
                 <Link key={idx} href={item.link} className="mobile-shortcut-card">
@@ -1166,7 +970,7 @@ export default function ParentDashboardClient({
           </div>
 
           {/* DESKTOP SECTIONS (hidden on mobile) */}
-          <div className="pd-two-col desktop-sections" style={{ marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
+          <div className="desktop-sections" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h2 className="pd-heading" style={{ fontSize: 17 }}>Frais de scolarité</h2>
@@ -1175,7 +979,7 @@ export default function ParentDashboardClient({
               {invoice ? (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span className="pd-invoice-amount" style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 600, color: '#071B4A' }}>
+                    <span style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 600, color: '#071B4A' }}>
                       {invoice.amount.toLocaleString('fr-FR')} DT
                     </span>
                     <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 10, background: invoice.status === 'OVERDUE' ? '#FAECE7' : '#FAEEDA', color: invoice.status === 'OVERDUE' ? '#712B13' : '#633806' }}>
@@ -1189,28 +993,6 @@ export default function ParentDashboardClient({
               ) : (
                 <p style={{ color: '#4C7C59', fontSize: 14, fontWeight: 500 }}>Tous les frais sont réglés.</p>
               )}
-
-              {paymentHistory && paymentHistory.length > 0 && (
-                <div style={{ marginTop: 18, borderTop: '1px solid #F0F0F0', paddingTop: 14 }}>
-                  <h3 style={{ fontSize: 12, fontWeight: 600, color: '#5A6A7A', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    Historique des paiements
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {paymentHistory.slice(0, 4).map((p) => {
-                      const st = paymentStatusLabel[p.status];
-                      return (
-                        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12.5 }}>
-                          <span style={{ color: '#1A1A2E' }}>{p.description}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#5A6A7A' }}>{p.amount.toLocaleString('fr-FR')} DT</span>
-                            <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 8, background: st.bg, color: st.text }}>{st.label}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="pd-card">
@@ -1222,12 +1004,7 @@ export default function ParentDashboardClient({
                     </span>
                   )}
                 </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {unreadCount > 0 && (
-                    <button className="pd-link-btn" onClick={onMarkAllMessagesRead}>Tout marquer comme lu</button>
-                  )}
-                  <Link href="/dashboard/messages" className="pd-link-btn">Boîte de réception →</Link>
-                </div>
+                <Link href="/dashboard/messages" className="pd-link-btn">Boîte de réception →</Link>
               </div>
               {conversations.length === 0 ? (
                 <p style={{ fontSize: 14, color: '#5A6A7A' }}>Aucune conversation pour le moment.</p>
@@ -1235,15 +1012,12 @@ export default function ParentDashboardClient({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {conversations.map((c) => (
                     <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, paddingBottom: 10, borderBottom: '1px solid #F0F0F0' }}>
-                      <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        {c.unread && <span aria-label="Non lu" style={{ width: 7, height: 7, borderRadius: '50%', background: '#FFB400', flexShrink: 0 }} />}
-                        <div>
-                          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: '#071B4A' }}>{c.otherName}</p>
-                          <p style={{ margin: '2px 0 0', fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.otherRole] ?? c.otherRole}</p>
-                        </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: '#071B4A' }}>{c.otherName}</p>
+                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#5A6A7A' }}>{roleLabel[c.otherRole] ?? c.otherRole}</p>
                       </div>
                       {c.lastMessage && (
-                        <span className="pd-message-preview" style={{ fontSize: 12, color: '#5A6A7A', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: 12, color: '#5A6A7A', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {c.lastMessage}
                         </span>
                       )}
@@ -1289,12 +1063,12 @@ export default function ParentDashboardClient({
                 {upcomingEvents.map((e) => {
                   const et = eventTypeLabel[e.type] ?? eventTypeLabel.EVENT;
                   return (
-                    <div key={e.id} className="pd-event-item">
-                      <div className="pd-event-date" style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
+                    <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
                         <div style={{ fontSize: 10, fontWeight: 600, color: '#FFB400', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>
                           {new Date(e.date).toLocaleDateString('fr-FR', { month: 'short' })}
                         </div>
-                        <div className="pd-event-day" style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 600, color: '#071B4A' }}>
+                        <div style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 600, color: '#071B4A' }}>
                           {new Date(e.date).getDate()}
                         </div>
                       </div>
@@ -1334,19 +1108,6 @@ export default function ParentDashboardClient({
           </div>
         </div>
       </main>
-
-      {/* ATTENDANCE CALENDAR MODAL */}
-      {attendanceModalOpen && child && (
-        <div className="pd-modal-overlay" onClick={() => setAttendanceModalOpen(false)}>
-          <div className="pd-modal" role="dialog" aria-label="Calendrier d'assiduité" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 className="pd-heading" style={{ fontSize: 17 }}>Assiduité — {child.firstName}</h2>
-              <button className="pd-link-btn" onClick={() => setAttendanceModalOpen(false)} aria-label="Fermer">✕</button>
-            </div>
-            <AttendanceCalendar days={child.attendanceMonth ?? []} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
