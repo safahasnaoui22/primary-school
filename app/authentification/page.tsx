@@ -122,7 +122,7 @@ export default function AuthentificationPage() {
     <>
       <Head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Baloo+2:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </Head>
@@ -307,6 +307,11 @@ export default function AuthentificationPage() {
         .info-content h2,
         .info-content p {
           color: var(--white);
+        }
+
+        .info-content h2 {
+          font-family: 'Baloo 2', cursive;
+          font-weight: 700;
         }
 
         .form-box.Login .animation {
@@ -699,15 +704,14 @@ export default function AuthentificationPage() {
               className="animation"
               style={{ '--D': 0, '--S': 20 } as React.CSSProperties}
             >
-              BON RETOUR CHEZ EDUSMART !
+              Bon retour !
             </h2>
 
             <p
               className="animation"
               style={{ '--D': 1, '--S': 21 } as React.CSSProperties}
             >
-              Connectez-vous à votre espace EduSmart pour suivre la scolarité,
-              les progrès et les activités de votre enfant au sein de notre école primaire.
+              Connectez-vous pour suivre la scolarité de votre enfant.
             </p>
           </div>
 
@@ -790,15 +794,14 @@ export default function AuthentificationPage() {
               className="animation"
               style={{ '--li': 17, '--S': 0 } as React.CSSProperties}
             >
-              BIENVENUE CHEZ EDUSMART !
+              Bienvenue !
             </h2>
 
             <p
               className="animation"
               style={{ '--li': 18, '--S': 1 } as React.CSSProperties}
             >
-              Créez votre espace EduSmart pour accompagner la scolarité de votre enfant
-              et accéder à son suivi, aux ressources pédagogiques et aux activités de notre école primaire.
+              Créez votre compte pour accéder à l'espace parent.
             </p>
           </div>
         </div>
