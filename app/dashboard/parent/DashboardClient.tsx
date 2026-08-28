@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
+// --- interfaces and helper functions (unchanged) ---
+
 interface Subject {
   name: string;
   grade: string;
@@ -150,13 +152,12 @@ export default function ParentDashboardClient({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const child = children.find((c) => c.id === activeChildId) ?? null;
 
-  // Fade-in on mount
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Auto-close sidebar on mobile and detect mobile
+  // Auto-close sidebar on mobile and detect mobile (not needed for display but kept for state)
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -170,11 +171,9 @@ export default function ParentDashboardClient({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Adjusted widths for collapsed sidebar
   const sidebarWidth = sidebarOpen ? 260 : 60;
   const mainMarginLeft = sidebarOpen ? 260 : 60;
 
-  // Mobile shortcut items – first four general, last four quick actions
   const generalShortcuts = [
     { title: 'Frais de scolarité', subtitle: 'Historique →', link: '/dashboard/parent/payments', icon: '💳' },
     { title: 'Messages', subtitle: 'Boîte de réception →', link: '/dashboard/messages', icon: '💬' },
@@ -424,18 +423,13 @@ export default function ParentDashboardClient({
         }
 
         @media (max-width: 768px) {
-          .hamburger-btn {
-            display: block;
-          }
-
+          /* Remove sidebar and hamburger from mobile */
           .sidebar {
-            transform: translateX(-100%);
-            width: 260px !important;
+            display: none;
           }
-          .sidebar.open {
-            transform: translateX(0);
+          .hamburger-btn {
+            display: none;
           }
-
           /* Main content takes full width */
           main {
             margin-left: 0 !important;
@@ -710,7 +704,7 @@ export default function ParentDashboardClient({
         }
       `}</style>
 
-      {/* HAMBURGER BUTTON (visible only on mobile via CSS) */}
+      {/* HAMBURGER BUTTON (visible only on desktop via CSS, hidden on mobile) */}
       <button
         className="hamburger-btn"
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -719,7 +713,7 @@ export default function ParentDashboardClient({
         ☰
       </button>
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR (hidden on mobile via CSS) */}
       <aside className={`sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
         <div className="logo-area" style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {sidebarOpen ? (
