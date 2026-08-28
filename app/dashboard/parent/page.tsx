@@ -129,6 +129,15 @@ export default async function ParentDashboard() {
     where: { parentId: session.user.id, status: 'PENDING' },
   });
 
+  const safeUpcomingEvents = upcomingEvents
+    .filter((e: any) => e.date instanceof Date && !isNaN(e.date.getTime()))
+    .map((e: any) => ({
+      id: e.id,
+      title: e.title,
+      date: e.date.toISOString(),
+      type: e.type,
+    }));
+
   return (
     <ParentDashboardClient
       parentName={session.user.name ?? ''}
@@ -151,12 +160,7 @@ export default async function ParentDashboard() {
         category: a.category,
         createdAt: a.createdAt.toISOString(),
       }))}
-      upcomingEvents={upcomingEvents.map((e: any) => ({
-        id: e.id,
-        title: e.title,
-        date: e.date.toISOString(),
-        type: e.type,
-      }))}
+      upcomingEvents={safeUpcomingEvents}
       invoice={
         nextInvoice
           ? {
