@@ -1,405 +1,243 @@
+
 @import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
 
-/* app/globals.css */
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-html {
-  overscroll-behavior-y: contain; /* prevents the whole page from bouncing/scrolling oddly in standalone mode */
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
 }
 
-
-html {
-  scroll-behavior: smooth;
-}
-/* app/globals.css */
-:root {
-  --navy: #0d1b3e;
-  --navy-mid: #1b2f5e;
-  --navy-soft: #2a4080;
-  --amber: #f59e0b;
-  --amber-dark: #d97706;
-  --amber-light: #fef3c7;
-  --white: #fff;
-  --bg: #fafbff;
-  --bg-blue: #eef4ff;
-  --text: #1e293b;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --border-soft: #f1f5f9;
-  --r: 14px;
-  --r-sm: 10px;
-  --shadow: 0 4px 24px rgba(13, 27, 62, 0.07);
-  --shadow-md: 0 8px 40px rgba(13, 27, 62, 0.13);
-  --shadow-lg: 0 20px 60px rgba(13, 27, 62, 0.18);
-  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-/* ── Global Styles for Lenis and Scrollbar ── */
-
-/* Lenis smooth scroll overrides */
-html.lenis {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-/* Hide scrollbar when Lenis is active */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-/* Custom scrollbar styling */
-html {
-  scrollbar-width: thin;
-  scrollbar-color: #C6872B #FBF7EE;
-  
-}
-
-html::-webkit-scrollbar {
-  width: 8px;
-}
-
-html::-webkit-scrollbar-track {
-  background: #4e040a;
-}
-
-html::-webkit-scrollbar-thumb {
-  background-color: red;
-  border-radius: 20px;
-  border: 3px solid #FBF7EE;
-}
-
-
-/* global.css */
 html {
   overflow-x: hidden;
-  scroll-behavior: smooth;
 }
 
 body {
-  overflow-x: hidden;
-  overflow-y: auto; /* Change from 'scroll' to 'auto' */
   margin: 0;
   padding: 0;
   width: 100%;
-  position: relative;
-}
-
-/* Optional: Style the scrollbar to be less intrusive */
-::-webkit-scrollbar {
-  width: 8px; /* Smaller scrollbar */
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-/* Reset scrolling */
-html, body {
-  margin: 0;
-  padding: 0;
- 
   overflow-x: hidden;
-}
-
-/* Only BODY scrolls */
-body {
   overflow-y: auto;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* Prevent nested scrollbars */
-main {
-  overflow: visible;
-}
+
+/* =========================================================
+   ROOT VARIABLES
+========================================================= */
 
 :root {
+  /* Main colors */
+  --navy: #0d1b3e;
+  --navy-mid: #1b2f5e;
+  --navy-soft: #2a4080;
+
+  --amber: #f59e0b;
+  --amber-dark: #d97706;
+  --amber-light: #fef3c7;
+
+  --white: #ffffff;
+
+  /* Background */
+  --bg: #fafbff;
+  --bg-blue: #eef4ff;
+
+  /* Text */
+  --text: #1e293b;
+  --muted: #64748b;
+
+  /* Borders */
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9;
+
+  /* Radius */
+  --r: 14px;
+  --r-sm: 10px;
+
+  /* Shadows */
+  --shadow: 0 4px 24px rgba(13, 27, 62, 0.07);
+  --shadow-md: 0 8px 40px rgba(13, 27, 62, 0.13);
+  --shadow-lg: 0 20px 60px rgba(13, 27, 62, 0.18);
+
+  /* Transition */
+  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+
+  /* =======================================================
+     OTHER PROJECT VARIABLES
+  ======================================================= */
+
   --primary: #0b2f4e;
   --primary-light: #1e4a6f;
   --secondary: #57a6e1;
   --accent: #f4c542;
+
   --bg-light: #f0f9ff;
   --card-bg: rgba(255, 255, 255, 0.7);
   --text-dark: #162b3a;
-  --shadow: 0 25px 40px -12px rgba(0, 40, 70, 0.25);
+
   --border-radius-card: 32px;
+
   --boxwidth: 310px;
+
   --icon-box-dimensions: 250px;
-  --icon-box-dimensions-half: calc(var(--icon-box-dimensions) / 2);
+  --icon-box-dimensions-half:
+    calc(var(--icon-box-dimensions) / 2);
+
   --icon-offset: -10%;
+
   --content-fontsize: 1.1em;
+
   --accentcolor: maroon;
-  --btntext-color: #eee;
+  --btntext-color: #eeeeee;
+
   --primaryC: #4a6bff;
   --secondaryC: #ff6b6b;
 }
-.floating-shapes {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 0;
+
+
+/* =========================================================
+   SOFT NATIVE SCROLLING
+========================================================= */
+
+/*
+  We intentionally DO NOT use:
+
+  scroll-behavior: smooth;
+
+  This avoids conflicts with Lenis, GSAP, ScrollTrigger,
+  Slick Carousel, and programmatic scrolling.
+
+  The browser handles normal scrolling naturally.
+*/
+
+html {
+  scroll-behavior: auto;
 }
 
-.shape {
-  position: absolute;
-  background: rgba(0, 119, 182, 0.08);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(0, 119, 182, 0.2);
-  pointer-events: none;
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #c6872b #fbf7ee;
 }
 
-.shape-1 {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  top: 15%;
-  left: 10%;
+/* Chrome / Edge / Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.shape-2 {
-  width: 60px;
-  height: 60px;
-  top: 70%;
-  right: 15%;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+::-webkit-scrollbar-track {
+  background: #fbf7ee;
 }
 
-.shape-3 {
-  width: 100px;
-  height: 100px;
+::-webkit-scrollbar-thumb {
+  background: #c6872b;
   border-radius: 20px;
-  top: 30%;
-  right: 20%;
+  border: 2px solid #fbf7ee;
 }
 
-.shape-4 {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  bottom: 30%;
-  left: 20%;
+::-webkit-scrollbar-thumb:hover {
+  background: #a86f20;
 }
 
-.shape-5 {
-  width: 70px;
-  height: 70px;
-  bottom: 20%;
-  right: 30%;
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+main {
+  overflow: visible;
 }
 
-.shape-6 {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  top: 70%;
-  left: 70%;
-}
 
-.shape {
-  animation: floatShape 12s ease-in-out infinite alternate;
-}
-
-@keyframes floatShape {
-  0% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  100% {
-    transform: translateY(-40px) rotate(180deg);
-  }
-}
-
-/* Background Orb */
-.bg-orb {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 300px;
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.orb-core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, #00b4d8, #0077b6);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: pulse 4s infinite;
-}
+/* =========================================================
+   PULSE ANIMATION
+========================================================= */
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     transform: translate(-50%, -50%) scale(1.2);
   }
 }
 
-.orb-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border: 2px solid rgba(0, 119, 182, 0.3);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
 
-.ring-1 {
-  width: 150px;
-  height: 150px;
-  animation: rotate 12s linear infinite;
-}
+/* =========================================================
+   IMAGES
+========================================================= */
 
-.ring-2 {
-  width: 200px;
-  height: 200px;
-  animation: rotate 18s linear infinite reverse;
-}
-
-.ring-3 {
-  width: 250px;
-  height: 250px;
-  animation: rotate 25s linear infinite;
-}
-
-@keyframes rotate {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-.gradient-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  z-index: -2;
-}
-
-.particles-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-}
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  font-family: 'Inter', sans-serif;
+img {
+  max-width: 100%;
 }
 
 
-html {
-  scroll-behavior: smooth;
-}
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 900px;
-  margin: 3.5rem auto;
-  padding: 0 1.5rem;
+/* =========================================================
+   LINKS
+========================================================= */
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.section-divider__line {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-  position: relative;
-  overflow: hidden;
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button {
+  font-family: inherit;
 }
 
-.section-divider__line::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--navy);
-  transform: scaleX(0);
-  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+input,
+textarea,
+select {
+  font-family: inherit;
 }
 
-.section-divider__line--left::after { transform-origin: right; }
-.section-divider__line--right::after { transform-origin: left; }
 
-.section-divider.is-visible .section-divider__line::after {
-  transform: scaleX(1);
-}
-
-.section-divider__mark {
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  background: var(--amber);
-  transform: rotate(45deg) scale(0);
-  transition: transform 0.4s ease 0.5s;
-}
-
-.section-divider.is-visible .section-divider__mark {
-  transform: rotate(45deg) scale(1);
-}
-
-.section-divider__label {
-  flex-shrink: 0;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-
-  color: var(--muted);
-  opacity: 0;
-  transition: opacity 0.5s ease 0.6s;
-}
-
-.section-divider.is-visible .section-divider__label {
-  opacity: 1;
-}
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .section-divider__line::after,
-  .section-divider__mark,
-  .section-divider__label {
-    transition: none;
-    transform: none;
-    opacity: 1;
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
