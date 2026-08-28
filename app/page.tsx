@@ -19,9 +19,12 @@ import About from "./components/About";
 
 export default function Home() {
   return (
-
+    <main >
       
-  <div>
+  
+
+
+  
    <HeroSection />
    <About/>
    <ClassesSection />
@@ -38,14 +41,8 @@ export default function Home() {
 <ContactPage/>
 <Footer/>
 
-  </div>
 
 
-  
-
-
-
-
- 
+    </main>
   );
 }
