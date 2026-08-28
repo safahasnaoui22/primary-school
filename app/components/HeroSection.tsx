@@ -371,7 +371,7 @@ export default function HeroSection() {
             </ul>
             <div className={styles.navActions}>
               <Link href="/authentification" className={styles.btnGhost}>
-                Espace Parents
+                Connexion
               </Link>
 
               <InstallButton compact={true} />
