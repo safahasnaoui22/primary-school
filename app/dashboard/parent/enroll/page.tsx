@@ -171,9 +171,6 @@ export default function EnrollChildPage() {
     }
   };
 
-  // Uploads any selected files to Vercel Blob via our API route and
-  // returns their public URLs. Returns [] immediately if no files were
-  // picked, so step 3 stays fully optional.
   const uploadDocuments = async (): Promise<{ name: string; url: string }[]> => {
     if (files.length === 0) return [];
     setIsUploadingDocs(true);
@@ -218,7 +215,7 @@ export default function EnrollChildPage() {
     } catch (err: any) {
       setErrors({ submit: err.message || t.submitError });
       shakeCurrentPane();
-      isSubmittingRef.current = false; // allow retry on failure
+      isSubmittingRef.current = false;
     } finally {
       setIsSubmitting(false);
     }
@@ -284,8 +281,417 @@ export default function EnrollChildPage() {
 
   return (
     <div className="inscription-page">
+      {/* Global styles for responsiveness, buttons, etc. */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+
+        .inscription-page {
+          font-family: 'Inter', sans-serif;
+          background: #F8F9FC;
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 20px;
+        }
+        .card {
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(7,27,74,0.08);
+          width: 100%;
+          max-width: 600px;
+          padding: 24px;
+          box-sizing: border-box;
+        }
+        .card-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+        .brand {
+          flex: 1;
+        }
+        .brand h1 {
+          font-family: 'Fraunces', serif;
+          color: #071B4A;
+          font-size: 24px;
+          margin: 0;
+          font-weight: 600;
+        }
+        .badge {
+          display: inline-block;
+          background: #FFB400;
+          color: #071B4A;
+          font-weight: 600;
+          font-size: 12px;
+          padding: 2px 10px;
+          border-radius: 12px;
+          margin-top: 4px;
+        }
+        .logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          background: #071B4A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFB400;
+          font-size: 32px;
+          font-weight: bold;
+          flex-shrink: 0;
+        }
+        .progress-horizontal {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          position: relative;
+        }
+        .progress-track {
+          position: absolute;
+          top: 18px;
+          left: 10%;
+          right: 10%;
+          height: 2px;
+          background: #E5E9F0;
+          z-index: 0;
+        }
+        .progress-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          z-index: 1;
+        }
+        .circle {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: #E5E9F0;
+          color: #5A6A7A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 14px;
+          transition: all 0.3s;
+        }
+        .progress-step.active .circle {
+          background: #071B4A;
+          color: #FFB400;
+          box-shadow: 0 4px 12px rgba(7,27,74,0.3);
+        }
+        .progress-step.completed .circle {
+          background: #FFB400;
+          color: #071B4A;
+        }
+        .label {
+          font-size: 12px;
+          font-weight: 500;
+          color: #5A6A7A;
+        }
+        .step-pane {
+          display: none;
+        }
+        .step-pane.active-pane {
+          display: block;
+        }
+        .fields {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        .field {
+          display: flex;
+          flex-direction: column;
+        }
+        .field.full {
+          grid-column: 1 / -1;
+        }
+        label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #071B4A;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .required {
+          color: #C0392B;
+        }
+        input, select, textarea {
+          padding: 10px 12px;
+          border-radius: 8px;
+          border: 1px solid #DCE1E8;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          font-family: 'Inter', sans-serif;
+        }
+        input:focus, select:focus, textarea:focus {
+          border-color: #071B4A;
+          box-shadow: 0 0 0 3px rgba(7,27,74,0.1);
+        }
+        input.error, select.error {
+          border-color: #C0392B;
+        }
+        .error {
+          color: #C0392B;
+          font-size: 12px;
+          margin-top: 4px;
+        }
+        .error-summary {
+          background: #FAECE7;
+          color: #712B13;
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          margin-top: 10px;
+        }
+        .children-section {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .children-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .children-header h3 {
+          margin: 0;
+          font-size: 16px;
+          color: #071B4A;
+        }
+        .add-btn {
+          background: #FFB400;
+          color: #071B4A;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          transition: transform 0.2s;
+        }
+        .add-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(255,180,0,0.3);
+        }
+        .child-card {
+          border: 1px solid #E5E9F0;
+          border-radius: 12px;
+          padding: 16px;
+          background: #FAFAFA;
+        }
+        .child-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+        .child-header h4 {
+          margin: 0;
+          font-size: 15px;
+          color: #071B4A;
+        }
+        .remove-btn {
+          background: none;
+          border: none;
+          color: #C0392B;
+          cursor: pointer;
+          font-size: 16px;
+        }
+        .file-zone {
+          border: 2px dashed #DCE1E8;
+          border-radius: 8px;
+          padding: 20px;
+          text-align: center;
+          transition: border-color 0.2s;
+        }
+        .file-zone:hover {
+          border-color: #071B4A;
+        }
+        .file-zone label {
+          cursor: pointer;
+          display: block;
+          color: #5A6A7A;
+          font-size: 14px;
+        }
+        .file-zone label p {
+          margin: 8px 0 0;
+        }
+        .file-zone input {
+          display: none;
+        }
+        .consent-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+        }
+        .consent-label input {
+          width: auto;
+        }
+        .nav {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+        }
+        .btn {
+          padding: 10px 24px;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.2s;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .btn-secondary {
+          background: #F0F2F5;
+          color: #071B4A;
+        }
+        .btn-secondary:hover:not(:disabled) {
+          background: #E5E9F0;
+        }
+        .btn-primary {
+          background: linear-gradient(145deg, #FFD54F, #FFB400);
+          color: #071B4A;
+          box-shadow: 0 4px 12px rgba(255,180,0,0.4);
+          border-bottom: 3px solid #C68A00;
+          transform: translateY(0);
+          transition: all 0.15s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .btn-primary:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(255,180,0,0.6);
+        }
+        .btn-primary:active:not(:disabled) {
+          transform: translateY(1px);
+          box-shadow: 0 2px 8px rgba(255,180,0,0.4);
+          border-bottom-width: 1px;
+        }
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .final {
+          text-align: center;
+          padding: 40px 20px;
+          background: linear-gradient(145deg, #F8F4ED, #FFFFFF);
+          border-radius: 12px;
+        }
+        .final .icon {
+          font-size: 64px;
+          margin-bottom: 16px;
+          animation: bounceIn 0.6s;
+        }
+        .final h2 {
+          font-family: 'Fraunces', serif;
+          color: #071B4A;
+          font-size: 28px;
+          margin: 0 0 8px;
+        }
+        .final p {
+          color: #5A6A7A;
+          margin: 4px 0;
+          font-size: 16px;
+        }
+        .final .contact {
+          font-weight: 600;
+          color: #071B4A;
+        }
+        .home-btn {
+          display: inline-block;
+          margin-top: 20px;
+          background: linear-gradient(145deg, #071B4A, #1E3A8A);
+          color: #fff;
+          text-decoration: none;
+          padding: 12px 32px;
+          border-radius: 8px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(7,27,74,0.4);
+          border-bottom: 3px solid #020D29;
+          transition: all 0.2s;
+        }
+        .home-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(7,27,74,0.6);
+        }
+        .home-btn:active {
+          transform: translateY(1px);
+          box-shadow: 0 2px 8px rgba(7,27,74,0.4);
+          border-bottom-width: 1px;
+        }
+        @keyframes confettiFall {
+          to {
+            transform: translateY(110vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+        @keyframes bounceIn {
+          0% { transform: scale(0); opacity: 0; }
+          80% { transform: scale(1.2); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Responsive: full width on phones */
+        @media (max-width: 600px) {
+          .inscription-page {
+            padding: 0;
+            align-items: flex-start;
+          }
+          .card {
+            max-width: 100%;
+            border-radius: 0;
+            min-height: 100vh;
+            padding: 16px;
+            box-shadow: none;
+          }
+          .fields {
+            grid-template-columns: 1fr;
+          }
+          .field.full {
+            grid-column: 1;
+          }
+          .card-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+          .brand h1 {
+            font-size: 20px;
+          }
+          .logo {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+          }
+          .nav .btn {
+            padding: 8px 16px;
+            font-size: 13px;
+          }
+          .final h2 {
+            font-size: 24px;
+          }
+        }
+      `}</style>
+
       <div className="card">
         <div className="card-header">
+          <div className="logo">📚</div>
           <div className="brand">
             <h1>{t.schoolName}</h1>
             <span className="badge">{t.subtitle}</span>
@@ -295,7 +701,7 @@ export default function EnrollChildPage() {
         <div className="progress-horizontal">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className={`progress-step ${getStepClass(s)}`}>
-              <div className="circle">{step > s ? <i className="fas fa-check"></i> : s}</div>
+              <div className="circle">{step > s ? '✓' : s}</div>
               <div className="label">{t[`step${s}`]}</div>
             </div>
           ))}
@@ -303,16 +709,16 @@ export default function EnrollChildPage() {
         </div>
 
         <form onSubmit={(e) => e.preventDefault()}>
-          {/* Step 1 — just phone + who's connected */}
+          {/* Step 1 */}
           <div className={`step-pane ${step === 1 ? 'active-pane' : ''}`}>
             <div className="fields">
               <div className="field full" style={{ background: '#FAFAFA', padding: 14, borderRadius: 10, marginBottom: 4 }}>
-                <span style={{ fontSize: 12, color: '#5A6A7A' }}>{t.connectedAs}</span>
+                <span style={{ fontSize: 12, color: '#5A6A7A' }}>👤 {t.connectedAs}</span>
                 <div style={{ fontWeight: 700, color: '#071B4A' }}>{session?.user?.name}</div>
                 <div style={{ fontSize: 13, color: '#5A6A7A' }}>{session?.user?.email}</div>
               </div>
               <div className="field full">
-                <label><i className="fas fa-phone-alt"></i> {t.phone} <span className="required">*</span></label>
+                <label>📞 {t.phone} <span className="required">*</span></label>
                 <input
                   type="tel"
                   value={phone}
@@ -325,28 +731,28 @@ export default function EnrollChildPage() {
             </div>
           </div>
 
-          {/* Step 2 — children */}
+          {/* Step 2 */}
           <div className={`step-pane ${step === 2 ? 'active-pane' : ''}`}>
             <div className="children-section">
               <div className="children-header">
-                <h3><i className="fas fa-child"></i> {t.children}</h3>
+                <h3>🧒 {t.children}</h3>
                 <button type="button" className="add-btn" onClick={addChild}>
-                  <i className="fas fa-plus"></i> {t.addChild}
+                  ➕ {t.addChild}
                 </button>
               </div>
               {children.map((child, idx) => (
                 <div key={idx} className="child-card">
                   <div className="child-header">
-                    <h4>{t.child} {idx + 1}</h4>
+                    <h4>👦 {t.child} {idx + 1}</h4>
                     {children.length > 1 && (
                       <button type="button" className="remove-btn" onClick={() => removeChild(idx)}>
-                        <i className="fas fa-times"></i>
+                        ❌
                       </button>
                     )}
                   </div>
                   <div className="fields">
                     <div className="field">
-                      <label>{t.firstName} <span className="required">*</span></label>
+                      <label>✏️ {t.firstName} <span className="required">*</span></label>
                       <input
                         type="text"
                         value={child.firstName}
@@ -355,7 +761,7 @@ export default function EnrollChildPage() {
                       />
                     </div>
                     <div className="field">
-                      <label>{t.lastName} <span className="required">*</span></label>
+                      <label>✏️ {t.lastName} <span className="required">*</span></label>
                       <input
                         type="text"
                         value={child.lastName}
@@ -365,7 +771,7 @@ export default function EnrollChildPage() {
                       {errors[`child_${idx}_name`] && <span className="error">{errors[`child_${idx}_name`]}</span>}
                     </div>
                     <div className="field">
-                      <label>{t.age} <span className="required">*</span></label>
+                      <label>🎂 {t.age} <span className="required">*</span></label>
                       <input
                         type="number"
                         min="1"
@@ -377,15 +783,15 @@ export default function EnrollChildPage() {
                       {errors[`child_${idx}_age`] && <span className="error">{errors[`child_${idx}_age`]}</span>}
                     </div>
                     <div className="field">
-                      <label>{t.gender}</label>
+                      <label>⚧️ {t.gender}</label>
                       <select value={child.gender} onChange={(e) => updateChild(idx, 'gender', e.target.value)}>
                         <option value="">—</option>
-                        <option value="M">{t.boy}</option>
-                        <option value="F">{t.girl}</option>
+                        <option value="M">👦 {t.boy}</option>
+                        <option value="F">👧 {t.girl}</option>
                       </select>
                     </div>
                     <div className="field">
-                      <label>{t.class} <span className="required">*</span></label>
+                      <label>🏫 {t.class} <span className="required">*</span></label>
                       <select value={child.classId} onChange={(e) => updateChild(idx, 'classId', e.target.value)}>
                         <option value="">— Choisir une classe —</option>
                         {availableClasses.map((c) => (
@@ -398,7 +804,7 @@ export default function EnrollChildPage() {
                       )}
                     </div>
                     <div className="field full">
-                      <label>{t.previousSchool}</label>
+                      <label>🏫 {t.previousSchool}</label>
                       <input
                         type="text"
                         value={child.previousSchool}
@@ -416,11 +822,11 @@ export default function EnrollChildPage() {
           <div className={`step-pane ${step === 3 ? 'active-pane' : ''}`}>
             <div className="fields">
               <div className="field full">
-                <label><i className="fas fa-file-upload"></i> {t.docs}</label>
+                <label>📎 {t.docs}</label>
                 <div className="file-zone">
                   <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange} id="fileInput" />
                   <label htmlFor="fileInput">
-                    <i className="fas fa-cloud-upload-alt"></i>
+                    📤
                     <p>{files.length ? `${files.length} ${t.fileUploaded}` : t.upload}</p>
                   </label>
                 </div>
@@ -428,7 +834,7 @@ export default function EnrollChildPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                     {files.map((f, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAFAFA', padding: '8px 12px', borderRadius: 8, fontSize: 13 }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>{f.name}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>📄 {f.name}</span>
                         <button
                           type="button"
                           onClick={() => removeFile(i)}
@@ -442,7 +848,7 @@ export default function EnrollChildPage() {
                 )}
               </div>
               <div className="field full">
-                <label><i className="fas fa-heartbeat"></i> {t.medical}</label>
+                <label>❤️ {t.medical}</label>
                 <textarea value={medical} onChange={(e) => setMedical(e.target.value)} rows={3} />
               </div>
               <div className="field full consent-field">
@@ -459,25 +865,23 @@ export default function EnrollChildPage() {
           {/* Step 4 */}
           {step === 4 && submitted && (
             <div className="step-pane active-pane final">
-              <div className="thankyou">
-                <i className="fas fa-check-circle"></i>
-                <h2>{t.thankYou}</h2>
-                <p>{t.confirmed}</p>
-                <p className="contact">{t.contact}</p>
-                <Link href="/dashboard/parent" className="home-btn">
-                 {t.backHome}
-                </Link>
-              </div>
+              <div className="icon">🎉</div>
+              <h2>{t.thankYou}</h2>
+              <p>{t.confirmed}</p>
+              <p className="contact">{t.contact}</p>
+              <Link href="/dashboard/parent" className="home-btn">
+                {t.backHome}
+              </Link>
             </div>
           )}
 
           {step !== 4 && (
             <div className="nav">
               <button type="button" className="btn btn-secondary" onClick={goPrev} disabled={step === 1 || isSubmitting}>
-              {t.prev}
+                ⬅️ {t.prev}
               </button>
               <button type="button" className="btn btn-primary" onClick={goNext} disabled={isSubmitting}>
-                {isSubmitting ? (isUploadingDocs ? t.uploadingDocs : t.submitting) : step === 3 ? t.finish : t.next} <i className="fas fa-arrow-right"></i>
+                {isSubmitting ? (isUploadingDocs ? t.uploadingDocs : t.submitting) : step === 3 ? t.finish : t.next} ➡️
               </button>
             </div>
           )}

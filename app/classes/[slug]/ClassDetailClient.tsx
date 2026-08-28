@@ -524,9 +524,9 @@ export default function ClassDetailClient({
           <h1 className="cd-title cd-serif">{classInfo.title}</h1>
           <p className="cd-subtitle">{classInfo.subtitle}</p>
           <p className="cd-description">{classInfo.description}</p>
-          <Link href="/Inscription" className="cd-cta-hero">
-            S'inscrire pour cette classe →
-          </Link>
+       <Link href="/authentification" className="cd-cta-hero">
+  Se connecter pour inscrire →
+</Link>
         </div>
 
         <div className="cd-hero-visual">
