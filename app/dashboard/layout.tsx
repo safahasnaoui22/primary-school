@@ -65,7 +65,7 @@ export default async function DashboardLayout({
         <SignOutButton />
       </header>
 
-      <main style={{ flex: 1, padding: '24px', background: '#F8F9FC' }}>
+      <main >
         {children}
       </main>
     </div>

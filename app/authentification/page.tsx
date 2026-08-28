@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import Head from 'next/head';
 import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AuthentificationPage() {
   const router = useRouter();
@@ -44,38 +45,38 @@ export default function AuthentificationPage() {
     });
 
     setLoading(false);
-if (result?.error) {
-  setError(result.error);
-} else {
-  const session = await getSession();
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      const session = await getSession();
 
-  console.log("Login result:", result);
-  console.log("Session:", session);
+      console.log("Login result:", result);
+      console.log("Session:", session);
 
-  const role = (session?.user as any)?.role;
+      const role = (session?.user as any)?.role;
 
-  switch (role) {
-    case 'SUPER_ADMIN':
-      router.replace('/dashboard/super-admin');
-      break;
+      switch (role) {
+        case 'SUPER_ADMIN':
+          router.replace('/dashboard/super-admin');
+          break;
 
-    case 'SCHOOL_OWNER':
-      router.replace('/dashboard/school-owner');
-      break;
+        case 'SCHOOL_OWNER':
+          router.replace('/dashboard/school-owner');
+          break;
 
-    case 'TEACHER':
-      router.replace('/dashboard/teacher');
-      break;
+        case 'TEACHER':
+          router.replace('/dashboard/teacher');
+          break;
 
-    case 'PARENT':
-      router.replace('/dashboard/parent');
-      break;
+        case 'PARENT':
+          router.replace('/dashboard/parent');
+          break;
 
-    default:
-      setError('Session not created. Please try again.');
-      console.error('No session or unknown role:', session);
-  }
-}
+        default:
+          setError('Session not created. Please try again.');
+          console.error('No session or unknown role:', session);
+      }
+    }
   };
 
   const handleRegister = async (e: FormEvent) => {
@@ -150,17 +151,47 @@ if (result?.error) {
         }
 
         body {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
+          margin: 0;
+          padding: 0;
           background: #F0F4FF;
           background-image:
             radial-gradient(ellipse at 20% 20%, rgba(255, 180, 0, 0.06) 0%, transparent 50%),
             radial-gradient(ellipse at 80% 80%, rgba(7, 27, 74, 0.04) 0%, transparent 50%),
             radial-gradient(ellipse at 50% 50%, rgba(15, 43, 106, 0.03) 0%, transparent 60%);
+          min-height: 100vh;
+        }
+
+        .auth-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
           padding: 20px;
-          margin: 0;
+        }
+
+        .logo-top {
+          margin-bottom: 20px;
+          text-align: center;
+        }
+
+        .logo-top img {
+          height: 60px;
+          width: auto;
+          display: block;
+          transition: transform 0.3s ease;
+        }
+
+        .logo-top a {
+          display: inline-block;
+          border: none;
+          background: none;
+          padding: 0;
+          cursor: pointer;
+        }
+
+        .logo-top a:hover img {
+          transform: scale(1.05);
         }
 
         .container {
@@ -484,9 +515,21 @@ if (result?.error) {
 
         @media (max-width: 800px) {
           body {
+            padding: 0;
+          }
+
+          .auth-wrapper {
             padding: 15px;
-            align-items: flex-start;
+            justify-content: flex-start;
             padding-top: 30px;
+          }
+
+          .logo-top {
+            margin-bottom: 15px;
+          }
+
+          .logo-top img {
+            height: 50px;
           }
 
           .container {
@@ -573,180 +616,192 @@ if (result?.error) {
           .input-box input {
             font-size: 15px;
           }
+
+          .logo-top img {
+            height: 40px;
+          }
         }
       `}</style>
 
-      <div className={`container ${active ? 'active' : ''}`}>
-        <div className="curved-shape"></div>
-        <div className="curved-shape2"></div>
-
-        {/* ── Login Form ── */}
-        <div className="form-box Login">
-          <h2 className="animation" style={{ '--D': 0, '--S': 21 } as React.CSSProperties}>
-            Login
-          </h2>
-          <form onSubmit={handleLogin}>
-            <div className="input-box animation" style={{ '--D': 1, '--S': 22 } as React.CSSProperties}>
-              <input
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-              />
-              <label>Email</label>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-            </div>
-
-            <div className="input-box animation" style={{ '--D': 2, '--S': 23 } as React.CSSProperties}>
-              <input
-                type="password"
-                required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-              />
-              <label>Password</label>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-            </div>
-
-            <div className="input-box animation" style={{ '--D': 3, '--S': 24 } as React.CSSProperties}>
-              <button className="btn" type="submit" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </button>
-            </div>
-
-            {error && !active && (
-              <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
-            )}
-
-           <div
-  className="regi-link animation"
-  style={{ '--D': 4, '--S': 25 } as React.CSSProperties}
->
-  <p>
-    Vous n'avez pas encore de compte ?
-    <br />
-    <a href="#" className="SignUpLink" onClick={handleSignUp}>
-      Créer mon compte
-    </a>
-  </p>
-</div>
-          </form>
+      <div className="auth-wrapper">
+        <div className="logo-top">
+          <Link href="/">
+            <img src="/logosch.png" alt="EduSmart Logo" />
+          </Link>
         </div>
 
-    {/* ── Login Info Panel ── */}
-<div className="info-content Login">
-  <h2
-    className="animation"
-    style={{ '--D': 0, '--S': 20 } as React.CSSProperties}
-  >
-    BON RETOUR CHEZ EDUSMART !
-  </h2>
+        <div className={`container ${active ? 'active' : ''}`}>
+          <div className="curved-shape"></div>
+          <div className="curved-shape2"></div>
 
-  <p
-    className="animation"
-    style={{ '--D': 1, '--S': 21 } as React.CSSProperties}
-  >
-    Connectez-vous à votre espace EduSmart pour suivre la scolarité,
-    les progrès et les activités de votre enfant au sein de notre école primaire.
-  </p>
-</div>
+          {/* ── Login Form ── */}
+          <div className="form-box Login">
+            <h2 className="animation" style={{ '--D': 0, '--S': 21 } as React.CSSProperties}>
+              Login
+            </h2>
+            <form onSubmit={handleLogin}>
+              <div className="input-box animation" style={{ '--D': 1, '--S': 22 } as React.CSSProperties}>
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                />
+                <label>Email</label>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+              </div>
 
-        {/* ── Register Form ── */}
-        <div className="form-box Register">
-          <h2 className="animation" style={{ '--li': 17, '--S': 0 } as React.CSSProperties}>
-            Register
-          </h2>
-          <form onSubmit={handleRegister}>
-            <div className="input-box animation" style={{ '--li': 18, '--S': 1 } as React.CSSProperties}>
-              <input
-                type="text"
-                required
-                value={regUsername}
-                onChange={(e) => setRegUsername(e.target.value)}
-              />
-              <label>Username</label>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </div>
+              <div className="input-box animation" style={{ '--D': 2, '--S': 23 } as React.CSSProperties}>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                />
+                <label>Password</label>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
 
-            <div className="input-box animation" style={{ '--li': 19, '--S': 2 } as React.CSSProperties}>
-              <input
-                type="email"
-                required
-                value={regEmail}
-                onChange={(e) => setRegEmail(e.target.value)}
-              />
-              <label>Email</label>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-            </div>
+              <div className="input-box animation" style={{ '--D': 3, '--S': 24 } as React.CSSProperties}>
+                <button className="btn" type="submit" disabled={loading}>
+                  {loading ? 'Logging in...' : 'Login'}
+                </button>
+              </div>
 
-            <div className="input-box animation" style={{ '--li': 20, '--S': 3 } as React.CSSProperties}>
-              <input
-                type="password"
-                required
-                value={regPassword}
-                onChange={(e) => setRegPassword(e.target.value)}
-              />
-              <label>Password</label>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-            </div>
+              {error && !active && (
+                <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
+              )}
 
-            <div className="input-box animation" style={{ '--li': 21, '--S': 4 } as React.CSSProperties}>
-              <button className="btn" type="submit" disabled={loading}>
-                {loading ? 'Registering...' : 'Register'}
-              </button>
-            </div>
+              <div
+                className="regi-link animation"
+                style={{ '--D': 4, '--S': 25 } as React.CSSProperties}
+              >
+                <p>
+                  Vous n'avez pas encore de compte ?
+                  <br />
+                  <a href="#" className="SignUpLink" onClick={handleSignUp}>
+                    Créer mon compte
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
 
-            {error && active && (
-              <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
-            )}
+          {/* ── Login Info Panel ── */}
+          <div className="info-content Login">
+            <h2
+              className="animation"
+              style={{ '--D': 0, '--S': 20 } as React.CSSProperties}
+            >
+              BON RETOUR CHEZ EDUSMART !
+            </h2>
 
-          <div
-  className="regi-link animation"
-  style={{ '--li': 22, '--S': 5 } as React.CSSProperties}
->
-  <p>
-    Vous avez déjà un compte EduSmart ?
-    <br />
-    <a href="#" className="SignInLink" onClick={handleSignIn}>
-      Se connecter
-    </a>
-  </p>
-</div>
-          </form>
+            <p
+              className="animation"
+              style={{ '--D': 1, '--S': 21 } as React.CSSProperties}
+            >
+              Connectez-vous à votre espace EduSmart pour suivre la scolarité,
+              les progrès et les activités de votre enfant au sein de notre école primaire.
+            </p>
+          </div>
+
+          {/* ── Register Form ── */}
+          <div className="form-box Register">
+            <h2 className="animation" style={{ '--li': 17, '--S': 0 } as React.CSSProperties}>
+              Register
+            </h2>
+            <form onSubmit={handleRegister}>
+              <div className="input-box animation" style={{ '--li': 18, '--S': 1 } as React.CSSProperties}>
+                <input
+                  type="text"
+                  required
+                  value={regUsername}
+                  onChange={(e) => setRegUsername(e.target.value)}
+                />
+                <label>Username</label>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+
+              <div className="input-box animation" style={{ '--li': 19, '--S': 2 } as React.CSSProperties}>
+                <input
+                  type="email"
+                  required
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                />
+                <label>Email</label>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+              </div>
+
+              <div className="input-box animation" style={{ '--li': 20, '--S': 3 } as React.CSSProperties}>
+                <input
+                  type="password"
+                  required
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                />
+                <label>Password</label>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+
+              <div className="input-box animation" style={{ '--li': 21, '--S': 4 } as React.CSSProperties}>
+                <button className="btn" type="submit" disabled={loading}>
+                  {loading ? 'Registering...' : 'Register'}
+                </button>
+              </div>
+
+              {error && active && (
+                <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
+              )}
+
+              <div
+                className="regi-link animation"
+                style={{ '--li': 22, '--S': 5 } as React.CSSProperties}
+              >
+                <p>
+                  Vous avez déjà un compte EduSmart ?
+                  <br />
+                  <a href="#" className="SignInLink" onClick={handleSignIn}>
+                    Se connecter
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
+
+          {/* ── Register Info Panel ── */}
+          <div className="info-content Register">
+            <h2
+              className="animation"
+              style={{ '--li': 17, '--S': 0 } as React.CSSProperties}
+            >
+              BIENVENUE CHEZ EDUSMART !
+            </h2>
+
+            <p
+              className="animation"
+              style={{ '--li': 18, '--S': 1 } as React.CSSProperties}
+            >
+              Créez votre espace EduSmart pour accompagner la scolarité de votre enfant
+              et accéder à son suivi, aux ressources pédagogiques et aux activités de notre école primaire.
+            </p>
+          </div>
         </div>
-
-    {/* ── Register Info Panel ── */}
-<div className="info-content Register">
-  <h2
-    className="animation"
-    style={{ '--li': 17, '--S': 0 } as React.CSSProperties}
-  >
-    BIENVENUE CHEZ EDUSMART !
-  </h2>
-
-  <p
-    className="animation"
-    style={{ '--li': 18, '--S': 1 } as React.CSSProperties}
-  >
-    Créez votre espace EduSmart pour accompagner la scolarité de votre enfant
-    et accéder à son suivi, aux ressources pédagogiques et aux activités de notre école primaire.
-  </p>
-</div>
       </div>
     </>
   );
