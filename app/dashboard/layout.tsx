@@ -37,18 +37,26 @@ export default async function DashboardLayout({
           zIndex: 100,
         }}
       >
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', color: '#fff' }}>
+        <Link
+          href="/dashboard"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            textDecoration: 'none',
+            color: '#fff',
+          }}
+        >
+          {/* Logo – no onError handler; if the image is missing, it will show the broken image icon */}
           <img
             src="/logosch.png"
             alt="Logo"
             style={{ height: 40, width: 'auto' }}
-            onError={(e) => {
-              // Fallback if logo missing
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
           />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <strong style={{ fontSize: 16, fontWeight: 600 }}>{session.user.name}</strong>
+            <strong style={{ fontSize: 16, fontWeight: 600 }}>
+              {session.user.name}
+            </strong>
             <span style={{ fontSize: 12, opacity: 0.8 }}>
               {roleLabels[session.user.role]}
             </span>
@@ -57,7 +65,9 @@ export default async function DashboardLayout({
         <SignOutButton />
       </header>
 
-      <main style={{ flex: 1, padding: '24px', background: '#F8F9FC' }}>{children}</main>
+      <main style={{ flex: 1, padding: '24px', background: '#F8F9FC' }}>
+        {children}
+      </main>
     </div>
   );
 }
