@@ -89,6 +89,7 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 tasks Task[] @relation("TeacherTasks")
+classLinks ClassTeacher[]
   postedResources      Resource[]         @relation("ResourceTeacher")
   childLinks           ParentStudent[]    @relation("ParentLinks")
   taughtClasses        Class[]            @relation("TeacherClasses")
@@ -107,7 +108,16 @@ tasks Task[] @relation("TeacherTasks")
 
  
 }
+model ClassTeacher {
+  id        String   @id @default(cuid())
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  createdAt DateTime @default(now())
 
+  @@unique([classId, teacherId])
+}
 model School {
   id        String   @id @default(cuid())
   name      String
@@ -133,7 +143,7 @@ model Class {
   teacherId String?
   teacher   User?    @relation("TeacherClasses", fields: [teacherId], references: [id])
   createdAt DateTime @default(now())
-
+teacherLinks ClassTeacher[]
   resources      Resource[]
   students       Student[]
   attendance     Attendance[]
