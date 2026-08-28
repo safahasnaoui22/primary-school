@@ -49,9 +49,11 @@ export default function Sidebar({ schoolName }: { schoolName: string }) {
         transition: 'width .28s cubic-bezier(.4,0,.2,1)',
         background: '#071B4A',
         color: '#fff',
-        height: '100vh',
-        position: 'sticky',
-        top: 0,
+        // Fills the app-shell row exactly (the row itself is pinned to 100vh
+        // in DashboardClient), rather than re-declaring its own 100vh/sticky —
+        // that duplication was what let the sidebar and the scrolling content
+        // pane drift out of sync.
+        height: '100%',
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
@@ -87,7 +89,7 @@ export default function Sidebar({ schoolName }: { schoolName: string }) {
         </button>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '14px 10px', flex: 1 }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '14px 10px', flex: 1, overflowY: 'auto' }}>
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href;
           return (
@@ -119,7 +121,7 @@ export default function Sidebar({ schoolName }: { schoolName: string }) {
         })}
       </nav>
 
-      <div style={{ padding: '14px 10px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ padding: '14px 10px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#3ED598', flexShrink: 0 }} />
           {open && <span>Connecté</span>}
