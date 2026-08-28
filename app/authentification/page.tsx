@@ -624,27 +624,38 @@ if (result?.error) {
               <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
             )}
 
-            <div className="regi-link animation" style={{ '--D': 4, '--S': 25 } as React.CSSProperties}>
-              <p>
-                Don't have an account?
-                <br />
-                <a href="#" className="SignUpLink" onClick={handleSignUp}>
-                  Sign Up
-                </a>
-              </p>
-            </div>
+           <div
+  className="regi-link animation"
+  style={{ '--D': 4, '--S': 25 } as React.CSSProperties}
+>
+  <p>
+    Vous n'avez pas encore de compte ?
+    <br />
+    <a href="#" className="SignUpLink" onClick={handleSignUp}>
+      Créer mon compte
+    </a>
+  </p>
+</div>
           </form>
         </div>
 
-        {/* ── Login Info Panel ── */}
-        <div className="info-content Login">
-          <h2 className="animation" style={{ '--D': 0, '--S': 20 } as React.CSSProperties}>
-            WELCOME BACK!
-          </h2>
-          <p className="animation" style={{ '--D': 1, '--S': 21 } as React.CSSProperties}>
-            We are happy to have you with us again. If you need anything, we are here to help.
-          </p>
-        </div>
+    {/* ── Login Info Panel ── */}
+<div className="info-content Login">
+  <h2
+    className="animation"
+    style={{ '--D': 0, '--S': 20 } as React.CSSProperties}
+  >
+    BON RETOUR CHEZ EDUSMART !
+  </h2>
+
+  <p
+    className="animation"
+    style={{ '--D': 1, '--S': 21 } as React.CSSProperties}
+  >
+    Connectez-vous à votre espace EduSmart pour suivre la scolarité,
+    les progrès et les activités de votre enfant au sein de notre école primaire.
+  </p>
+</div>
 
         {/* ── Register Form ── */}
         <div className="form-box Register">
@@ -704,27 +715,38 @@ if (result?.error) {
               <p style={{ color: 'red', textAlign: 'center', marginTop: '10px', fontSize: '14px' }}>{error}</p>
             )}
 
-            <div className="regi-link animation" style={{ '--li': 22, '--S': 5 } as React.CSSProperties}>
-              <p>
-                Already have an account?
-                <br />
-                <a href="#" className="SignInLink" onClick={handleSignIn}>
-                  Sign In
-                </a>
-              </p>
-            </div>
+          <div
+  className="regi-link animation"
+  style={{ '--li': 22, '--S': 5 } as React.CSSProperties}
+>
+  <p>
+    Vous avez déjà un compte EduSmart ?
+    <br />
+    <a href="#" className="SignInLink" onClick={handleSignIn}>
+      Se connecter
+    </a>
+  </p>
+</div>
           </form>
         </div>
 
-        {/* ── Register Info Panel ── */}
-        <div className="info-content Register">
-          <h2 className="animation" style={{ '--li': 17, '--S': 0 } as React.CSSProperties}>
-            WELCOME!
-          </h2>
-          <p className="animation" style={{ '--li': 18, '--S': 1 } as React.CSSProperties}>
-            We're delighted to have you here. If you need any assistance, feel free to reach out.
-          </p>
-        </div>
+    {/* ── Register Info Panel ── */}
+<div className="info-content Register">
+  <h2
+    className="animation"
+    style={{ '--li': 17, '--S': 0 } as React.CSSProperties}
+  >
+    BIENVENUE CHEZ EDUSMART !
+  </h2>
+
+  <p
+    className="animation"
+    style={{ '--li': 18, '--S': 1 } as React.CSSProperties}
+  >
+    Créez votre espace EduSmart pour accompagner la scolarité de votre enfant
+    et accéder à son suivi, aux ressources pédagogiques et aux activités de notre école primaire.
+  </p>
+</div>
       </div>
     </>
   );
