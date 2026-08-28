@@ -150,7 +150,7 @@ export default function EnrollChildPage() {
 
   const fireConfetti = () => {
     if (typeof window === 'undefined') return;
-    const colors = ['#c99a3b', '#0a1a2f', '#f8f4ed', '#e8a87c'];
+    const colors = ['#3B82F6', '#1E3A8A', '#F8F9FC', '#10B981'];
     for (let i = 0; i < 100; i++) {
       const el = document.createElement('div');
       el.style.cssText = `
@@ -271,7 +271,7 @@ export default function EnrollChildPage() {
         <p style={{ color: '#5A6A7A', marginBottom: 16 }}>{t.loginRequired}</p>
         <button
           onClick={() => router.push('/authentification')}
-          style={{ background: '#FFB400', color: '#071B4A', border: 'none', padding: '10px 24px', borderRadius: 20, fontWeight: 700, cursor: 'pointer' }}
+          style={{ background: '#071B4A', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}
         >
           {t.goToLogin}
         </button>
@@ -281,21 +281,33 @@ export default function EnrollChildPage() {
 
   return (
     <div className="inscription-page">
-      {/* Global styles for responsiveness, buttons, etc. */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
+        :root {
+          --navy: #071B4A;
+          --navy-light: #1E3A8A;
+          --blue: #3B82F6;
+          --muted: #5A6A7A;
+          --border: #E5E9F0;
+          --bg: #F8F9FC;
+          --card: #ffffff;
+          --error: #EF4444;
+          --success: #10B981;
+        }
+
         .inscription-page {
           font-family: 'Inter', sans-serif;
-          background: #F8F9FC;
+          background: var(--bg);
           min-height: 100vh;
           display: flex;
           justify-content: center;
           align-items: center;
           padding: 20px;
         }
+
         .card {
-          background: #fff;
+          background: var(--card);
           border-radius: 16px;
           box-shadow: 0 10px 30px rgba(7,27,74,0.08);
           width: 100%;
@@ -303,45 +315,55 @@ export default function EnrollChildPage() {
           padding: 24px;
           box-sizing: border-box;
         }
+
         .card-header {
           display: flex;
           align-items: center;
           gap: 16px;
           margin-bottom: 20px;
         }
+
         .brand {
           flex: 1;
         }
+
         .brand h1 {
           font-family: 'Fraunces', serif;
-          color: #071B4A;
+          color: var(--navy);
           font-size: 24px;
           margin: 0;
           font-weight: 600;
         }
+
         .badge {
           display: inline-block;
-          background: #FFB400;
-          color: #071B4A;
+          background: #E6F0FF;
+          color: var(--navy);
           font-weight: 600;
           font-size: 12px;
           padding: 2px 10px;
           border-radius: 12px;
           margin-top: 4px;
         }
+
         .logo {
           width: 60px;
           height: 60px;
           border-radius: 12px;
-          background: #071B4A;
+          background: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #FFB400;
-          font-size: 32px;
-          font-weight: bold;
           flex-shrink: 0;
+          overflow: hidden;
         }
+
+        .logo img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+        }
+
         .progress-horizontal {
           display: flex;
           justify-content: space-between;
@@ -349,15 +371,17 @@ export default function EnrollChildPage() {
           margin-bottom: 24px;
           position: relative;
         }
+
         .progress-track {
           position: absolute;
           top: 18px;
           left: 10%;
           right: 10%;
           height: 2px;
-          background: #E5E9F0;
+          background: var(--border);
           z-index: 0;
         }
+
         .progress-step {
           display: flex;
           flex-direction: column;
@@ -365,12 +389,13 @@ export default function EnrollChildPage() {
           gap: 6px;
           z-index: 1;
         }
+
         .circle {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background: #E5E9F0;
-          color: #5A6A7A;
+          background: var(--border);
+          color: var(--muted);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -378,173 +403,206 @@ export default function EnrollChildPage() {
           font-size: 14px;
           transition: all 0.3s;
         }
+
         .progress-step.active .circle {
-          background: #071B4A;
-          color: #FFB400;
+          background: var(--navy);
+          color: #fff;
           box-shadow: 0 4px 12px rgba(7,27,74,0.3);
         }
+
         .progress-step.completed .circle {
-          background: #FFB400;
-          color: #071B4A;
+          background: var(--success);
+          color: #fff;
         }
+
         .label {
           font-size: 12px;
           font-weight: 500;
-          color: #5A6A7A;
+          color: var(--muted);
         }
+
         .step-pane {
           display: none;
         }
+
         .step-pane.active-pane {
           display: block;
         }
+
         .fields {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 16px;
         }
+
         .field {
           display: flex;
           flex-direction: column;
         }
+
         .field.full {
           grid-column: 1 / -1;
         }
+
         label {
           font-size: 13px;
           font-weight: 600;
-          color: #071B4A;
+          color: var(--navy);
           margin-bottom: 6px;
           display: flex;
           align-items: center;
           gap: 4px;
         }
+
         .required {
-          color: #C0392B;
+          color: var(--error);
         }
+
         input, select, textarea {
           padding: 10px 12px;
           border-radius: 8px;
-          border: 1px solid #DCE1E8;
+          border: 1px solid var(--border);
           font-size: 14px;
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
           font-family: 'Inter', sans-serif;
         }
+
         input:focus, select:focus, textarea:focus {
-          border-color: #071B4A;
-          box-shadow: 0 0 0 3px rgba(7,27,74,0.1);
+          border-color: var(--navy-light);
+          box-shadow: 0 0 0 3px rgba(30,58,138,0.1);
         }
+
         input.error, select.error {
-          border-color: #C0392B;
+          border-color: var(--error);
         }
+
         .error {
-          color: #C0392B;
+          color: var(--error);
           font-size: 12px;
           margin-top: 4px;
         }
+
         .error-summary {
-          background: #FAECE7;
-          color: #712B13;
+          background: #FEE2E2;
+          color: #991B1B;
           padding: 10px 14px;
           border-radius: 8px;
           font-size: 13px;
           font-weight: 500;
           margin-top: 10px;
         }
+
         .children-section {
           display: flex;
           flex-direction: column;
           gap: 16px;
         }
+
         .children-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
+
         .children-header h3 {
           margin: 0;
           font-size: 16px;
-          color: #071B4A;
+          color: var(--navy);
         }
+
         .add-btn {
-          background: #FFB400;
-          color: #071B4A;
+          background: var(--navy);
+          color: #fff;
           border: none;
           padding: 8px 16px;
-          border-radius: 20px;
+          border-radius: 8px;
           font-weight: 600;
           cursor: pointer;
           font-size: 13px;
           display: flex;
           align-items: center;
           gap: 4px;
-          transition: transform 0.2s;
+          transition: background 0.2s, box-shadow 0.2s;
         }
+
         .add-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(255,180,0,0.3);
+          background: var(--navy-light);
+          box-shadow: 0 4px 12px rgba(7,27,74,0.2);
         }
+
         .child-card {
-          border: 1px solid #E5E9F0;
+          border: 1px solid var(--border);
           border-radius: 12px;
           padding: 16px;
           background: #FAFAFA;
         }
+
         .child-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 12px;
         }
+
         .child-header h4 {
           margin: 0;
           font-size: 15px;
-          color: #071B4A;
+          color: var(--navy);
         }
+
         .remove-btn {
           background: none;
           border: none;
-          color: #C0392B;
+          color: var(--error);
           cursor: pointer;
           font-size: 16px;
         }
+
         .file-zone {
-          border: 2px dashed #DCE1E8;
+          border: 2px dashed var(--border);
           border-radius: 8px;
           padding: 20px;
           text-align: center;
           transition: border-color 0.2s;
         }
+
         .file-zone:hover {
-          border-color: #071B4A;
+          border-color: var(--navy-light);
         }
+
         .file-zone label {
           cursor: pointer;
           display: block;
-          color: #5A6A7A;
+          color: var(--muted);
           font-size: 14px;
         }
+
         .file-zone label p {
           margin: 8px 0 0;
         }
+
         .file-zone input {
           display: none;
         }
+
         .consent-label {
           display: flex;
           align-items: center;
           gap: 8px;
           font-size: 13px;
         }
+
         .consent-label input {
           width: auto;
         }
+
         .nav {
           display: flex;
           justify-content: space-between;
           margin-top: 20px;
         }
+
         .btn {
           padding: 10px 24px;
           border: none;
@@ -556,98 +614,110 @@ export default function EnrollChildPage() {
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
+
         .btn-secondary {
           background: #F0F2F5;
-          color: #071B4A;
+          color: var(--navy);
         }
+
         .btn-secondary:hover:not(:disabled) {
           background: #E5E9F0;
         }
+
         .btn-primary {
-          background: linear-gradient(145deg, #FFD54F, #FFB400);
-          color: #071B4A;
-          box-shadow: 0 4px 12px rgba(255,180,0,0.4);
-          border-bottom: 3px solid #C68A00;
-          transform: translateY(0);
-          transition: all 0.15s ease;
+          background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(7,27,74,0.3);
+          transition: all 0.2s;
           display: flex;
           align-items: center;
           gap: 6px;
         }
+
         .btn-primary:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(255,180,0,0.6);
+          box-shadow: 0 6px 16px rgba(7,27,74,0.4);
+          transform: translateY(-1px);
         }
+
         .btn-primary:active:not(:disabled) {
-          transform: translateY(1px);
-          box-shadow: 0 2px 8px rgba(255,180,0,0.4);
-          border-bottom-width: 1px;
+          box-shadow: 0 2px 8px rgba(7,27,74,0.3);
+          transform: translateY(0);
         }
+
         .btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
         }
+
         .final {
           text-align: center;
           padding: 40px 20px;
-          background: linear-gradient(145deg, #F8F4ED, #FFFFFF);
+          background: #F8FAFF;
           border-radius: 12px;
         }
+
         .final .icon {
           font-size: 64px;
           margin-bottom: 16px;
           animation: bounceIn 0.6s;
         }
+
         .final h2 {
           font-family: 'Fraunces', serif;
-          color: #071B4A;
+          color: var(--navy);
           font-size: 28px;
           margin: 0 0 8px;
         }
+
         .final p {
-          color: #5A6A7A;
+          color: var(--muted);
           margin: 4px 0;
           font-size: 16px;
         }
+
         .final .contact {
           font-weight: 600;
-          color: #071B4A;
+          color: var(--navy);
         }
+
         .home-btn {
           display: inline-block;
           margin-top: 20px;
-          background: linear-gradient(145deg, #071B4A, #1E3A8A);
+          background: var(--navy);
           color: #fff;
           text-decoration: none;
           padding: 12px 32px;
           border-radius: 8px;
           font-weight: 600;
-          box-shadow: 0 4px 12px rgba(7,27,74,0.4);
-          border-bottom: 3px solid #020D29;
+          box-shadow: 0 4px 12px rgba(7,27,74,0.3);
           transition: all 0.2s;
         }
+
         .home-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(7,27,74,0.6);
+          background: var(--navy-light);
+          box-shadow: 0 6px 16px rgba(7,27,74,0.4);
+          transform: translateY(-1px);
         }
+
         .home-btn:active {
-          transform: translateY(1px);
-          box-shadow: 0 2px 8px rgba(7,27,74,0.4);
-          border-bottom-width: 1px;
+          box-shadow: 0 2px 8px rgba(7,27,74,0.3);
+          transform: translateY(0);
         }
+
         @keyframes confettiFall {
           to {
             transform: translateY(110vh) rotate(720deg);
             opacity: 0;
           }
         }
+
         @keyframes bounceIn {
           0% { transform: scale(0); opacity: 0; }
           80% { transform: scale(1.2); }
           100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Responsive: full width on phones */
+        /* Responsive */
         @media (max-width: 600px) {
           .inscription-page {
             padding: 0;
@@ -677,7 +747,6 @@ export default function EnrollChildPage() {
           .logo {
             width: 50px;
             height: 50px;
-            font-size: 24px;
           }
           .nav .btn {
             padding: 8px 16px;
@@ -691,7 +760,9 @@ export default function EnrollChildPage() {
 
       <div className="card">
         <div className="card-header">
-          <div className="logo">📚</div>
+          <div className="logo">
+            <img src="/logosch.png" alt="Logo" />
+          </div>
           <div className="brand">
             <h1>{t.schoolName}</h1>
             <span className="badge">{t.subtitle}</span>
@@ -838,7 +909,7 @@ export default function EnrollChildPage() {
                         <button
                           type="button"
                           onClick={() => removeFile(i)}
-                          style={{ background: 'none', border: 'none', color: '#C0392B', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+                          style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
                         >
                           Retirer
                         </button>
