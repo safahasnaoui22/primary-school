@@ -105,7 +105,7 @@ classLinks ClassTeacher[]
   homeworksPosted      Homework[]         @relation("HomeworkTeacher")
   calendarEventsAuthored CalendarEvent[]  @relation("CalendarAuthor")
   progressUpdatesGiven ProgressUpdate[]   @relation("ProgressTeacher")
-
+timetableEntries TimetableEntry[]
  
 }
 model ClassTeacher {
@@ -124,7 +124,7 @@ model School {
   ownerId   String?  @unique
   users     User[]
   createdAt DateTime @default(now())
-
+timetableEntries TimetableEntry[]
   feeStructures      FeeStructure[]
   invoices           Invoice[]
   students           Student[]
@@ -153,6 +153,7 @@ teacherLinks ClassTeacher[]
   invoices       Invoice[]
   homeworks      Homework[]
   calendarEvents CalendarEvent[]
+  timetableEntries TimetableEntry[]
 }
 
 model Student {
@@ -398,6 +399,33 @@ model Task {
   dueDate   DateTime?
   completed Boolean   @default(false)
   createdAt DateTime  @default(now())
+}
+model TimetableEntry {
+  id        String   @id @default(cuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  subject   String
+  // 0 = Lundi, 1 = Mardi, 2 = Mercredi, 3 = Jeudi, 4 = Vendredi, 5 = Samedi
+  dayOfWeek Int
+  // Stored as "HH:mm" (24h), e.g. "08:00" — kept as strings so slot
+  // boundaries are trivial to compare/display without timezone issues.
+  startTime String
+  endTime   String
+  room      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // A class can't have two sessions starting at the same moment.
+  @@unique([classId, dayOfWeek, startTime])
+  // Fast lookup for "what does this teacher teach, ordered by day/time".
+  @@index([teacherId, dayOfWeek, startTime])
+  @@index([schoolId])
 }
 
 
