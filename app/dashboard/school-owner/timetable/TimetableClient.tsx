@@ -5,7 +5,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ActionToast, { ToastData } from '@/app/components/ActionToast';
-import { DAYS, HOUR_SLOTS, TimetableEntryDTO } from '@/app/lib/timetable-constants';
+import { DAYS, HOUR_SLOTS, TimetableEntryDTO } from '@/lib/timetable-constants';
 
 interface ClassOption { id: string; name: string; }
 interface TeacherOption { id: string; username: string; }

@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import WeeklyTimetable from '@/app/components/WeeklyTimetable';
-import { TimetableEntryDTO } from '@/app/lib/timetable-constants';
+import { TimetableEntryDTO } from '@/lib/timetable-constants';
 
 interface ChildTimetable {
   id: string;

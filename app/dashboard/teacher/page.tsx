@@ -88,6 +88,7 @@ export default async function TeacherDashboard() {
     const present = records.filter((r: any) => r.status === 'PRESENT').length;
     const absent = records.filter((r: any) => r.status === 'ABSENT').length;
     const late = records.filter((r: any) => r.status === 'LATE').length;
+    const excused = records.filter((r: any) => r.status === 'EXCUSED').length;
     return {
       classId: c.id,
       className: c.name,
@@ -95,6 +96,7 @@ export default async function TeacherDashboard() {
       present,
       absent,
       late,
+      excused,
       unmarked: c.students.length - records.length,
       students: c.students.map((s: any) => {
         const rec = records.find((r: any) => r.studentId === s.id);
@@ -136,19 +138,20 @@ export default async function TeacherDashboard() {
     orderBy: [{ completed: 'asc' }, { createdAt: 'desc' }],
   });
 
-  // --- Student performance: most recent grade per subject ---
+  // --- Student performance: most recent grade per subject.
+  // Grade.value is a Number in this schema (not a letter-grade string). ---
   const grades = await prisma.grade.findMany({
     where: { classId: { in: classIds } },
     orderBy: { createdAt: 'desc' },
-    select: { studentId: true, subject: true, gradeValue: true },
+    select: { studentId: true, subject: true, value: true },
   });
 
-  const gradesByStudent = new Map<string, { subject: string; gradeValue: string }[]>();
+  const gradesByStudent = new Map<string, { subject: string; value: number }[]>();
   for (const g of grades) {
     if (!gradesByStudent.has(g.studentId)) gradesByStudent.set(g.studentId, []);
     const entries = gradesByStudent.get(g.studentId)!;
     if (!entries.some((e) => e.subject === g.subject)) {
-      entries.push({ subject: g.subject, gradeValue: g.gradeValue });
+      entries.push({ subject: g.subject, value: g.value });
     }
   }
 
@@ -197,7 +200,7 @@ export default async function TeacherDashboard() {
       teacherName={session.user.name ?? ''}
       classGroups={classGroups}
       students={allStudents}
-      weekSchedule={weekSchedule.map((e: any) => ({
+      todaySchedule={weekSchedule.map((e: any) => ({
         id: e.id,
         title: e.title,
         date: e.date.toISOString(),
@@ -212,21 +215,6 @@ export default async function TeacherDashboard() {
         className: h.class.name,
         completedCount: h.statuses.filter((s: any) => s.completed).length,
         totalCount: h.class.students.length,
-      }))}
-      recentResources={recentResources.map((r: any) => ({
-        id: r.id,
-        title: r.title,
-        type: r.type,
-        className: r.class.name,
-        createdAt: r.createdAt.toISOString(),
-      }))}
-      recentProgress={recentProgress.map((p: any) => ({
-        id: p.id,
-        studentName: `${p.student.firstName} ${p.student.lastName}`,
-        category: p.category,
-        level: p.level,
-        note: p.note,
-        createdAt: p.createdAt.toISOString(),
       }))}
       tasks={tasks.map((t: any) => ({
         id: t.id,

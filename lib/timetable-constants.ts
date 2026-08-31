@@ -1,3 +1,9 @@
+// File: lib/timetable-constants.ts
+//
+// Shared between the school-owner editor and the read-only views (teacher,
+// parent) so the grid shape can never drift between them.
+// Lives at project-root lib/, next to lib/prisma.ts — imported everywhere
+// as `@/lib/timetable-constants`.
 
 export const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] as const;
 
@@ -26,7 +32,3 @@ export interface TimetableEntryDTO {
   endTime: string;
   room: string | null;
 }
-
-
-
-

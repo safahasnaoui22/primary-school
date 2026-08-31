@@ -14,8 +14,10 @@ export default async function ParentTimetablePage() {
     );
   }
 
+  // Student.parents is the ParentStudent join table, not a direct User[] —
+  // so the filter matches on ParentStudent.parentId, not ParentStudent.id.
   const children = await prisma.student.findMany({
-    where: { parents: { some: { id: session.user.id } } },
+    where: { parents: { some: { parentId: session.user.id } } },
     select: { id: true, firstName: true, lastName: true, classId: true, class: { select: { name: true } } },
   });
 

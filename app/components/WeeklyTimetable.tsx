@@ -1,16 +1,7 @@
 'use client';
 
-// File: app/components/WeeklyTimetable.tsx
-//
-// Read-only weekly grid. Used by:
-//   - app/dashboard/teacher/timetable/page.tsx  (variant="teacher")
-//   - app/dashboard/parent/timetable/page.tsx   (variant="parent")
-//
-// "variant" only controls which extra label shows on each session card —
-// the class name (so a teacher knows which group they're seeing) or the
-// teacher name (so a parent knows who's teaching their child).
 
-import { DAYS, HOUR_SLOTS, TimetableEntryDTO } from '../lib/timetable-constants';
+import { DAYS, HOUR_SLOTS, TimetableEntryDTO } from '@/lib/timetable-constants';
 
 type Variant = 'teacher' | 'parent';
 
