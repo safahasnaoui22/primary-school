@@ -31,6 +31,7 @@ import {
   LayoutDashboard,
   ArrowUpRight,
   ArrowDownRight,
+  Zap,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
