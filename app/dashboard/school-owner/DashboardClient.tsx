@@ -31,7 +31,7 @@ import {
   LayoutDashboard,
   ArrowUpRight,
   ArrowDownRight,
-  Zap,
+  Zap
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -464,19 +464,17 @@ export default function SchoolOwnerDashboardClient({
           {/* ---- TOP BANNER ---- */}
           <Reveal>
             <div
-               style={{
-    backgroundImage: `linear-gradient(135deg, rgba(7,27,74,0.85) 0%, rgba(10,42,107,0.85) 60%, rgba(255,180,0,0.6) 160%), url('https://i.pinimg.com/736x/19/86/db/1986dbd886c8b29dd544f1477b9a2fc0.jpg')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    borderRadius: 20,
-    padding: '28px 32px',
-    marginBottom: 28,
-    color: '#fff',
-    position: 'relative',
-    overflow: 'hidden',
-    boxShadow: '0 8px 24px rgba(7,27,74,0.2)',
-  }}
->
+              style={{
+                background: 'linear-gradient(135deg, #071B4A 0%, #0A2A6B 60%, #FFB400 160%)',
+                borderRadius: 20,
+                padding: '28px 32px',
+                marginBottom: 28,
+                color: '#fff',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(7,27,74,0.2)',
+              }}
+            >
               {/* Decorative school icon background */}
               <School
                 size={220}
