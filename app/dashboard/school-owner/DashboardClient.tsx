@@ -7,6 +7,32 @@ import { Reveal } from '@/lib/reveal';
 import Sidebar from './Sidebar';
 import ActionToast, { ToastData } from '@/app/components/ActionToast';
 import {
+  Users,
+  GraduationCap,
+  ClipboardCheck,
+  Wallet,
+  AlertTriangle,
+  Percent,
+  Clock,
+  AlertCircle,
+  Megaphone,
+  CalendarDays,
+  MessageSquare,
+  TrendingUp,
+  BarChart3,
+  PieChart as PieChartIcon,
+  CheckCircle2,
+  XCircle,
+  Plus,
+  School,
+  ChevronRight,
+  UserPlus,
+  CreditCard,
+  LayoutDashboard,
+  ArrowUpRight,
+  ArrowDownRight,
+} from 'lucide-react';
+import {
   ResponsiveContainer,
   ComposedChart,
   Area,
@@ -22,6 +48,9 @@ import {
   Bar,
 } from 'recharts';
 
+// --------------------------------------------
+// Types (same as before)
+// --------------------------------------------
 interface Teacher { id: string; username: string; email: string; createdAt: string; }
 interface TrendPoint { label: string; revenue: number; students: number; }
 interface HealthData { studentsNoClass: number; studentsNoParent: number; classesNoTeacher: number; }
@@ -55,6 +84,9 @@ interface Props {
   collectionRate: CollectionRate;
 }
 
+// --------------------------------------------
+// Constants and helpers
+// --------------------------------------------
 const fontImports =
   "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap";
 
@@ -72,7 +104,9 @@ const roleLabel: Record<string, string> = { TEACHER: 'Enseignant', PARENT: 'Pare
 const STATUS_COLORS: Record<string, string> = { PAID: '#3ED598', PENDING: '#FFB400', OVERDUE: '#C0392B' };
 const STATUS_LABELS: Record<string, string> = { PAID: 'Payées', PENDING: 'En attente', OVERDUE: 'En retard' };
 
-/** Tooltip shells styled to match the dashboard's card language instead of recharts' default box. */
+// --------------------------------------------
+// Custom Tooltip
+// --------------------------------------------
 function ChartTooltip({ active, payload, label, formatter }: any) {
   if (!active || !payload || payload.length === 0) return null;
   return (
@@ -88,6 +122,9 @@ function ChartTooltip({ active, payload, label, formatter }: any) {
   );
 }
 
+// --------------------------------------------
+// Charts (same as before, with minor styling)
+// --------------------------------------------
 function TrendChart({ trend }: { trend: TrendPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={230}>
@@ -102,15 +139,7 @@ function TrendChart({ trend }: { trend: TrendPoint[] }) {
         <XAxis dataKey="label" tick={{ fontSize: 11.5, fill: '#5A6A7A', fontFamily: 'Inter, sans-serif' }} axisLine={false} tickLine={false} />
         <YAxis yAxisId="revenue" tick={{ fontSize: 11, fill: '#5A6A7A', fontFamily: 'Inter, sans-serif' }} axisLine={false} tickLine={false} width={0} />
         <YAxis yAxisId="students" orientation="right" tick={{ fontSize: 11, fill: '#5A6A7A', fontFamily: 'Inter, sans-serif' }} axisLine={false} tickLine={false} width={0} />
-        <Tooltip
-          content={
-            <ChartTooltip
-              formatter={(p: any) =>
-                p.dataKey === 'revenue' ? `Revenus: ${p.value.toLocaleString('fr-FR')} DT` : `Inscriptions: ${p.value}`
-              }
-            />
-          }
-        />
+        <Tooltip content={<ChartTooltip formatter={(p: any) => p.dataKey === 'revenue' ? `Revenus: ${p.value.toLocaleString('fr-FR')} DT` : `Inscriptions: ${p.value}`} />} />
         <Area yAxisId="revenue" type="monotone" dataKey="revenue" stroke="#FFB400" strokeWidth={2.5} fill="url(#revFill)" activeDot={{ r: 5 }} />
         <Line yAxisId="students" type="monotone" dataKey="students" stroke="#071B4A" strokeWidth={2} strokeDasharray="4 3" dot={{ r: 3, fill: '#071B4A' }} activeDot={{ r: 5 }} />
       </ComposedChart>
@@ -186,11 +215,29 @@ function RevenueByClassBars({ rows }: { rows: RevenueByClassRow[] }) {
   );
 }
 
+// --------------------------------------------
+// Main Client Component
+// --------------------------------------------
 export default function SchoolOwnerDashboardClient({
-  schoolName, ownerName, teacherCount, studentCount, pendingEnrollments, recentTeachers,
-  revenueCollected, unpaidCount, trend, invoiceStatusBreakdown, health, classes,
-  announcements, upcomingEvents, conversations,
-  overdueInvoices, overdueCount, revenueByClass, collectionRate,
+  schoolName,
+  ownerName,
+  teacherCount,
+  studentCount,
+  pendingEnrollments,
+  recentTeachers,
+  revenueCollected,
+  unpaidCount,
+  trend,
+  invoiceStatusBreakdown,
+  health,
+  classes,
+  announcements,
+  upcomingEvents,
+  conversations,
+  overdueInvoices,
+  overdueCount,
+  revenueByClass,
+  collectionRate,
 }: Props) {
   const router = useRouter();
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -256,17 +303,12 @@ export default function SchoolOwnerDashboardClient({
     }
   };
 
-  const rateDelta = collectionRate.current !== null && collectionRate.previous !== null
-    ? collectionRate.current - collectionRate.previous
-    : null;
+  const rateDelta =
+    collectionRate.current !== null && collectionRate.previous !== null
+      ? collectionRate.current - collectionRate.previous
+      : null;
 
   return (
-    // App-shell layout: the outer row is pinned to the viewport height and never
-    // scrolls itself. The sidebar therefore always matches the full visible
-    // height, and only the content pane scrolls — this is what was producing
-    // the "sidebar looks short next to a much taller dashboard" effect before,
-    // since the old layout let the whole page (and its stray top/left margin)
-    // grow past the sidebar's own 100vh.
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F7F8FB', fontFamily: 'Inter, sans-serif' }}>
       <link href={fontImports} rel="stylesheet" />
       <Sidebar schoolName={schoolName} />
@@ -274,59 +316,217 @@ export default function SchoolOwnerDashboardClient({
 
       <style>{`
         html, body { margin: 0; padding: 0; height: 100%; }
-        .so-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 18px rgba(7,27,74,0.06); border: 1px solid #EEF1F6; }
-        .so-heading { font-family: 'Fraunces', serif; color: #071B4A; font-weight: 700; margin: 0; }
-        .so-stat-value { font-family: 'Fraunces', serif; font-weight: 700; color: #071B4A; line-height: 1; }
-        .so-stat-card { position: relative; overflow: hidden; padding: 22px 20px; transition: transform .25s ease, box-shadow .25s ease; }
-        .so-stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(7,27,74,0.12); }
-        .so-stat-card::after { content: ''; position: absolute; top: -30px; right: -30px; width: 90px; height: 90px; border-radius: 50%; background: rgba(255,180,0,0.08); }
-        .so-link-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #071B4A; text-decoration: none; border-bottom: 1px solid #FFB400; padding-bottom: 1px; background: none; border-left: none; border-right: none; border-top: none; cursor: pointer; padding: 0 0 1px; }
-        .so-pill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; background: #FFF3D6; color: #8A5A00; letter-spacing: 0.3px; }
-        .so-action { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
-        .so-action:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(7,27,74,0.1); }
-        .so-action .label { font-weight: 700; color: #071B4A; font-size: 14px; }
-        .so-action .sub { font-size: 12px; color: #5A6A7A; }
-        @keyframes so-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-        .so-pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #FFB400; display: inline-block; animation: so-pulse 1.6s ease-in-out infinite; }
-        .so-input { padding: 9px 12px; border-radius: 8px; border: 1px solid #DCE1E8; font-size: 13px; outline: none; width: 100%; font-family: 'Inter', sans-serif; }
-        .so-btn { background: #FFB400; color: #071B4A; border: none; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .so-card {
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 4px 18px rgba(7,27,74,0.06);
+          border: 1px solid #EEF1F6;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .so-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(7,27,74,0.1);
+        }
+        .so-heading {
+          font-family: 'Fraunces', serif;
+          color: #071B4A;
+          font-weight: 700;
+          margin: 0;
+        }
+        .so-stat-value {
+          font-family: 'Fraunces', serif;
+          font-weight: 700;
+          color: #071B4A;
+          line-height: 1;
+        }
+        .so-stat-card {
+          position: relative;
+          overflow: hidden;
+          padding: 22px 20px;
+        }
+        .so-stat-card .icon-wrapper {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255,180,0,0.1);
+          color: #FFB400;
+        }
+        .so-link-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #071B4A;
+          text-decoration: none;
+          border-bottom: 1px solid #FFB400;
+          padding-bottom: 1px;
+          background: none;
+          border-left: none;
+          border-right: none;
+          border-top: none;
+          cursor: pointer;
+          padding: 0 0 1px;
+        }
+        .so-pill {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 10px;
+          border-radius: 12px;
+          background: #FFF3D6;
+          color: #8A5A00;
+          letter-spacing: 0.3px;
+        }
+        .so-action {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding: 18px 20px;
+          text-decoration: none;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .so-action:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 24px rgba(7,27,74,0.1);
+        }
+        .so-action .label {
+          font-weight: 700;
+          color: #071B4A;
+          font-size: 14px;
+        }
+        .so-action .sub {
+          font-size: 12px;
+          color: #5A6A7A;
+        }
+        @keyframes so-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.55; }
+        }
+        .so-pulse-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #FFB400;
+          display: inline-block;
+          animation: so-pulse 1.6s ease-in-out infinite;
+        }
+        .so-input {
+          padding: 9px 12px;
+          border-radius: 8px;
+          border: 1px solid #DCE1E8;
+          font-size: 13px;
+          outline: none;
+          width: 100%;
+          font-family: 'Inter', sans-serif;
+        }
+        .so-btn {
+          background: #FFB400;
+          color: #071B4A;
+          border: none;
+          border-radius: 20px;
+          padding: 9px 18px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
         .so-content-scroll::-webkit-scrollbar { width: 8px; }
         .so-content-scroll::-webkit-scrollbar-thumb { background: #DCE1E8; border-radius: 8px; }
-        .so-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .so-chart-split { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: 16px; }
-        @media (max-width: 900px) {
-          .so-two-col, .so-chart-split { grid-template-columns: 1fr; }
+        .grid-3 {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .grid-2 {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 1024px) {
+          .grid-3 { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 640px) {
+          .grid-3, .grid-2 { grid-template-columns: 1fr; }
         }
       `}</style>
 
       <main className="so-content-scroll" style={{ flex: 1, height: '100vh', overflowY: 'auto' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 28px 60px' }}>
+          {/* ---- TOP BANNER ---- */}
           <Reveal>
-            <div style={{ marginBottom: 28 }}>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, letterSpacing: 1.5, color: '#5A6A7A', textTransform: 'uppercase' }}>
-                Tableau de bord — Chef d'établissement
-              </span>
-              <h1 className="so-heading" style={{ fontSize: 34, margin: '6px 0 4px' }}>{schoolName}</h1>
-              <p style={{ color: '#5A6A7A', fontSize: 15, margin: 0 }}>Bienvenue, {ownerName}. Voici un aperçu détaillé de votre établissement.</p>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #071B4A 0%, #0A2A6B 60%, #FFB400 160%)',
+                borderRadius: 20,
+                padding: '28px 32px',
+                marginBottom: 28,
+                color: '#fff',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(7,27,74,0.2)',
+              }}
+            >
+              {/* Decorative school icon background */}
+              <School
+                size={220}
+                style={{
+                  position: 'absolute',
+                  right: -20,
+                  bottom: -40,
+                  opacity: 0.08,
+                  transform: 'rotate(-10deg)',
+                }}
+              />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <LayoutDashboard size={18} style={{ opacity: 0.8 }} />
+                  <span style={{ fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', opacity: 0.8 }}>
+                    Tableau de bord — Chef d'établissement
+                  </span>
+                </div>
+                <h1 className="so-heading" style={{ fontSize: 32, color: '#fff', margin: '6px 0 4px' }}>
+                  {schoolName}
+                </h1>
+                <p style={{ fontSize: 15, opacity: 0.85, margin: 0 }}>
+                  Bienvenue, {ownerName}. Voici un aperçu détaillé de votre établissement.
+                </p>
+              </div>
             </div>
           </Reveal>
 
-          {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 16, marginBottom: 24 }}>
-            <Reveal delay={0.0}>
+          {/* ---- STATS ROW 1 (3 cards) ---- */}
+          <div className="grid-3" style={{ marginBottom: 16 }}>
+            <Reveal delay={0.05}>
               <div className="so-card so-stat-card">
+                <div className="icon-wrapper">
+                  <Users size={20} />
+                </div>
                 <div className="so-stat-value" style={{ fontSize: 30 }}>{teacherCount}</div>
                 <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Enseignants</div>
               </div>
             </Reveal>
-            <Reveal delay={0.08}>
+            <Reveal delay={0.1}>
               <div className="so-card so-stat-card">
+                <div className="icon-wrapper">
+                  <GraduationCap size={20} />
+                </div>
                 <div className="so-stat-value" style={{ fontSize: 30 }}>{studentCount}</div>
                 <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Élèves inscrits</div>
               </div>
             </Reveal>
-            <Reveal delay={0.16}>
+            <Reveal delay={0.15}>
               <div className="so-card so-stat-card">
+                <div className="icon-wrapper">
+                  <ClipboardCheck size={20} />
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div className="so-stat-value" style={{ fontSize: 30 }}>{pendingEnrollments}</div>
                   {pendingEnrollments > 0 && <span className="so-pulse-dot" />}
@@ -334,27 +534,40 @@ export default function SchoolOwnerDashboardClient({
                 <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Demandes en attente</div>
               </div>
             </Reveal>
-            <Reveal delay={0.24}>
+          </div>
+
+          {/* ---- STATS ROW 2 (3 cards) ---- */}
+          <div className="grid-3" style={{ marginBottom: 24 }}>
+            <Reveal delay={0.2}>
               <div className="so-card so-stat-card">
+                <div className="icon-wrapper">
+                  <Wallet size={20} />
+                </div>
                 <div className="so-stat-value" style={{ fontSize: 30 }}>{revenueCollected.toLocaleString('fr-FR')} DT</div>
                 <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Revenus encaissés</div>
               </div>
             </Reveal>
-            <Reveal delay={0.32}>
+            <Reveal delay={0.25}>
               <div className="so-card so-stat-card">
+                <div className="icon-wrapper">
+                  <AlertTriangle size={20} />
+                </div>
                 <div className="so-stat-value" style={{ fontSize: 30, color: unpaidCount > 0 ? '#C0392B' : '#071B4A' }}>{unpaidCount}</div>
                 <div style={{ color: '#5A6A7A', fontSize: 13, marginTop: 4 }}>Factures impayées</div>
               </div>
             </Reveal>
-            <Reveal delay={0.4}>
+            <Reveal delay={0.3}>
               <div className="so-card so-stat-card">
+                <div className="icon-wrapper">
+                  <Percent size={20} />
+                </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <div className="so-stat-value" style={{ fontSize: 30 }}>
                     {collectionRate.current !== null ? `${collectionRate.current}%` : '—'}
                   </div>
                   {rateDelta !== null && (
-                    <span style={{ fontSize: 12, fontWeight: 700, color: rateDelta >= 0 ? '#27500A' : '#C0392B' }}>
-                      {rateDelta >= 0 ? '▲' : '▼'} {Math.abs(rateDelta)} pts
+                    <span style={{ fontSize: 12, fontWeight: 700, color: rateDelta >= 0 ? '#27500A' : '#C0392B', display: 'flex', alignItems: 'center' }}>
+                      {rateDelta >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />} {Math.abs(rateDelta)} pts
                     </span>
                   )}
                 </div>
@@ -363,9 +576,20 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           </div>
 
+          {/* ---- ALERT / ACTIONABLE ROW ---- */}
           {pendingEnrollments > 0 && (
             <Reveal delay={0.1}>
-              <div className="so-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', marginBottom: 20, borderLeft: '4px solid #FFB400' }}>
+              <div
+                className="so-card"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '18px 24px',
+                  marginBottom: 20,
+                  borderLeft: '4px solid #FFB400',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span className="so-pulse-dot" />
                   <div>
@@ -375,22 +599,40 @@ export default function SchoolOwnerDashboardClient({
                     <div style={{ fontSize: 13, color: '#5A6A7A' }}>Des familles attendent une réponse pour rejoindre {schoolName}.</div>
                   </div>
                 </div>
-                <Link href="/dashboard/school-owner/enrollments" style={{ background: '#071B4A', color: '#fff', padding: '9px 20px', borderRadius: 20, fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                  Examiner →
+                <Link
+                  href="/dashboard/school-owner/enrollments"
+                  style={{
+                    background: '#071B4A',
+                    color: '#fff',
+                    padding: '9px 20px',
+                    borderRadius: 20,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  Examiner <ChevronRight size={16} />
                 </Link>
               </div>
             </Reveal>
           )}
 
-          {/* Overdue invoices — actionable */}
+          {/* ---- OVERDUE INVOICES (FULL WIDTH) ---- */}
           {overdueInvoices.length > 0 && (
             <Reveal delay={0.1}>
               <div className="so-card" style={{ padding: 24, marginBottom: 20, borderLeft: '4px solid #C0392B' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>
+                  <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Clock size={20} color="#C0392B" />
                     Factures en retard {overdueCount > 0 && <span style={{ color: '#C0392B' }}>({overdueCount})</span>}
                   </h2>
-                  <Link href="/dashboard/school-owner/payments" className="so-link-btn">Gérer les paiements →</Link>
+                  <Link href="/dashboard/school-owner/payments" className="so-link-btn">
+                    Gérer les paiements <ChevronRight size={14} />
+                  </Link>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {overdueInvoices.map((inv) => (
@@ -418,86 +660,54 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           )}
 
-          {/* Data health */}
-          <Reveal delay={0.1}>
-            <div
-              className="so-card"
-              style={{
-                padding: '18px 24px', marginBottom: 20,
-                borderLeft: `4px solid ${totalHealthIssues > 0 ? '#C0392B' : '#4C7C59'}`,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: totalHealthIssues > 0 ? 10 : 0 }}>
-                <span style={{ fontSize: 18 }}>{totalHealthIssues > 0 ? '⚠️' : '✅'}</span>
-                <strong style={{ color: '#071B4A', fontSize: 15 }}>
-                  {totalHealthIssues > 0 ? `${totalHealthIssues} élément(s) à corriger` : 'Tout est en ordre'}
-                </strong>
-              </div>
-              {totalHealthIssues > 0 && (
-                <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', fontSize: 13 }}>
-                  {health.studentsNoClass > 0 && (
-                    <Link href="/dashboard/school-owner/students" style={{ color: '#C0392B', textDecoration: 'underline' }}>
-                      {health.studentsNoClass} élève{health.studentsNoClass > 1 ? 's' : ''} sans classe assignée
-                    </Link>
-                  )}
-                  {health.classesNoTeacher > 0 && (
-                    <Link href="/dashboard/school-owner/classes" style={{ color: '#C0392B', textDecoration: 'underline' }}>
-                      {health.classesNoTeacher} classe{health.classesNoTeacher > 1 ? 's' : ''} sans enseignant
-                    </Link>
-                  )}
-                  {health.studentsNoParent > 0 && (
-                    <Link href="/dashboard/school-owner/students" style={{ color: '#C0392B', textDecoration: 'underline' }}>
-                      {health.studentsNoParent} élève{health.studentsNoParent > 1 ? 's' : ''} sans parent lié
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          </Reveal>
-
-          {/* Chart section */}
-          <div className="so-chart-split" style={{ marginBottom: 16 }}>
+          {/* ---- DATA HEALTH + ANNOUNCEMENTS + EVENTS (3 cards) ---- */}
+          <div className="grid-3" style={{ marginBottom: 20 }}>
+            {/* Data Health */}
             <Reveal delay={0.1}>
-              <div className="so-card" style={{ padding: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>Tendance sur 6 mois</h2>
-                  <div style={{ display: 'flex', gap: 14, fontSize: 11.5, color: '#5A6A7A' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 2.5, background: '#FFB400', display: 'inline-block' }} /> Revenus</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 2.5, background: '#071B4A', display: 'inline-block' }} /> Inscriptions</span>
+              <div
+                className="so-card"
+                style={{
+                  padding: '18px 24px',
+                  borderLeft: `4px solid ${totalHealthIssues > 0 ? '#C0392B' : '#4C7C59'}`,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: totalHealthIssues > 0 ? 10 : 0 }}>
+                  {totalHealthIssues > 0 ? <AlertCircle size={20} color="#C0392B" /> : <CheckCircle2 size={20} color="#4C7C59" />}
+                  <strong style={{ color: '#071B4A', fontSize: 15 }}>
+                    {totalHealthIssues > 0 ? `${totalHealthIssues} élément(s) à corriger` : 'Tout est en ordre'}
+                  </strong>
+                </div>
+                {totalHealthIssues > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, marginTop: 10 }}>
+                    {health.studentsNoClass > 0 && (
+                      <Link href="/dashboard/school-owner/students" style={{ color: '#C0392B', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Users size={14} /> {health.studentsNoClass} élève{health.studentsNoClass > 1 ? 's' : ''} sans classe assignée
+                      </Link>
+                    )}
+                    {health.classesNoTeacher > 0 && (
+                      <Link href="/dashboard/school-owner/classes" style={{ color: '#C0392B', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <School size={14} /> {health.classesNoTeacher} classe{health.classesNoTeacher > 1 ? 's' : ''} sans enseignant
+                      </Link>
+                    )}
+                    {health.studentsNoParent > 0 && (
+                      <Link href="/dashboard/school-owner/students" style={{ color: '#C0392B', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <UserPlus size={14} /> {health.studentsNoParent} élève{health.studentsNoParent > 1 ? 's' : ''} sans parent lié
+                      </Link>
+                    )}
                   </div>
-                </div>
-                <TrendChart trend={trend} />
+                )}
               </div>
             </Reveal>
-            <Reveal delay={0.16}>
-              <div className="so-card" style={{ padding: 24 }}>
-                <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16 }}>État des factures</h2>
-                <InvoiceStatusDonut breakdown={invoiceStatusBreakdown} />
-              </div>
-            </Reveal>
-          </div>
 
-          {/* Revenue by class/semester */}
-          <div style={{ marginBottom: 20 }}>
-            <Reveal delay={0.14}>
-              <div className="so-card" style={{ padding: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>Revenus par classe et semestre</h2>
-                  <Link href="/dashboard/school-owner/payments" className="so-link-btn">Détails →</Link>
-                </div>
-                <RevenueByClassBars rows={revenueByClass} />
-              </div>
-            </Reveal>
-          </div>
-
-          {/* Announcements + Events */}
-          <div className="so-two-col" style={{ marginBottom: 20 }}>
-            <Reveal delay={0.1}>
+            {/* Announcements */}
+            <Reveal delay={0.15}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>Annonces</h2>
+                  <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Megaphone size={20} color="#FFB400" /> Annonces
+                  </h2>
                   <button className="so-link-btn" onClick={() => setShowAnnForm((s) => !s)}>
-                    {showAnnForm ? 'Annuler' : '+ Publier'}
+                    {showAnnForm ? 'Annuler' : <><Plus size={14} /> Publier</>}
                   </button>
                 </div>
 
@@ -511,7 +721,7 @@ export default function SchoolOwnerDashboardClient({
                       <option value="POLICY">Politique</option>
                     </select>
                     <button onClick={submitAnnouncement} disabled={savingAnn} className="so-btn">
-                      {savingAnn ? '...' : 'Publier'}
+                      {savingAnn ? '...' : <><Plus size={14} /> Publier</>}
                     </button>
                   </div>
                 )}
@@ -534,12 +744,15 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            <Reveal delay={0.16}>
+            {/* Upcoming Events */}
+            <Reveal delay={0.2}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>Événements à venir</h2>
+                  <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <CalendarDays size={20} color="#071B4A" /> Événements à venir
+                  </h2>
                   <button className="so-link-btn" onClick={() => setShowEvForm((s) => !s)}>
-                    {showEvForm ? 'Annuler' : '+ Ajouter'}
+                    {showEvForm ? 'Annuler' : <><Plus size={14} /> Ajouter</>}
                   </button>
                 </div>
 
@@ -548,7 +761,9 @@ export default function SchoolOwnerDashboardClient({
                     <input placeholder="Titre" value={evTitle} onChange={(e) => setEvTitle(e.target.value)} className="so-input" />
                     <textarea placeholder="Description (optionnel)" value={evDesc} onChange={(e) => setEvDesc(e.target.value)} rows={2} className="so-input" />
                     <select value={evType} onChange={(e) => setEvType(e.target.value)} className="so-input">
-                      {Object.entries(eventTypeLabel).map(([key, v]) => <option key={key} value={key}>{v.emoji} {v.label}</option>)}
+                      {Object.entries(eventTypeLabel).map(([key, v]) => (
+                        <option key={key} value={key}>{v.emoji} {v.label}</option>
+                      ))}
                     </select>
                     <select value={evClassId} onChange={(e) => setEvClassId(e.target.value)} className="so-input">
                       <option value="">Toute l'école</option>
@@ -556,7 +771,7 @@ export default function SchoolOwnerDashboardClient({
                     </select>
                     <input type="date" value={evDate} onChange={(e) => setEvDate(e.target.value)} className="so-input" />
                     <button onClick={submitEvent} disabled={savingEv} className="so-btn">
-                      {savingEv ? '...' : 'Ajouter au calendrier'}
+                      {savingEv ? '...' : <><Plus size={14} /> Ajouter au calendrier</>}
                     </button>
                   </div>
                 )}
@@ -583,13 +798,88 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           </div>
 
-          {/* Recent teachers + Messages */}
-          <div className="so-two-col" style={{ marginBottom: 24 }}>
+          {/* ---- CHARTS ROW: TREND + INVOICE STATUS + COLLECTION RATE ---- */}
+          <div className="grid-3" style={{ marginBottom: 20 }}>
+            {/* Trend Chart */}
+            <Reveal delay={0.1}>
+              <div className="so-card" style={{ padding: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <TrendingUp size={20} color="#FFB400" /> Tendance sur 6 mois
+                  </h2>
+                  <div style={{ display: 'flex', gap: 14, fontSize: 11.5, color: '#5A6A7A' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 2.5, background: '#FFB400', display: 'inline-block' }} /> Revenus</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 2.5, background: '#071B4A', display: 'inline-block' }} /> Inscriptions</span>
+                  </div>
+                </div>
+                <TrendChart trend={trend} />
+              </div>
+            </Reveal>
+
+            {/* Invoice Status Donut */}
+            <Reveal delay={0.15}>
+              <div className="so-card" style={{ padding: 24 }}>
+                <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <PieChartIcon size={20} color="#071B4A" /> État des factures
+                </h2>
+                <InvoiceStatusDonut breakdown={invoiceStatusBreakdown} />
+              </div>
+            </Reveal>
+
+            {/* Collection Rate Card (small) */}
+            <Reveal delay={0.2}>
+              <div className="so-card" style={{ padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <BarChart3 size={20} color="#FFB400" /> Taux de recouvrement
+                </h2>
+                {collectionRate.current === null ? (
+                  <p style={{ color: '#5A6A7A' }}>Pas de données ce mois-ci.</p>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 48, fontWeight: 700, fontFamily: 'Fraunces, serif', color: '#071B4A', lineHeight: 1 }}>
+                      {collectionRate.current}%
+                    </div>
+                    <div style={{ fontSize: 14, color: '#5A6A7A', marginTop: 8 }}>
+                      {rateDelta !== null && (
+                        <span style={{ fontWeight: 700, color: rateDelta >= 0 ? '#27500A' : '#C0392B', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {rateDelta >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                          {Math.abs(rateDelta)} pts par rapport au mois dernier
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </Reveal>
+          </div>
+
+          {/* ---- REVENUE BY CLASS (FULL WIDTH) ---- */}
+          <Reveal delay={0.1}>
+            <div className="so-card" style={{ padding: 24, marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <CreditCard size={20} color="#FFB400" /> Revenus par classe et semestre
+                </h2>
+                <Link href="/dashboard/school-owner/payments" className="so-link-btn">
+                  Détails <ChevronRight size={14} />
+                </Link>
+              </div>
+              <RevenueByClassBars rows={revenueByClass} />
+            </div>
+          </Reveal>
+
+          {/* ---- RECENT TEACHERS + MESSAGES + QUICK ACTIONS ---- */}
+          <div className="grid-3" style={{ marginBottom: 24 }}>
+            {/* Recent Teachers */}
             <Reveal delay={0.1}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>Enseignants récents</h2>
-                  <Link href="/dashboard/school-owner/teachers" className="so-link-btn">Voir tous →</Link>
+                  <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Users size={20} color="#071B4A" /> Enseignants récents
+                  </h2>
+                  <Link href="/dashboard/school-owner/teachers" className="so-link-btn">
+                    Voir tous <ChevronRight size={14} />
+                  </Link>
                 </div>
                 {recentTeachers.length === 0 ? (
                   <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucun enseignant pour le moment.</p>
@@ -614,11 +904,16 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            <Reveal delay={0.16}>
+            {/* Messages */}
+            <Reveal delay={0.15}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <h2 className="so-heading" style={{ fontSize: 17 }}>Messages</h2>
-                  <Link href="/dashboard/messages" className="so-link-btn">Boîte de réception →</Link>
+                  <h2 className="so-heading" style={{ fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <MessageSquare size={20} color="#071B4A" /> Messages
+                  </h2>
+                  <Link href="/dashboard/messages" className="so-link-btn">
+                    Boîte de réception <ChevronRight size={14} />
+                  </Link>
                 </div>
                 {conversations.length === 0 ? (
                   <p style={{ color: '#5A6A7A', fontSize: 14 }}>Aucune conversation pour le moment.</p>
@@ -646,27 +941,54 @@ export default function SchoolOwnerDashboardClient({
                 )}
               </div>
             </Reveal>
-          </div>
 
-          <Reveal delay={0.1}>
-            <h2 className="so-heading" style={{ fontSize: 18, marginBottom: 14 }}>Actions rapides</h2>
-          </Reveal>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
-            {[
-              { href: '/dashboard/school-owner/teachers/new', label: 'Ajouter un enseignant', sub: 'Créer un compte enseignant' },
-              { href: '/dashboard/school-owner/enrollments', label: "Demandes d'inscription", sub: `${pendingEnrollments} en attente` },
-              { href: '/dashboard/school-owner/students', label: 'Élèves', sub: `${studentCount} inscrits` },
-              { href: '/dashboard/school-owner/payments', label: 'Paiements', sub: `${unpaidCount} factures à suivre` },
-              { href: '/dashboard/messages', label: 'Messagerie', sub: 'Contacter parents et enseignants' },
-              { href: '/dashboard/school-owner/classes', label: 'Classes', sub: "Gérer les classes de l'école" },
-            ].map((a, i) => (
-              <Reveal key={a.href} delay={0.05 * i}>
-                <Link href={a.href} className="so-card so-action">
-                  <span className="label">{a.label}</span>
-                  <span className="sub">{a.sub}</span>
-                </Link>
-              </Reveal>
-            ))}
+            {/* Quick Actions */}
+            <Reveal delay={0.2}>
+              <div className="so-card" style={{ padding: 24 }}>
+                <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Zap size={20} color="#FFB400" /> Actions rapides
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {[
+                    { href: '/dashboard/school-owner/teachers/new', label: 'Ajouter un enseignant', icon: <UserPlus size={16} /> },
+                    { href: '/dashboard/school-owner/enrollments', label: "Demandes d'inscription", icon: <ClipboardCheck size={16} /> },
+                    { href: '/dashboard/school-owner/students', label: 'Élèves', icon: <GraduationCap size={16} /> },
+                    { href: '/dashboard/school-owner/payments', label: 'Paiements', icon: <CreditCard size={16} /> },
+                    { href: '/dashboard/messages', label: 'Messagerie', icon: <MessageSquare size={16} /> },
+                    { href: '/dashboard/school-owner/classes', label: 'Classes', icon: <School size={16} /> },
+                  ].map((a, i) => (
+                    <Link
+                      key={a.href}
+                      href={a.href}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        background: '#F9FAFC',
+                        textDecoration: 'none',
+                        color: '#071B4A',
+                        fontSize: 13.5,
+                        fontWeight: 600,
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#FFB400';
+                        e.currentTarget.style.color = '#071B4A';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#F9FAFC';
+                        e.currentTarget.style.color = '#071B4A';
+                      }}
+                    >
+                      {a.icon}
+                      {a.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </main>
