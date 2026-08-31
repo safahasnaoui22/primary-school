@@ -1,237 +1,273 @@
-'use client';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import SchoolOwnerDashboardClient from './DashboardClient';
 
-import { useEffect, useState, useCallback } from 'react';
-
-interface Teacher { id: string; username: string; email: string; }
-interface ClassRow {
-  id: string;
-  name: string;
-  teachers: { id: string; username: string }[];
-  studentCount: number;
-  createdAt: string;
+function monthLabel(d: Date) {
+  return d.toLocaleDateString('fr-FR', { month: 'short' });
 }
 
-export default function ClassesPage() {
-  const [classes, setClasses] = useState<ClassRow[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [newName, setNewName] = useState('');
-  const [newTeacherIds, setNewTeacherIds] = useState<string[]>([]);
-  const [creating, setCreating] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editTeacherIds, setEditTeacherIds] = useState<string[]>([]);
+export default async function SchoolOwnerDashboard() {
+  const session = await auth();
 
-  const loadClasses = useCallback(async () => {
-    const res = await fetch('/api/school-owner/classes');
-    if (res.ok) setClasses(await res.json());
-  }, []);
+  if (!session?.user.schoolId) {
+    return (
+      <div style={{ padding: 40, fontFamily: 'Inter, sans-serif', color: '#5A6A7A' }}>
+        Aucune école n'est encore liée à votre compte. Contactez l'administrateur de la plateforme.
+      </div>
+    );
+  }
 
-  const loadTeachers = useCallback(async () => {
-    const res = await fetch('/api/school-owner/teachers');
-    if (res.ok) setTeachers(await res.json());
-  }, []);
+  const schoolId = session.user.schoolId;
+  const now = new Date();
 
-  useEffect(() => {
-    loadClasses();
-    loadTeachers();
-  }, [loadClasses, loadTeachers]);
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0, 0, 0, 0);
 
-  const toggleNewTeacher = (id: string) => {
-    setNewTeacherIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
-  };
+  // Month boundaries for the collection-rate comparison (this month vs last).
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-  const toggleEditTeacher = (id: string) => {
-    setEditTeacherIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
-  };
+  const [
+    school,
+    teacherCount,
+    studentCount,
+    pendingEnrollments,
+    recentTeachers,
+    invoiceAgg,
+    unpaidCount,
+    invoicesForTrend,
+    studentsForTrend,
+    invoiceStatusCounts,
+    studentsNoClass,
+    studentsNoParent,
+    classesNoTeacher,
+    classes,
+    announcements,
+    upcomingEvents,
+    conversations,
+    // --- Financial additions ---
+    overdueInvoicesRaw,
+    overdueCount,
+    paymentsForClassRevenue,
+    invoicesForCollectionRate,
+  ] = await Promise.all([
+    prisma.school.findUnique({ where: { id: schoolId } }),
+    prisma.user.count({ where: { schoolId, role: 'TEACHER' } }),
+    prisma.student.count({ where: { schoolId } }),
+    prisma.enrollmentRequest.count({ where: { schoolId, status: 'PENDING' } }),
+    prisma.user.findMany({
+      where: { schoolId, role: 'TEACHER' },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, username: true, email: true, createdAt: true },
+    }),
+    prisma.invoice.aggregate({ where: { schoolId, status: 'PAID' }, _sum: { amount: true } }),
+    prisma.invoice.count({ where: { schoolId, status: { in: ['PENDING', 'OVERDUE'] } } }),
+    prisma.invoice.findMany({
+      where: { schoolId, status: 'PAID', createdAt: { gte: sixMonthsAgo } },
+      select: { amount: true, createdAt: true },
+    }),
+    prisma.student.findMany({
+      where: { schoolId, createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    }),
+    prisma.invoice.groupBy({ by: ['status'], where: { schoolId }, _count: { _all: true } }),
+    // Data health
+    prisma.student.count({ where: { schoolId, classId: null } }),
+    prisma.student.count({ where: { schoolId, parents: { none: {} } } }),
+    prisma.class.count({ where: { schoolId, teacherId: null } }),
+    prisma.class.findMany({ where: { schoolId }, select: { id: true, name: true } }),
+    // Announcements
+    prisma.announcement.findMany({ where: { schoolId }, orderBy: { createdAt: 'desc' }, take: 4 }),
+    // Upcoming events
+    prisma.calendarEvent.findMany({
+      where: { schoolId, date: { gte: new Date() } },
+      orderBy: { date: 'asc' },
+      take: 5,
+    }),
+    // Messages
+    prisma.conversation.findMany({
+      where: { OR: [{ userAId: session.user.id }, { userBId: session.user.id }] },
+      include: {
+        userA: { select: { id: true, username: true, role: true } },
+        userB: { select: { id: true, username: true, role: true } },
+        messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+    }),
+    // Overdue invoices — anything past its due date and not fully paid,
+    // regardless of whether the `status` field has been flipped to
+    // OVERDUE elsewhere, so this is never silently stale.
+    prisma.invoice.findMany({
+      where: { schoolId, dueDate: { lt: now }, status: { notIn: ['PAID', 'CANCELLED'] } },
+      orderBy: { dueDate: 'asc' },
+      take: 5,
+      include: {
+        student: { select: { id: true, firstName: true, lastName: true } },
+        parent: { select: { username: true } },
+        payments: { where: { voided: false }, select: { amount: true } },
+      },
+    }),
+    prisma.invoice.count({
+      where: { schoolId, dueDate: { lt: now }, status: { notIn: ['PAID', 'CANCELLED'] } },
+    }),
+    // Revenue by class/semester — every non-voided payment, joined to its
+    // invoice's class + semester. Aggregated in JS below since Prisma's
+    // groupBy can't group on a related model's fields.
+    prisma.payment.findMany({
+      where: { voided: false, invoice: { schoolId } },
+      select: {
+        amount: true,
+        invoice: { select: { semester: true, class: { select: { id: true, name: true } } } },
+      },
+    }),
+    // Collection rate — invoices due this month and last month, with their
+    // non-voided payments, so we can compute amount-collected / amount-due
+    // for both months in a single pass.
+    prisma.invoice.findMany({
+      where: { schoolId, dueDate: { gte: lastMonthStart, lt: thisMonthEnd } },
+      select: {
+        amount: true,
+        dueDate: true,
+        payments: { where: { voided: false }, select: { amount: true } },
+      },
+    }),
+  ]);
 
-  const createClass = async () => {
-    if (!newName.trim()) {
-      setMsg('Le nom de la classe est requis.');
-      return;
-    }
-    setCreating(true);
-    setMsg('');
-    const res = await fetch('/api/school-owner/classes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newName, teacherIds: newTeacherIds }),
-    });
-    const data = await res.json();
-    setCreating(false);
-    if (res.ok) {
-      setNewName('');
-      setNewTeacherIds([]);
-      loadClasses();
+  const buckets: { key: string; label: string; revenue: number; students: number }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    buckets.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: monthLabel(d), revenue: 0, students: 0 });
+  }
+  const bucketIndex = (date: Date) => buckets.findIndex((b) => b.key === `${date.getFullYear()}-${date.getMonth()}`);
+
+  invoicesForTrend.forEach((inv: any) => {
+    const idx = bucketIndex(new Date(inv.createdAt));
+    if (idx !== -1) buckets[idx].revenue += inv.amount ?? 0;
+  });
+  studentsForTrend.forEach((s: any) => {
+    const idx = bucketIndex(new Date(s.createdAt));
+    if (idx !== -1) buckets[idx].students += 1;
+  });
+
+  const statusBreakdown = { PAID: 0, PENDING: 0, OVERDUE: 0 } as Record<string, number>;
+  invoiceStatusCounts.forEach((row: any) => {
+    statusBreakdown[row.status] = row._count._all;
+  });
+
+  const revenueCollected = invoiceAgg._sum.amount ?? 0;
+
+  const conversationsShaped = await Promise.all(
+    conversations.map(async (c: any) => {
+      const other = c.userAId === session.user.id ? c.userB : c.userA;
+      const unreadCount = await prisma.message.count({
+        where: { conversationId: c.id, senderId: { not: session.user.id }, readAt: null },
+      });
+      return {
+        id: c.id,
+        otherName: other.username,
+        otherRole: other.role,
+        lastMessage: c.messages[0]?.content ?? null,
+        unreadCount,
+      };
+    })
+  );
+
+  // --- Financial shaping ---
+
+  const overdueInvoices = overdueInvoicesRaw.map((inv: any) => {
+    const paid = inv.payments.reduce((s: number, p: any) => s + p.amount, 0);
+    const remaining = inv.amount - paid;
+    const daysLate = Math.max(0, Math.floor((now.getTime() - new Date(inv.dueDate).getTime()) / 86400000));
+    return {
+      id: inv.id,
+      studentId: inv.student.id,
+      studentName: `${inv.student.firstName} ${inv.student.lastName}`,
+      parentName: inv.parent.username,
+      remaining,
+      daysLate,
+    };
+  });
+
+  const revenueByClassMap = new Map<string, { className: string; semester: string; total: number }>();
+  paymentsForClassRevenue.forEach((p: any) => {
+    const cls = p.invoice.class;
+    const semester = p.invoice.semester;
+    const key = `${cls.id}|${semester}`;
+    const existing = revenueByClassMap.get(key);
+    if (existing) {
+      existing.total += p.amount;
     } else {
-      setMsg(data.error);
+      revenueByClassMap.set(key, { className: cls.name, semester, total: p.amount });
     }
-  };
+  });
+  const revenueByClass = Array.from(revenueByClassMap.values())
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6);
 
-  const startEdit = (c: ClassRow) => {
-    setEditingId(c.id);
-    setEditTeacherIds(c.teachers.map((t) => t.id));
-  };
-
-  const saveTeachers = async (classId: string) => {
-    await fetch(`/api/school-owner/classes/${classId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ teacherIds: editTeacherIds }),
+  function computeRate(bucket: 'this' | 'last') {
+    let due = 0;
+    let collected = 0;
+    invoicesForCollectionRate.forEach((inv: any) => {
+      const d = new Date(inv.dueDate);
+      const isThisMonth = d >= thisMonthStart && d < thisMonthEnd;
+      const isLastMonth = d >= lastMonthStart && d < thisMonthStart;
+      if ((bucket === 'this' && isThisMonth) || (bucket === 'last' && isLastMonth)) {
+        due += inv.amount;
+        collected += inv.payments.reduce((s: number, p: any) => s + p.amount, 0);
+      }
     });
-    setEditingId(null);
-    loadClasses();
-  };
+    return due > 0 ? Math.round((collected / due) * 100) : null;
+  }
 
-  const deleteClass = async (id: string, studentCount: number) => {
-    if (studentCount > 0) {
-      alert(`Impossible de supprimer : ${studentCount} élève(s) sont encore dans cette classe.`);
-      return;
-    }
-    if (!confirm('Supprimer cette classe ?')) return;
-    const res = await fetch(`/api/school-owner/classes/${id}`, { method: 'DELETE' });
-    if (res.ok) loadClasses();
-    else {
-      const data = await res.json();
-      alert(data.error);
-    }
+  const collectionRate = {
+    current: computeRate('this'),
+    previous: computeRate('last'),
   };
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', maxWidth: 900, margin: '0 auto' }}>
-      <h1 style={{ color: '#071B4A', marginBottom: 4 }}>Classes</h1>
-      <p style={{ color: '#5A6A7A', marginBottom: 24 }}>
-        Créez les classes de votre école — vous pouvez assigner un ou plusieurs enseignants à chacune.
-      </p>
-
-      {/* Create form */}
-      <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-        <input
-          placeholder="Nom de la classe (ex: CP1)"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          style={{ ...inputStyle, maxWidth: 260, marginBottom: 12 }}
-        />
-
-        <div style={{ fontSize: 12, color: '#5A6A7A', marginBottom: 6, fontWeight: 600 }}>
-          Enseignants (sélectionnez-en autant que nécessaire)
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-          {teachers.length === 0 ? (
-            <span style={{ fontSize: 13, color: '#5A6A7A' }}>Aucun enseignant disponible.</span>
-          ) : (
-            teachers.map((t) => (
-              <label
-                key={t.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 13,
-                  padding: '6px 12px', borderRadius: 16,
-                  border: `1px solid ${newTeacherIds.includes(t.id) ? '#FFB400' : '#DCE1E8'}`,
-                  background: newTeacherIds.includes(t.id) ? '#FFF3D6' : '#fff',
-                  cursor: 'pointer',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={newTeacherIds.includes(t.id)}
-                  onChange={() => toggleNewTeacher(t.id)}
-                  style={{ margin: 0 }}
-                />
-                {t.username}
-              </label>
-            ))
-          )}
-        </div>
-
-        <button onClick={createClass} disabled={creating} style={smallBtnStyle}>
-          {creating ? '...' : '+ Créer la classe'}
-        </button>
-        {msg && <p style={{ fontSize: 13, color: '#C0392B', marginTop: 10 }}>{msg}</p>}
-      </div>
-
-      {/* Classes table */}
-      <div style={{ background: '#fff', border: '1px solid #E5E9F0', borderRadius: 12, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#F8F9FA', textAlign: 'left' }}>
-              <th style={thStyle}>Classe</th>
-              <th style={thStyle}>Enseignant(s)</th>
-              <th style={thStyle}>Élèves</th>
-              <th style={thStyle}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {classes.length === 0 && (
-              <tr><td style={tdStyle} colSpan={4}>Aucune classe pour le moment. Créez-en une ci-dessus.</td></tr>
-            )}
-            {classes.map((c) => (
-              <tr key={c.id}>
-                <td style={{ ...tdStyle, fontWeight: 600, color: '#071B4A', verticalAlign: 'top' }}>{c.name}</td>
-                <td style={tdStyle}>
-                  {editingId === c.id ? (
-                    <div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-                        {teachers.map((t) => (
-                          <label
-                            key={t.id}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 5, fontSize: 12,
-                              padding: '4px 10px', borderRadius: 14,
-                              border: `1px solid ${editTeacherIds.includes(t.id) ? '#FFB400' : '#DCE1E8'}`,
-                              background: editTeacherIds.includes(t.id) ? '#FFF3D6' : '#fff',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={editTeacherIds.includes(t.id)}
-                              onChange={() => toggleEditTeacher(t.id)}
-                              style={{ margin: 0 }}
-                            />
-                            {t.username}
-                          </label>
-                        ))}
-                      </div>
-                      <button onClick={() => saveTeachers(c.id)} style={{ ...smallBtnStyle, padding: '6px 12px' }}>
-                        Enregistrer
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        style={{ ...smallBtnStyle, padding: '6px 12px', background: '#F0F2F5', color: '#071B4A', marginLeft: 6 }}
-                      >
-                        Annuler
-                      </button>
-                    </div>
-                  ) : (
-                    <span onClick={() => startEdit(c)} style={{ cursor: 'pointer' }}>
-                      {c.teachers.length === 0 ? (
-                        <span style={{ color: '#C0392B', textDecoration: 'underline dotted' }}>Non assigné</span>
-                      ) : (
-                        <span style={{ color: '#1A1A2E', textDecoration: 'underline dotted' }}>
-                          {c.teachers.map((t) => t.username).join(', ')}
-                        </span>
-                      )}
-                    </span>
-                  )}
-                </td>
-                <td style={{ ...tdStyle, verticalAlign: 'top' }}>{c.studentCount}</td>
-                <td style={{ ...tdStyle, verticalAlign: 'top' }}>
-                  <button
-                    onClick={() => deleteClass(c.id, c.studentCount)}
-                    style={{ background: 'none', border: 'none', color: '#C0392B', fontSize: 12, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    Supprimer
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <SchoolOwnerDashboardClient
+      schoolName={school?.name ?? 'Votre école'}
+      ownerName={session.user.name ?? ''}
+      teacherCount={teacherCount}
+      studentCount={studentCount}
+      pendingEnrollments={pendingEnrollments}
+      recentTeachers={recentTeachers.map((t: any) => ({
+        id: t.id,
+        username: t.username,
+        email: t.email,
+        createdAt: t.createdAt.toISOString(),
+      }))}
+      revenueCollected={revenueCollected}
+      unpaidCount={unpaidCount}
+      trend={buckets}
+      invoiceStatusBreakdown={statusBreakdown}
+      health={{ studentsNoClass, studentsNoParent, classesNoTeacher }}
+      classes={classes}
+      announcements={announcements.map((a: any) => ({
+        id: a.id,
+        title: a.title,
+        body: a.body,
+        category: a.category,
+        createdAt: a.createdAt.toISOString(),
+      }))}
+      upcomingEvents={upcomingEvents.map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        date: e.date.toISOString(),
+        type: e.type,
+      }))}
+      conversations={conversationsShaped}
+      overdueInvoices={overdueInvoices}
+      overdueCount={overdueCount}
+      revenueByClass={revenueByClass}
+      collectionRate={collectionRate}
+    />
   );
 }
-
-const thStyle: React.CSSProperties = { padding: '11px 14px', fontSize: 12, color: '#5A6A7A', fontWeight: 600, borderBottom: '1px solid #E5E9F0' };
-const tdStyle: React.CSSProperties = { padding: '11px 14px', fontSize: 13, color: '#1A1A2E', borderBottom: '1px solid #F5F5F5' };
-const inputStyle: React.CSSProperties = { padding: '9px 12px', borderRadius: 8, border: '1px solid #DCE1E8', fontSize: 13, outline: 'none' };
-const smallBtnStyle: React.CSSProperties = { background: '#FFB400', color: '#071B4A', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
