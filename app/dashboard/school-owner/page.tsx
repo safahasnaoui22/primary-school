@@ -1,9 +1,6 @@
-// app/dashboard/school-owner/page.tsx
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import SchoolOwnerDashboardClient from './DashboardClient';
-
-export const dynamic = 'force-dynamic';
 
 function monthLabel(d: Date) {
   return d.toLocaleDateString('fr-FR', { month: 'short' });
@@ -28,6 +25,7 @@ export default async function SchoolOwnerDashboard() {
   sixMonthsAgo.setDate(1);
   sixMonthsAgo.setHours(0, 0, 0, 0);
 
+  // Month boundaries for the collection-rate comparison (this month vs last).
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -50,6 +48,7 @@ export default async function SchoolOwnerDashboard() {
     announcements,
     upcomingEvents,
     conversations,
+    // --- Financial additions ---
     overdueInvoicesRaw,
     overdueCount,
     paymentsForClassRevenue,
@@ -76,16 +75,20 @@ export default async function SchoolOwnerDashboard() {
       select: { createdAt: true },
     }),
     prisma.invoice.groupBy({ by: ['status'], where: { schoolId }, _count: { _all: true } }),
+    // Data health
     prisma.student.count({ where: { schoolId, classId: null } }),
     prisma.student.count({ where: { schoolId, parents: { none: {} } } }),
     prisma.class.count({ where: { schoolId, teacherId: null } }),
     prisma.class.findMany({ where: { schoolId }, select: { id: true, name: true } }),
+    // Announcements
     prisma.announcement.findMany({ where: { schoolId }, orderBy: { createdAt: 'desc' }, take: 4 }),
+    // Upcoming events
     prisma.calendarEvent.findMany({
       where: { schoolId, date: { gte: new Date() } },
       orderBy: { date: 'asc' },
       take: 5,
     }),
+    // Messages
     prisma.conversation.findMany({
       where: { OR: [{ userAId: session.user.id }, { userBId: session.user.id }] },
       include: {
@@ -96,6 +99,9 @@ export default async function SchoolOwnerDashboard() {
       orderBy: { createdAt: 'desc' },
       take: 4,
     }),
+    // Overdue invoices — anything past its due date and not fully paid,
+    // regardless of whether the `status` field has been flipped to
+    // OVERDUE elsewhere, so this is never silently stale.
     prisma.invoice.findMany({
       where: { schoolId, dueDate: { lt: now }, status: { notIn: ['PAID', 'CANCELLED'] } },
       orderBy: { dueDate: 'asc' },
@@ -109,6 +115,9 @@ export default async function SchoolOwnerDashboard() {
     prisma.invoice.count({
       where: { schoolId, dueDate: { lt: now }, status: { notIn: ['PAID', 'CANCELLED'] } },
     }),
+    // Revenue by class/semester — every non-voided payment, joined to its
+    // invoice's class + semester. Aggregated in JS below since Prisma's
+    // groupBy can't group on a related model's fields.
     prisma.payment.findMany({
       where: { voided: false, invoice: { schoolId } },
       select: {
@@ -116,6 +125,9 @@ export default async function SchoolOwnerDashboard() {
         invoice: { select: { semester: true, class: { select: { id: true, name: true } } } },
       },
     }),
+    // Collection rate — invoices due this month and last month, with their
+    // non-voided payments, so we can compute amount-collected / amount-due
+    // for both months in a single pass.
     prisma.invoice.findMany({
       where: { schoolId, dueDate: { gte: lastMonthStart, lt: thisMonthEnd } },
       select: {
@@ -134,24 +146,24 @@ export default async function SchoolOwnerDashboard() {
   }
   const bucketIndex = (date: Date) => buckets.findIndex((b) => b.key === `${date.getFullYear()}-${date.getMonth()}`);
 
-  invoicesForTrend.forEach((inv) => {
+  invoicesForTrend.forEach((inv: any) => {
     const idx = bucketIndex(new Date(inv.createdAt));
     if (idx !== -1) buckets[idx].revenue += inv.amount ?? 0;
   });
-  studentsForTrend.forEach((s) => {
+  studentsForTrend.forEach((s: any) => {
     const idx = bucketIndex(new Date(s.createdAt));
     if (idx !== -1) buckets[idx].students += 1;
   });
 
   const statusBreakdown = { PAID: 0, PENDING: 0, OVERDUE: 0 } as Record<string, number>;
-  invoiceStatusCounts.forEach((row) => {
+  invoiceStatusCounts.forEach((row: any) => {
     statusBreakdown[row.status] = row._count._all;
   });
 
   const revenueCollected = invoiceAgg._sum.amount ?? 0;
 
   const conversationsShaped = await Promise.all(
-    conversations.map(async (c) => {
+    conversations.map(async (c: any) => {
       const other = c.userAId === session.user.id ? c.userB : c.userA;
       const unreadCount = await prisma.message.count({
         where: { conversationId: c.id, senderId: { not: session.user.id }, readAt: null },
@@ -166,8 +178,10 @@ export default async function SchoolOwnerDashboard() {
     })
   );
 
-  const overdueInvoices = overdueInvoicesRaw.map((inv) => {
-    const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
+  // --- Financial shaping ---
+
+  const overdueInvoices = overdueInvoicesRaw.map((inv: any) => {
+    const paid = inv.payments.reduce((s: number, p: any) => s + p.amount, 0);
     const remaining = inv.amount - paid;
     const daysLate = Math.max(0, Math.floor((now.getTime() - new Date(inv.dueDate).getTime()) / 86400000));
     return {
@@ -181,7 +195,7 @@ export default async function SchoolOwnerDashboard() {
   });
 
   const revenueByClassMap = new Map<string, { className: string; semester: string; total: number }>();
-  paymentsForClassRevenue.forEach((p) => {
+  paymentsForClassRevenue.forEach((p: any) => {
     const cls = p.invoice.class;
     const semester = p.invoice.semester;
     const key = `${cls.id}|${semester}`;
@@ -199,13 +213,13 @@ export default async function SchoolOwnerDashboard() {
   function computeRate(bucket: 'this' | 'last') {
     let due = 0;
     let collected = 0;
-    invoicesForCollectionRate.forEach((inv) => {
+    invoicesForCollectionRate.forEach((inv: any) => {
       const d = new Date(inv.dueDate);
       const isThisMonth = d >= thisMonthStart && d < thisMonthEnd;
       const isLastMonth = d >= lastMonthStart && d < thisMonthStart;
       if ((bucket === 'this' && isThisMonth) || (bucket === 'last' && isLastMonth)) {
         due += inv.amount;
-        collected += inv.payments.reduce((s, p) => s + p.amount, 0);
+        collected += inv.payments.reduce((s: number, p: any) => s + p.amount, 0);
       }
     });
     return due > 0 ? Math.round((collected / due) * 100) : null;
@@ -223,7 +237,7 @@ export default async function SchoolOwnerDashboard() {
       teacherCount={teacherCount}
       studentCount={studentCount}
       pendingEnrollments={pendingEnrollments}
-      recentTeachers={recentTeachers.map((t) => ({
+      recentTeachers={recentTeachers.map((t: any) => ({
         id: t.id,
         username: t.username,
         email: t.email,
@@ -235,14 +249,14 @@ export default async function SchoolOwnerDashboard() {
       invoiceStatusBreakdown={statusBreakdown}
       health={{ studentsNoClass, studentsNoParent, classesNoTeacher }}
       classes={classes}
-      announcements={announcements.map((a) => ({
+      announcements={announcements.map((a: any) => ({
         id: a.id,
         title: a.title,
         body: a.body,
         category: a.category,
         createdAt: a.createdAt.toISOString(),
       }))}
-      upcomingEvents={upcomingEvents.map((e) => ({
+      upcomingEvents={upcomingEvents.map((e: any) => ({
         id: e.id,
         title: e.title,
         description: e.description,
