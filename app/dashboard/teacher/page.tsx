@@ -1,3 +1,4 @@
+// app/dashboard/teacher/page.tsx
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import TeacherDashboardClient from './DashboardClient';
@@ -138,8 +139,7 @@ export default async function TeacherDashboard() {
     orderBy: [{ completed: 'asc' }, { createdAt: 'desc' }],
   });
 
-  // --- Student performance: most recent grade per subject.
-  // Grade.value is a Number in this schema (not a letter-grade string). ---
+  // --- Student performance: most recent grade per subject ---
   const grades = await prisma.grade.findMany({
     where: { classId: { in: classIds } },
     orderBy: { createdAt: 'desc' },
@@ -195,9 +195,22 @@ export default async function TeacherDashboard() {
     },
   });
 
+  // --- Additional stats for charts ---
+  const attendanceRateByClass = attendanceSummaryByClass.map((c: any) => ({
+    className: c.className,
+    rate: c.totalStudents > 0 ? Math.round((c.present / c.totalStudents) * 100) : 0,
+  }));
+
+  const homeworkCompletionRate = homeworks.map((h: any) => ({
+    title: h.title,
+    rate: h.class.students.length > 0 ? Math.round((h.statuses.filter((s: any) => s.completed).length / h.class.students.length) * 100) : 0,
+  }));
+
   return (
     <TeacherDashboardClient
       teacherName={session.user.name ?? ''}
+      teacherRole={session.user.role ?? 'TEACHER'}
+      teacherAvatar={session.user.image ?? null}
       classGroups={classGroups}
       students={allStudents}
       todaySchedule={weekSchedule.map((e: any) => ({
@@ -208,6 +221,7 @@ export default async function TeacherDashboard() {
         description: e.description,
       }))}
       attendanceSummary={attendanceSummaryByClass}
+      attendanceRateByClass={attendanceRateByClass}
       homeworks={homeworks.map((h: any) => ({
         id: h.id,
         title: h.title,
@@ -216,6 +230,7 @@ export default async function TeacherDashboard() {
         completedCount: h.statuses.filter((s: any) => s.completed).length,
         totalCount: h.class.students.length,
       }))}
+      homeworkCompletionRate={homeworkCompletionRate}
       tasks={tasks.map((t: any) => ({
         id: t.id,
         title: t.title,
