@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Reveal } from '@/lib/reveal';
-import Sidebar from './Sidebar';
 import ActionToast, { ToastData } from '@/app/components/ActionToast';
 import {
   Users,
@@ -32,6 +31,12 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Zap,
+  Settings,
+  FileText,
+  Bell,
+  LogOut,
+  Menu,
+  X,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -50,7 +55,7 @@ import {
 } from 'recharts';
 
 // --------------------------------------------
-// Types (same as before)
+// Types
 // --------------------------------------------
 interface Teacher { id: string; username: string; email: string; createdAt: string; }
 interface TrendPoint { label: string; revenue: number; students: number; }
@@ -86,7 +91,7 @@ interface Props {
 }
 
 // --------------------------------------------
-// Constants and helpers
+// Constants & Helpers
 // --------------------------------------------
 const fontImports =
   "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap";
@@ -106,7 +111,168 @@ const STATUS_COLORS: Record<string, string> = { PAID: '#3ED598', PENDING: '#FFB4
 const STATUS_LABELS: Record<string, string> = { PAID: 'Payées', PENDING: 'En attente', OVERDUE: 'En retard' };
 
 // --------------------------------------------
-// Custom Tooltip
+// Sidebar Component (Embedded)
+// --------------------------------------------
+function Sidebar({ schoolName, isOpen, onClose }: { schoolName: string; isOpen: boolean; onClose: () => void }) {
+  const navItems = [
+    { href: '/dashboard/school-owner', label: 'Tableau de bord', icon: LayoutDashboard, exact: true },
+    { href: '/dashboard/school-owner/teachers', label: 'Enseignants', icon: Users },
+    { href: '/dashboard/school-owner/students', label: 'Élèves', icon: GraduationCap },
+    { href: '/dashboard/school-owner/enrollments', label: 'Demandes', icon: ClipboardCheck },
+    { href: '/dashboard/school-owner/payments', label: 'Paiements', icon: CreditCard },
+    { href: '/dashboard/school-owner/classes', label: 'Classes', icon: School },
+    { href: '/dashboard/messages', label: 'Messagerie', icon: MessageSquare },
+    { href: '/dashboard/school-owner/announcements', label: 'Annonces', icon: Megaphone },
+    { href: '/dashboard/school-owner/calendar', label: 'Calendrier', icon: CalendarDays },
+    { href: '/dashboard/school-owner/settings', label: 'Paramètres', icon: Settings },
+  ];
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 40,
+            display: 'none',
+          }}
+          className="mobile-overlay"
+        />
+      )}
+
+      <aside
+        style={{
+          width: 260,
+          minHeight: '100vh',
+          background: '#071B4A',
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 50,
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s ease',
+        }}
+        className="sidebar"
+      >
+        {/* Logo area */}
+        <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: '#FFB400',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#071B4A',
+                fontWeight: 700,
+                fontSize: 18,
+                fontFamily: "'Fraunces', serif",
+              }}
+            >
+              S
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Fraunces', serif", lineHeight: 1.2 }}>
+                {schoolName}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7 }}>Espace École</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.exact
+              ? window.location.pathname === item.href
+              : window.location.pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '10px 14px',
+                  borderRadius: 10,
+                  marginBottom: 4,
+                  color: isActive ? '#071B4A' : 'rgba(255,255,255,0.85)',
+                  background: isActive ? '#FFB400' : 'transparent',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: 14,
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.background = 'rgba(255,180,0,0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <Icon size={18} />
+                {item.label}
+                {item.href === '/dashboard/school-owner/enrollments' && (
+                  <span
+                    style={{
+                      marginLeft: 'auto',
+                      background: '#FFB400',
+                      color: '#071B4A',
+                      borderRadius: 10,
+                      padding: '1px 8px',
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {/* This would be dynamic in a real app */}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          <button
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '10px 14px',
+              borderRadius: 10,
+              background: 'transparent',
+              color: 'rgba(255,255,255,0.8)',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            <LogOut size={18} />
+            Déconnexion
+          </button>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+// --------------------------------------------
+// Custom Tooltip for Charts
 // --------------------------------------------
 function ChartTooltip({ active, payload, label, formatter }: any) {
   if (!active || !payload || payload.length === 0) return null;
@@ -124,7 +290,7 @@ function ChartTooltip({ active, payload, label, formatter }: any) {
 }
 
 // --------------------------------------------
-// Charts (same as before, with minor styling)
+// Chart Components
 // --------------------------------------------
 function TrendChart({ trend }: { trend: TrendPoint[] }) {
   return (
@@ -217,7 +383,7 @@ function RevenueByClassBars({ rows }: { rows: RevenueByClassRow[] }) {
 }
 
 // --------------------------------------------
-// Main Client Component
+// Main Dashboard Component
 // --------------------------------------------
 export default function SchoolOwnerDashboardClient({
   schoolName,
@@ -242,6 +408,7 @@ export default function SchoolOwnerDashboardClient({
 }: Props) {
   const router = useRouter();
   const [toast, setToast] = useState<ToastData | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showAnnForm, setShowAnnForm] = useState(false);
   const [annTitle, setAnnTitle] = useState('');
@@ -312,10 +479,10 @@ export default function SchoolOwnerDashboardClient({
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F7F8FB', fontFamily: 'Inter, sans-serif' }}>
       <link href={fontImports} rel="stylesheet" />
-      <Sidebar schoolName={schoolName} />
+      <Sidebar schoolName={schoolName} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <ActionToast toast={toast} onClose={() => setToast(null)} />
 
-      <style>{`
+      <style jsx global>{`
         html, body { margin: 0; padding: 0; height: 100%; }
         .so-card {
           background: #fff;
@@ -453,31 +620,55 @@ export default function SchoolOwnerDashboardClient({
         }
         @media (max-width: 1024px) {
           .grid-3 { grid-template-columns: 1fr 1fr; }
+          .sidebar { transform: translateX(-100%); }
+          .sidebar.open { transform: translateX(0); }
+          .mobile-overlay { display: block !important; }
         }
         @media (max-width: 640px) {
           .grid-3, .grid-2 { grid-template-columns: 1fr; }
         }
       `}</style>
 
-      <main className="so-content-scroll" style={{ flex: 1, height: '100vh', overflowY: 'auto' }}>
+      {/* Mobile menu button */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        style={{
+          position: 'fixed',
+          top: 20,
+          left: 20,
+          zIndex: 60,
+          background: '#071B4A',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 8,
+          padding: 8,
+          cursor: 'pointer',
+          display: 'none',
+        }}
+        className="mobile-menu-btn"
+      >
+        <Menu size={20} />
+      </button>
+
+      <main className="so-content-scroll" style={{ flex: 1, height: '100vh', overflowY: 'auto', paddingLeft: 260 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 28px 60px' }}>
-          {/* ---- TOP BANNER ---- */}
+          {/* Horizontal Image Banner */}
           <Reveal>
             <div
-               style={{
-    backgroundImage: `linear-gradient(135deg, rgba(7,27,74,0.85) 0%, rgba(10,42,107,0.85) 60%, rgba(255,180,0,0.6) 160%), url('https://i.pinimg.com/736x/19/86/db/1986dbd886c8b29dd544f1477b9a2fc0.jpg')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    borderRadius: 20,
-    padding: '28px 32px',
-    marginBottom: 28,
-    color: '#fff',
-    position: 'relative',
-    overflow: 'hidden',
-    boxShadow: '0 8px 24px rgba(7,27,74,0.2)',
-  }}
->
-              {/* Decorative school icon background */}
+              style={{
+                backgroundImage: `linear-gradient(135deg, rgba(7,27,74,0.85) 0%, rgba(10,42,107,0.85) 60%, rgba(255,180,0,0.6) 160%), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderRadius: 20,
+                padding: '28px 32px',
+                marginBottom: 28,
+                color: '#fff',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(7,27,74,0.2)',
+                minHeight: 160,
+              }}
+            >
               <School
                 size={220}
                 style={{
@@ -505,7 +696,7 @@ export default function SchoolOwnerDashboardClient({
             </div>
           </Reveal>
 
-          {/* ---- STATS ROW 1 (3 cards) ---- */}
+          {/* Stats Row 1 */}
           <div className="grid-3" style={{ marginBottom: 16 }}>
             <Reveal delay={0.05}>
               <div className="so-card so-stat-card">
@@ -539,7 +730,7 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           </div>
 
-          {/* ---- STATS ROW 2 (3 cards) ---- */}
+          {/* Stats Row 2 */}
           <div className="grid-3" style={{ marginBottom: 24 }}>
             <Reveal delay={0.2}>
               <div className="so-card so-stat-card">
@@ -579,7 +770,7 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           </div>
 
-          {/* ---- ALERT / ACTIONABLE ROW ---- */}
+          {/* Actionable Alert Row */}
           {pendingEnrollments > 0 && (
             <Reveal delay={0.1}>
               <div
@@ -624,7 +815,7 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           )}
 
-          {/* ---- OVERDUE INVOICES (FULL WIDTH) ---- */}
+          {/* Overdue Invoices */}
           {overdueInvoices.length > 0 && (
             <Reveal delay={0.1}>
               <div className="so-card" style={{ padding: 24, marginBottom: 20, borderLeft: '4px solid #C0392B' }}>
@@ -663,9 +854,8 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           )}
 
-          {/* ---- DATA HEALTH + ANNOUNCEMENTS + EVENTS (3 cards) ---- */}
+          {/* Data Health + Announcements + Events */}
           <div className="grid-3" style={{ marginBottom: 20 }}>
-            {/* Data Health */}
             <Reveal delay={0.1}>
               <div
                 className="so-card"
@@ -702,7 +892,6 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            {/* Announcements */}
             <Reveal delay={0.15}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -747,7 +936,6 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            {/* Upcoming Events */}
             <Reveal delay={0.2}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -801,9 +989,8 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           </div>
 
-          {/* ---- CHARTS ROW: TREND + INVOICE STATUS + COLLECTION RATE ---- */}
+          {/* Charts Row */}
           <div className="grid-3" style={{ marginBottom: 20 }}>
-            {/* Trend Chart */}
             <Reveal delay={0.1}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -819,7 +1006,6 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            {/* Invoice Status Donut */}
             <Reveal delay={0.15}>
               <div className="so-card" style={{ padding: 24 }}>
                 <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -829,7 +1015,6 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            {/* Collection Rate Card (small) */}
             <Reveal delay={0.2}>
               <div className="so-card" style={{ padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -856,7 +1041,7 @@ export default function SchoolOwnerDashboardClient({
             </Reveal>
           </div>
 
-          {/* ---- REVENUE BY CLASS (FULL WIDTH) ---- */}
+          {/* Revenue by Class */}
           <Reveal delay={0.1}>
             <div className="so-card" style={{ padding: 24, marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -871,9 +1056,8 @@ export default function SchoolOwnerDashboardClient({
             </div>
           </Reveal>
 
-          {/* ---- RECENT TEACHERS + MESSAGES + QUICK ACTIONS ---- */}
+          {/* Recent Teachers + Messages + Quick Actions */}
           <div className="grid-3" style={{ marginBottom: 24 }}>
-            {/* Recent Teachers */}
             <Reveal delay={0.1}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -907,7 +1091,6 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            {/* Messages */}
             <Reveal delay={0.15}>
               <div className="so-card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -945,7 +1128,6 @@ export default function SchoolOwnerDashboardClient({
               </div>
             </Reveal>
 
-            {/* Quick Actions */}
             <Reveal delay={0.2}>
               <div className="so-card" style={{ padding: 24 }}>
                 <h2 className="so-heading" style={{ fontSize: 17, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -959,7 +1141,7 @@ export default function SchoolOwnerDashboardClient({
                     { href: '/dashboard/school-owner/payments', label: 'Paiements', icon: <CreditCard size={16} /> },
                     { href: '/dashboard/messages', label: 'Messagerie', icon: <MessageSquare size={16} /> },
                     { href: '/dashboard/school-owner/classes', label: 'Classes', icon: <School size={16} /> },
-                  ].map((a, i) => (
+                  ].map((a) => (
                     <Link
                       key={a.href}
                       href={a.href}
