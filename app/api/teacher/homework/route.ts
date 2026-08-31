@@ -52,8 +52,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Classe, titre et échéance requis' }, { status: 400 });
   }
 
-  const cls = await prisma.class.findUnique({ where: { id: classId } });
-  if (!cls || cls.teacherId !== session.user.id) {
+  const link = await prisma.classTeacher.findFirst({ where: { classId, teacherId: session.user.id } });
+  if (!link) {
     return NextResponse.json({ error: "Vous n'enseignez pas cette classe" }, { status: 403 });
   }
 

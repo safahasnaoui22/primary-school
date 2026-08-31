@@ -13,8 +13,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 });
   }
 
-  const student = await prisma.student.findUnique({ where: { id: studentId }, include: { class: true } });
-  if (!student || student.class?.teacherId !== session.user.id) {
+  const student = await prisma.student.findUnique({ where: { id: studentId } });
+  if (!student || !student.classId) {
+    return NextResponse.json({ error: "Cet élève n'est pas dans une de vos classes" }, { status: 403 });
+  }
+
+  const link = await prisma.classTeacher.findFirst({ where: { classId: student.classId, teacherId: session.user.id } });
+  if (!link) {
     return NextResponse.json({ error: "Cet élève n'est pas dans une de vos classes" }, { status: 403 });
   }
 
