@@ -1,7 +1,6 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import TeachersClient, { TeacherRow } from './TeachersClient';
-
+import TeachersClient, { type TeacherRow } from './TeachersClient';
 
 export default async function TeachersListPage() {
   const session = await auth();
@@ -22,8 +21,7 @@ export default async function TeachersListPage() {
       username: true,
       email: true,
       createdAt: true,
-      // Legacy single-teacher link + the newer many-to-many link
-      taughtClasses: { select: { id: true, name: true } },
+      // ClassTeacher is the source of truth for class → teachers
       classLinks: { select: { class: { select: { id: true, name: true } } } },
     },
   });
@@ -34,7 +32,6 @@ export default async function TeachersListPage() {
 
   const rows: TeacherRow[] = teachers.map((t: any) => {
     const classMap = new Map<string, { id: string; name: string }>();
-    (t.taughtClasses ?? []).forEach((c: any) => classMap.set(c.id, { id: c.id, name: c.name }));
     (t.classLinks ?? []).forEach((l: any) => {
       if (l.class) classMap.set(l.class.id, { id: l.class.id, name: l.class.name });
     });

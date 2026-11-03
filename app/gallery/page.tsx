@@ -413,7 +413,7 @@ export default function Gallery() {
 
       <div className={`gallery-title ${titleVisible ? 'visible' : ''}`}>
         <span className="eyebrow">Explore</span>
-        <h2> Our Gallery</h2>
+        <h2> Notre  Gallery</h2>
         <div className="underline" />
       </div>
 

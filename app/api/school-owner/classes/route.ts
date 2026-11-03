@@ -13,7 +13,10 @@ export async function GET() {
     orderBy: { name: 'asc' },
     include: {
       teacherLinks: { include: { teacher: { select: { id: true, username: true, email: true } } } },
-      students: { select: { id: true } },
+      students: {
+        select: { id: true, firstName: true, lastName: true, parents: { select: { id: true } } },
+        orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+      },
     },
   });
 
@@ -21,8 +24,10 @@ export async function GET() {
     classes.map((c: any) => ({
       id: c.id,
       name: c.name,
-      teachers: c.teacherLinks.map((tl: any) => ({ id: tl.teacher.id, username: tl.teacher.username })),
+      teachers: c.teacherLinks.map((tl: any) => ({ id: tl.teacher.id, username: tl.teacher.username, email: tl.teacher.email })),
       studentCount: c.students.length,
+      noParentCount: c.students.filter((st: any) => st.parents.length === 0).length,
+      students: c.students.map((st: any) => ({ id: st.id, firstName: st.firstName, lastName: st.lastName })),
       createdAt: c.createdAt,
     }))
   );

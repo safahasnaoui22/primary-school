@@ -27,7 +27,14 @@ export async function GET(req: Request) {
     },
     orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
     include: {
-      class: { select: { id: true, name: true, teacher: { select: { username: true } } } },
+      class: {
+        select: {
+          id: true,
+          name: true,
+          // ClassTeacher is the source of truth for class → teachers
+          teacherLinks: { select: { teacher: { select: { id: true, username: true } } } },
+        },
+      },
       parents: { include: { parent: { select: { id: true, username: true, email: true } } } },
     },
   });
@@ -37,7 +44,13 @@ export async function GET(req: Request) {
       id: s.id,
       firstName: s.firstName,
       lastName: s.lastName,
-      class: s.class ? { id: s.class.id, name: s.class.name, teacherName: s.class.teacher?.username ?? null } : null,
+      birthDate: s.birthDate ?? null,
+      class: s.class
+        ? (() => {
+            const teachers: string[] = s.class.teacherLinks.map((l: any) => l.teacher.username);
+            return { id: s.class.id, name: s.class.name, teachers, teacherName: teachers[0] ?? null };
+          })()
+        : null,
       parents: s.parents.map((p: any) => ({ id: p.parent.id, username: p.parent.username, email: p.parent.email })),
       createdAt: s.createdAt,
     }))
