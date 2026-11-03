@@ -29,6 +29,8 @@ export default async function DashboardLayout({
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '12px 24px',
+          height: 64, // fixed so full-height dashboards can use calc(100dvh - 64px)
+          flexShrink: 0,
           background: 'linear-gradient(90deg, #071B4A 0%, #1E3A8A 100%)',
           color: '#fff',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',

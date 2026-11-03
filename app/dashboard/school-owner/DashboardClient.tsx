@@ -310,13 +310,12 @@ export default function SchoolOwnerDashboardClient({
       : null;
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F7F8FB', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', height: 'calc(100dvh - 64px)', overflow: 'hidden', background: '#F7F8FB', fontFamily: 'Inter, sans-serif' }}>
       <link href={fontImports} rel="stylesheet" />
       <Sidebar schoolName={schoolName} />
       <ActionToast toast={toast} onClose={() => setToast(null)} />
 
       <style>{`
-        html, body { margin: 0; padding: 0; height: 100%; }
         .so-card {
           background: #fff;
           border-radius: 16px;
@@ -459,7 +458,7 @@ export default function SchoolOwnerDashboardClient({
         }
       `}</style>
 
-      <main className="so-content-scroll" style={{ flex: 1, height: '100vh', overflowY: 'auto' }}>
+      <main className="so-content-scroll" style={{ flex: 1, minWidth: 0, height: '100%', overflowY: 'auto' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 28px 60px' }}>
           {/* ---- TOP BANNER ---- */}
           <Reveal>
