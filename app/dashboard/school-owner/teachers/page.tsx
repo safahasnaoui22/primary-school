@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import TeachersClient from './TeachersClient';
+import TeachersClient, { TeacherRow } from './TeachersClient';
 
 
 export default async function TeachersListPage() {
