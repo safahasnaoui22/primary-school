@@ -7,7 +7,7 @@ export default async function TeacherClassroomPage() {
   if (!session?.user) return null;
 
   const classes = await prisma.class.findMany({
-    where: { teacherId: session.user.id },
+    where: { teacherLinks: { some: { teacherId: session.user.id } } },
     orderBy: { name: 'asc' },
     include: { students: { orderBy: { lastName: 'asc' } } },
   });

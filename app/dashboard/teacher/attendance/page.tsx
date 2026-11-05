@@ -23,7 +23,7 @@ export default async function AttendancePage({
 
   // Classes de l'enseignant
   const classes = await prisma.class.findMany({
-    where: { teacherId },
+    where: { teacherLinks: { some: { teacherId } } },
     orderBy: { name: 'asc' },
     select: { id: true, name: true },
   });
