@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/school-owner/teachers', label: 'Enseignants', icon: 'users' },
   { href: '/dashboard/school-owner/students', label: 'Élèves', icon: 'student' },
   { href: '/dashboard/school-owner/classes', label: 'Classes', icon: 'building' },
+  { href: '/dashboard/school-owner/timetable', label: 'Emploi du temps', icon: 'calendar' },
   { href: '/dashboard/school-owner/enrollments', label: 'Inscriptions', icon: 'clipboard' },
   { href: '/dashboard/school-owner/payments', label: 'Paiements', icon: 'card' },
   { href: '/dashboard/messages', label: 'Messagerie', icon: 'message' },
