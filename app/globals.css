@@ -1,40 +1,4 @@
 
-@import 'slick-carousel/slick/slick.css';
-@import 'slick-carousel/slick/slick-theme.css';
-
-/* =========================================================
-   GLOBAL RESET
-========================================================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  width: 100%;
-  min-height: 100%;
-}
-
-html {
-  overflow-x: hidden;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  position: relative;
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-
-
 /* =========================================================
    ROOT VARIABLES
 ========================================================= */
@@ -75,11 +39,7 @@ body {
   /* Transition */
   --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
-
-  /* =======================================================
-     OTHER PROJECT VARIABLES
-  ======================================================= */
-
+  /* Other project variables */
   --primary: #0b2f4e;
   --primary-light: #1e4a6f;
   --secondary: #57a6e1;
@@ -110,22 +70,50 @@ body {
 
 
 /* =========================================================
-   SOFT NATIVE SCROLLING
+   GLOBAL RESET
 ========================================================= */
 
-/*
-  We intentionally DO NOT use:
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  scroll-behavior: smooth;
+* {
+  margin: 0;
+  padding: 0;
+}
 
-  This avoids conflicts with Lenis, GSAP, ScrollTrigger,
-  Slick Carousel, and programmatic scrolling.
-
-  The browser handles normal scrolling naturally.
-*/
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
 
 html {
+  overflow-x: hidden;
   scroll-behavior: auto;
+
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #c6872b #fbf7ee;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+
+  font-family: Inter, sans-serif;
+
+  background: var(--bg);
+  color: var(--text);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 
@@ -133,13 +121,6 @@ html {
    SCROLLBAR
 ========================================================= */
 
-/* Firefox */
-html {
-  scrollbar-width: thin;
-  scrollbar-color: #c6872b #fbf7ee;
-}
-
-/* Chrome / Edge / Safari */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -170,7 +151,7 @@ main {
 
 
 /* =========================================================
-   PULSE ANIMATION
+   ANIMATIONS
 ========================================================= */
 
 @keyframes pulse {
@@ -214,18 +195,40 @@ button {
 
 
 /* =========================================================
-   INPUTS
+   FORM ELEMENTS
 ========================================================= */
 
 input,
 textarea,
-select {
+select,
+button {
   font-family: inherit;
+}
+
+input,
+textarea,
+select {
+  color: inherit;
 }
 
 
 /* =========================================================
-   ACCESSIBILITY
+   KEYBOARD ACCESSIBILITY
+========================================================= */
+
+:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 3px;
+}
+
+/* Avoid unwanted outlines on mouse interaction */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -239,5 +242,6 @@ select {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -1,52 +1,72 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+
+import type { Metadata, Viewport } from "next";
+import { Outfit, Henny_Penny } from "next/font/google";
+
 import "./globals.css";
 import { Providers } from "./providers";
 
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 import PullToRefresh from "./components/Pulltorefresh";
 import WhatsAppButton from "./components/WhatsAppButton";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Main font
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Decorative font
+const hennyPenny = Henny_Penny({
+  variable: "--font-henny-penny",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  title: "Primary-school ",
-  description: "Created by DS",
+  title: {
+    default: "EduSmart | Primary School",
+    template: "%s | EduSmart",
+  },
+  description:
+    "EduSmart - A digital platform for primary school management, learning and communication.",
+  applicationName: "EduSmart",
+  appleWebApp: {
+    capable: true,
+    title: "Primary School",
+    statusBarStyle: "default",
+  },
+  icons: {
+    apple: "/icons/icon-192x192.png",
+  },
+  manifest: "/manifest.json",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#4F46E5",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet"></link>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet"></link>
-        <link href="https://fonts.googleapis.com/css2?family=Henny+Penny&display=swap" rel="stylesheet"></link>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta
-  name="apple-mobile-web-app-title"
-  content="Primary School"
-/>
-        <meta name="theme-color" content="#4F46E5" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      </head>
-      <body> 
-        
-  
-  <Providers>{children}</Providers>
-            <PullToRefresh />
-            <WhatsAppButton />
-          </body>
+      <body className={`${outfit.variable} ${hennyPenny.variable}`}>
+        <Providers>
+          {children}
+        </Providers>
+
+        <PullToRefresh />
+        <WhatsAppButton />
+      </body>
     </html>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './HeroSection.module.css';
 import InstallButton from './InstallButton';
 
@@ -14,12 +14,11 @@ gsap.registerPlugin(SplitText);
 
 export default function HeroSection() {
   const [scrolled, setScrolled] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   // ── Refs for GSAP targets ──
   const rootRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
   const navbarRef = useRef<HTMLElement>(null);
   const logoMarkRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -41,15 +40,8 @@ export default function HeroSection() {
   const btnPrimaryRef = useRef<HTMLAnchorElement>(null);
   const btnOutlineRef = useRef<HTMLAnchorElement>(null);
 
-  // ── Mark component as mounted ──
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   // ── Lenis smooth scroll ──
   useEffect(() => {
-    if (!isMounted) return;
-
     const lenis = new Lenis({
       duration: 1.15,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -74,26 +66,41 @@ export default function HeroSection() {
       gsap.ticker.remove(update);
       lenis.destroy();
     };
-  }, [isMounted]);
+  }, []);
 
   // ── Scroll progress bar + navbar shrink trigger ──
   useEffect(() => {
-    if (!isMounted) return;
+    let previousScrolled = false;
 
     const handleScroll = () => {
-      const winScroll = window.pageYOffset || document.documentElement.scrollTop;
-      const height =
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollableHeight =
         document.documentElement.scrollHeight -
         document.documentElement.clientHeight;
-      setProgress(height > 0 ? (winScroll / height) * 100 : 0);
-      setScrolled(window.scrollY > 20);
+
+      // Update the progress bar directly to avoid re-rendering the whole hero
+      // section on every scroll event.
+      if (progressRef.current) {
+        const percentage =
+          scrollableHeight > 0 ? (scrollTop / scrollableHeight) * 100 : 0;
+
+        progressRef.current.style.width = `${percentage}%`;
+      }
+
+      const nextScrolled = scrollTop > 20;
+
+      // Only update React state when the navbar state actually changes.
+      if (nextScrolled !== previousScrolled) {
+        previousScrolled = nextScrolled;
+        setScrolled(nextScrolled);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMounted]);
+  }, []);
 
   // ── Navbar shrink polish ──
   useEffect(() => {
@@ -111,14 +118,29 @@ export default function HeroSection() {
   }, [scrolled]);
 
   // ── Big GSAP setup ──
-  useLayoutEffect(() => {
-    if (!isMounted) return;
-
+  useEffect(() => {
+    let cancelled = false;
     let split: SplitText | null = null;
     let ctx: gsap.Context | undefined;
     let cleanupFns: Array<() => void> = [];
 
-    document.fonts.ready.then(() => {
+    const setupAnimations = () => {
+      if (cancelled) return;
+
+      // Respect the user's reduced-motion accessibility preference.
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+
+      if (prefersReducedMotion) {
+        rootRef.current
+          ?.querySelectorAll<HTMLElement>('[data-target]')
+          .forEach((el) => {
+            el.textContent = el.getAttribute('data-target') || '0';
+          });
+        return;
+      }
+
       ctx = gsap.context(() => {
         // ── SplitText heading reveal (initial load) ──
         if (heroH1Ref.current) {
@@ -180,7 +202,9 @@ export default function HeroSection() {
         }
 
         // ── Animated counters (play shortly after load) ──
-        const counters = gsap.utils.toArray<HTMLElement>('[data-target]');
+        const counters = rootRef.current
+          ? Array.from(rootRef.current.querySelectorAll<HTMLElement>('[data-target]'))
+          : [];
         counters.forEach((el) => {
           const target = parseInt(el.getAttribute('data-target') || '0', 10);
           const counterObj = { val: 0 };
@@ -261,31 +285,36 @@ export default function HeroSection() {
           });
         });
       }, rootRef);
-    });
+    };
+
+    if (document.fonts?.status === 'loaded') {
+      setupAnimations();
+    } else if (document.fonts?.ready) {
+      document.fonts.ready.then(setupAnimations);
+    } else {
+      setupAnimations();
+    }
 
     return () => {
+      cancelled = true;
       cleanupFns.forEach((fn) => fn());
       split?.revert();
       ctx?.revert();
     };
-  }, [isMounted]);
+  }, []);
 
   // ── Drawer ──
   const openDrawer = () => setDrawerOpen(true);
   const closeDrawer = () => setDrawerOpen(false);
-
-  // Prevent hydration mismatch
-  if (!isMounted) {
-    return <div className={styles.herosection} style={{ minHeight: '100vh' }} />;
-  }
 
   return (
     <>
       <div className={styles.herosection} ref={rootRef}>
         {/* ── Scroll Progress ── */}
         <div
+          ref={progressRef}
           className={styles.scrollProgress}
-          style={{ width: `${progress}%` }}
+          aria-hidden="true"
         />
 
         {/* ── TOPBAR ── */}
@@ -414,7 +443,12 @@ export default function HeroSection() {
                 EduSmart
               </div>
             </a>
-            <button className={styles.mobileClose} onClick={closeDrawer}>
+            <button
+              type="button"
+              className={styles.mobileClose}
+              onClick={closeDrawer}
+              aria-label="Fermer le menu"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -541,10 +575,11 @@ export default function HeroSection() {
 
                 <div className={styles.heroFrame} ref={heroFrameRef}>
                   <img
-                    src="hero.png"
-                    srcSet="hero.png 474w, hero.png 736w, hero.png 1200w"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    src="/hero.png"
                     alt="Élèves de EduSmart en pleine activité"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                     style={{
                       width: '100%',
                       height: '100%',
