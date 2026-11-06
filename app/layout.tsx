@@ -20,13 +20,14 @@ const outfit = Outfit({
 });
 
 // Decorative font
+// Decorative font
 const hennyPenny = Henny_Penny({
   variable: "--font-henny-penny",
   subsets: ["latin"],
+  weight: "400",        // <-- add this line
   display: "swap",
   preload: false,
 });
-
 export const metadata: Metadata = {
   title: {
     default: "EduSmart | Primary School",
