@@ -60,13 +60,32 @@ export default async function ParentTimetablePage() {
   );
 
   return (
-    <div style={{ padding: '28px 28px 60px', maxWidth: 1100, margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
-      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, letterSpacing: 1.5, color: '#5A6A7A', textTransform: 'uppercase' }}>
-        Emploi du temps
-      </span>
-      <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, color: '#071B4A', fontSize: 28, margin: '6px 0 20px' }}>
-        Emploi du temps de vos enfants
-      </h1>
+    <div style={{ padding: '24px 28px 64px', maxWidth: 1180, margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+
+      <div
+        style={{
+          borderRadius: 24,
+          padding: '30px 34px',
+          marginBottom: 22,
+          color: '#fff',
+          background:
+            'radial-gradient(circle at 94% -30%, rgba(255,180,0,.5), rgba(255,180,0,0) 46%), linear-gradient(135deg, #071B4A 0%, #0A2A6B 62%, #12378A 100%)',
+          boxShadow: '0 18px 40px rgba(7,27,74,.2)',
+        }}
+      >
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 11.5, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase', color: '#FFB400', marginBottom: 10 }}>
+          <span style={{ width: 26, height: 2, background: '#FFB400', borderRadius: 2 }} />
+          Espace parent
+        </div>
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 34, lineHeight: 1.1, margin: 0, color: '#fff' }}>
+          Emploi du temps
+        </h1>
+        <p style={{ margin: '10px 0 0', color: 'rgba(255,255,255,.75)', fontSize: 14.5, maxWidth: 560, lineHeight: 1.55 }}>
+          Les horaires de la classe de vos enfants, mis à jour par l’école.
+        </p>
+
+      </div>
+
       <ParentTimetableClient children={childrenWithEntries} />
     </div>
   );

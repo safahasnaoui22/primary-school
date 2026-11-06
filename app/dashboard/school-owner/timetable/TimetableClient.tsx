@@ -2,18 +2,30 @@
 
 // File: app/dashboard/school-owner/timetable/TimetableClient.tsx
 
-import { useMemo, useState } from 'react';
+import { CSSProperties, ReactNode, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ActionToast, { ToastData } from '@/app/components/ActionToast';
-import { DAYS, HOUR_SLOTS, TimetableEntryDTO } from '@/lib/timetable-constants';
+import {
+  DAYS,
+  HOUR_SLOTS,
+  SUBJECT_SUGGESTIONS,
+  TimetableEntryDTO,
+  entryHours,
+  subjectTint,
+  todayIndex,
+} from '@/lib/timetable-constants';
+import { Icon, Modal } from '../luxury-ui';
 
 interface ClassOption { id: string; name: string; }
 interface TeacherOption { id: string; username: string; }
+interface Link_ { classId: string; teacherId: string; }
 
 interface Props {
   classes: ClassOption[];
   teachers: TeacherOption[];
   entries: TimetableEntryDTO[];
+  links?: Link_[];
 }
 
 type Mode = 'class' | 'teacher';
@@ -25,14 +37,15 @@ interface SlotSelection {
   existing: TimetableEntryDTO | null;
 }
 
-const SUBJECT_PALETTE = ['#FFF3D6', '#EAF3DE', '#E7ECFB', '#FAECE7', '#E5F6F3', '#F3E8FB'];
-function colorFor(subject: string) {
-  let hash = 0;
-  for (let i = 0; i < subject.length; i++) hash = (hash * 31 + subject.charCodeAt(i)) >>> 0;
-  return SUBJECT_PALETTE[hash % SUBJECT_PALETTE.length];
-}
+const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+const CalIcon = (
+  <svg width="20" height="20" viewBox="0 0 24 24" {...S}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+);
+const ClockIcon = (
+  <svg width="20" height="20" viewBox="0 0 24 24" {...S}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+);
 
-export default function TimetableClient({ classes, teachers, entries }: Props) {
+export default function TimetableClient({ classes, teachers, entries, links = [] }: Props) {
   const router = useRouter();
   const [toast, setToast] = useState<ToastData | null>(null);
 
@@ -40,206 +53,475 @@ export default function TimetableClient({ classes, teachers, entries }: Props) {
   const [selectedId, setSelectedId] = useState<string>(classes[0]?.id ?? '');
   const [slot, setSlot] = useState<SlotSelection | null>(null);
 
-  // Form fields inside the modal
+  // Modal form
   const [subject, setSubject] = useState('');
-  const [otherPartyId, setOtherPartyId] = useState(''); // teacherId if mode=class, classId if mode=teacher
+  const [otherId, setOtherId] = useState(''); // teacherId when mode=class, classId when mode=teacher
   const [room, setRoom] = useState('');
+  const [repeat, setRepeat] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const options = mode === 'class' ? classes : teachers.map((t) => ({ id: t.id, name: t.username }));
+  const [today, setToday] = useState<number | null>(null);
+  useEffect(() => { setToday(todayIndex()); }, []);
 
-  const visibleEntries = useMemo(() => {
-    if (!selectedId) return [];
-    return entries.filter((e) => (mode === 'class' ? e.classId === selectedId : e.teacherId === selectedId));
-  }, [entries, mode, selectedId]);
+  /* ---------------- derived data ---------------- */
+  const options = useMemo(
+    () => (mode === 'class' ? classes.map((c) => ({ id: c.id, name: c.name })) : teachers.map((t) => ({ id: t.id, name: t.username }))),
+    [mode, classes, teachers]
+  );
+  const otherOptions = mode === 'class' ? teachers.map((t) => ({ id: t.id, name: t.username })) : classes.map((c) => ({ id: c.id, name: c.name }));
+  const selectedName = options.find((o) => o.id === selectedId)?.name ?? '';
 
-  const findEntry = (dayOfWeek: number, startTime: string) =>
-    visibleEntries.find((e) => e.dayOfWeek === dayOfWeek && e.startTime === startTime);
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    entries.forEach((e) => {
+      const k = mode === 'class' ? e.classId : e.teacherId;
+      m.set(k, (m.get(k) ?? 0) + 1);
+    });
+    return m;
+  }, [entries, mode]);
 
-  const openSlot = (dayOfWeek: number, startTime: string, endTime: string) => {
-    const existing = findEntry(dayOfWeek, startTime) ?? null;
-    setSlot({ dayOfWeek, startTime, endTime, existing });
-    setSubject(existing?.subject ?? '');
-    setOtherPartyId(existing ? (mode === 'class' ? existing.teacherId : existing.classId) : '');
-    setRoom(existing?.room ?? '');
+  const visibleEntries = useMemo(
+    () => (selectedId ? entries.filter((e) => (mode === 'class' ? e.classId === selectedId : e.teacherId === selectedId)) : []),
+    [entries, mode, selectedId]
+  );
+
+  const findEntry = (day: number, start: string) => visibleEntries.find((e) => e.dayOfWeek === day && e.startTime === start);
+
+  const stats = useMemo(() => {
+    const classesCovered = new Set(entries.map((e) => e.classId)).size;
+    const teachersScheduled = new Set(entries.map((e) => e.teacherId)).size;
+    return { classesCovered, teachersScheduled, hours: entryHours(entries) };
+  }, [entries]);
+  const todayCount = today === null ? 0 : entries.filter((e) => e.dayOfWeek === today).length;
+
+  const selectionHours = entryHours(visibleEntries);
+  const selectionOthers = new Set(visibleEntries.map((e) => (mode === 'class' ? e.teacherId : e.classId))).size;
+
+  /* ---------------- conflict helpers ---------------- */
+  const busy = (kind: 'class' | 'teacher', id: string, day: number, start: string, ignoreId?: string) =>
+    entries.some(
+      (e) => e.id !== ignoreId && e.dayOfWeek === day && e.startTime === start && (kind === 'class' ? e.classId === id : e.teacherId === id)
+    );
+  const selfKind: 'class' | 'teacher' = mode;
+  const otherKind: 'class' | 'teacher' = mode === 'class' ? 'teacher' : 'class';
+
+  const dayConflict = (d: number) => {
+    if (!slot) return false;
+    return busy(selfKind, selectedId, d, slot.startTime) || (!!otherId && busy(otherKind, otherId, d, slot.startTime));
   };
 
-  const closeModal = () => setSlot(null);
+  const formClassId = mode === 'class' ? selectedId : otherId;
+  const formTeacherId = mode === 'class' ? otherId : selectedId;
+  const notAssigned =
+    !!formClassId && !!formTeacherId && !links.some((l) => l.classId === formClassId && l.teacherId === formTeacherId);
+
+  /* ---------------- actions ---------------- */
+  const switchMode = (m: Mode) => {
+    setMode(m);
+    setSelectedId(m === 'class' ? classes[0]?.id ?? '' : teachers[0]?.id ?? '');
+  };
+
+  const openSlot = (day: number, start: string, end: string) => {
+    const existing = findEntry(day, start) ?? null;
+    setSlot({ dayOfWeek: day, startTime: start, endTime: end, existing });
+    setSubject(existing?.subject ?? '');
+    setOtherId(existing ? (mode === 'class' ? existing.teacherId : existing.classId) : '');
+    setRoom(existing?.room ?? '');
+    setRepeat([]);
+    setConfirmDelete(false);
+  };
+
+  const closeModal = () => { if (!saving) setSlot(null); };
+
+  const errorToast = (message: string, title = 'Échec') =>
+    setToast({ title, message, emoji: '⚠️', tone: 'error' });
 
   const handleSave = async () => {
-    if (!slot || !selectedId || !subject || !otherPartyId) {
-      setToast({ title: 'Champs manquants', message: 'Matière et ' + (mode === 'class' ? 'enseignant' : 'classe') + ' sont requis.', emoji: '⚠️', tone: 'error' });
+    if (!slot || !selectedId) return;
+    if (!subject.trim() || !otherId) {
+      errorToast(`La matière et ${mode === 'class' ? 'l’enseignant' : 'la classe'} sont requis.`, 'Champs manquants');
       return;
     }
-    const classId = mode === 'class' ? selectedId : otherPartyId;
-    const teacherId = mode === 'class' ? otherPartyId : selectedId;
+    const base = {
+      classId: formClassId,
+      teacherId: formTeacherId,
+      subject: subject.trim(),
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      room: room.trim() || null,
+    };
 
     setSaving(true);
-    const res = await fetch('/api/school-owner/timetable', {
-      method: slot.existing ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: slot.existing?.id,
-        classId,
-        teacherId,
-        subject,
-        dayOfWeek: slot.dayOfWeek,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        room: room || null,
-      }),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (res.ok) {
-      setToast({ title: slot.existing ? 'Créneau mis à jour' : 'Créneau ajouté', message: `${subject} — ${DAYS[slot.dayOfWeek]} ${slot.startTime}`, emoji: '🗓️', tone: 'success' });
-      closeModal();
-      router.refresh();
-    } else {
-      setToast({ title: 'Échec', message: data.error ?? 'Une erreur est survenue.', emoji: '⚠️', tone: 'error' });
+    try {
+      if (slot.existing) {
+        const res = await fetch('/api/school-owner/timetable', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...base, id: slot.existing.id, dayOfWeek: slot.dayOfWeek }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { errorToast(data.error ?? 'Une erreur est survenue.'); return; }
+        setToast({ title: 'Cours mis à jour', message: `${base.subject} — ${DAYS[slot.dayOfWeek]} ${slot.startTime}`, emoji: '🗓️', tone: 'success' });
+        setSlot(null);
+        router.refresh();
+        return;
+      }
+
+      // Create (optionally repeated on other days)
+      const days = [slot.dayOfWeek, ...repeat.filter((d) => d !== slot.dayOfWeek)];
+      const done: number[] = [];
+      const failed: string[] = [];
+      for (const d of days) {
+        const res = await fetch('/api/school-owner/timetable', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...base, dayOfWeek: d }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) done.push(d);
+        else failed.push(`${DAYS[d]} : ${data.error ?? 'erreur'}`);
+      }
+
+      if (done.length > 0) router.refresh();
+      if (failed.length === 0) {
+        setToast({
+          title: done.length > 1 ? 'Cours ajoutés' : 'Cours ajouté',
+          message: done.length > 1
+            ? `${base.subject} ajouté sur ${done.length} jours à ${slot.startTime}.`
+            : `${base.subject} — ${DAYS[slot.dayOfWeek]} ${slot.startTime}`,
+          emoji: '🗓️',
+          tone: 'success',
+        });
+        setSlot(null);
+      } else if (done.length > 0) {
+        errorToast(`${done.length} ajouté(s). Non ajouté(s) → ${failed.join(' · ')}`, 'Ajout partiel');
+        setSlot(null);
+      } else {
+        errorToast(failed[0]);
+      }
+    } catch {
+      errorToast('Impossible de joindre le serveur.');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async () => {
     if (!slot?.existing) return;
     setSaving(true);
-    const res = await fetch(`/api/school-owner/timetable?id=${slot.existing.id}`, { method: 'DELETE' });
-    setSaving(false);
-    if (res.ok) {
-      setToast({ title: 'Créneau supprimé', message: `${slot.existing.subject} retiré de l'emploi du temps.`, emoji: '🗑️', tone: 'success' });
-      closeModal();
-      router.refresh();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      setToast({ title: 'Échec', message: data.error ?? 'Une erreur est survenue.', emoji: '⚠️', tone: 'error' });
+    try {
+      const res = await fetch(`/api/school-owner/timetable?id=${slot.existing.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setToast({ title: 'Cours supprimé', message: `${slot.existing.subject} retiré de l’emploi du temps.`, emoji: '🗑️', tone: 'success' });
+        setSlot(null);
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        errorToast(data.error ?? 'Une erreur est survenue.');
+      }
+    } catch {
+      errorToast('Impossible de joindre le serveur.');
+    } finally {
+      setSaving(false);
     }
   };
 
+  /* ---------------- render ---------------- */
+  const noOptions = options.length === 0;
+
+  const stat = (label: string, value: string | number, sub: string, icon: ReactNode, tone: string) => (
+    <div className="lx-stat" key={label}>
+      <div className="lx-stat-top">
+        <span className="lx-stat-lbl">{label}</span>
+        <span className={`lx-ico ${tone}`}>{icon}</span>
+      </div>
+      <div className="lx-stat-val">{value}</div>
+      <div className="lx-stat-sub">{sub}</div>
+    </div>
+  );
+
   return (
-    <div>
+    <div className="lx-wrap">
+      <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+        rel="stylesheet"
+      />
       <ActionToast toast={toast} onClose={() => setToast(null)} />
 
       <style>{`
-        .tt-mode-btn { border: 1px solid #DCE1E8; background: #fff; color: #5A6A7A; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .tt-mode-btn.active { background: #071B4A; color: #fff; border-color: #071B4A; }
-        .tt-select { padding: 9px 14px; border-radius: 10px; border: 1px solid #DCE1E8; font-size: 13.5px; font-family: 'Inter', sans-serif; min-width: 220px; }
-        .tt-cell-btn { width: 100%; min-height: 56px; border-radius: 10px; border: 1.5px dashed #DCE1E8; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #B8C1CC; font-size: 18px; transition: border-color .15s ease, background .15s ease; }
-        .tt-cell-btn:hover { border-color: #FFB400; background: #FFFAEE; }
-        .tt-cell-filled { width: 100%; min-height: 56px; border-radius: 10px; padding: 8px 10px; cursor: pointer; text-align: left; border: none; }
-        .tt-modal-overlay { position: fixed; inset: 0; background: rgba(7,27,74,0.45); z-index: 1300; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .tt-modal { background: #fff; border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; }
-        .tt-input { padding: 9px 12px; border-radius: 8px; border: 1px solid #DCE1E8; font-size: 13px; outline: none; width: 100%; font-family: 'Inter', sans-serif; }
-        .tt-btn { background: #FFB400; color: #071B4A; border: none; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .tt-btn-secondary { background: none; border: 1px solid #DCE1E8; color: #5A6A7A; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .tt-btn-danger { background: #FAECE7; color: #C0392B; border: none; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
-        @media (max-width: 700px) {
-          .tt-table-wrap { overflow-x: auto; }
-        }
+        .tt-chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: thin; scrollbar-color: #C9D2E3 transparent; }
+        .tt-chips .lx-chip { flex-shrink: 0; }
+        .tt-chip-n.zero { background: #F0F2F6; color: #98A4B6; }
+        .tt-sum { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: #6B7A90; padding: 0 20px 14px; }
+        .tt-sum b { color: #071B4A; }
+        .tt-wrapgrid { overflow-x: auto; padding: 4px 14px 18px; }
+        .tt-table { width: 100%; min-width: 880px; border-collapse: separate; border-spacing: 6px; table-layout: fixed; }
+        .tt-th { padding: 10px 4px 12px; text-align: center; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7A8AA0; position: relative; }
+        .tt-th.today { color: #071B4A; }
+        .tt-th.today::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 3px; height: 3px; border-radius: 3px; background: #FFB400; }
+        .tt-th small { display: block; font-size: 10px; font-weight: 600; letter-spacing: .04em; color: #B27300; text-transform: none; margin-top: 2px; }
+        .tt-time { width: 78px; text-align: right; padding-right: 8px; vertical-align: top; position: sticky; left: 0; background: #fff; z-index: 2; }
+        .tt-time b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #071B4A; padding-top: 14px; }
+        .tt-time span { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #98A4B6; }
+        .tt-td.today-col { background: linear-gradient(180deg, rgba(255,180,0,.07), rgba(255,180,0,0) 70%); border-radius: 12px; }
+        .tt-add { width: 100%; min-height: 66px; border-radius: 12px; border: 1.5px dashed #E0E6F0; background: transparent; color: #C5CEDF; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+        .tt-add:hover { border-color: #FFB400; background: #FFF9E8; color: #B27300; transform: scale(1.015); }
+        .tt-cell { position: relative; width: 100%; min-height: 66px; border: none; border-left: 4px solid var(--accent); border-radius: 12px; padding: 9px 11px; text-align: left; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; gap: 2px; transition: transform .15s, box-shadow .15s; }
+        .tt-cell:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(7,27,74,.13); }
+        .tt-cell-s { font-size: 13px; font-weight: 700; line-height: 1.2; }
+        .tt-cell-o { font-size: 12px; color: #4A5A70; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tt-room { align-self: flex-start; margin-top: 3px; font-size: 10.5px; font-weight: 700; background: rgba(255,255,255,.75); color: #4A5A70; padding: 1px 8px; border-radius: 999px; }
+        .tt-edit { position: absolute; top: 7px; right: 8px; opacity: 0; color: #4A5A70; transition: opacity .15s; }
+        .tt-cell:hover .tt-edit { opacity: .8; }
+        .tt-break td { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #A6B1C4; background: repeating-linear-gradient(135deg, #F7F9FC 0 8px, #FFFFFF 8px 16px); border-radius: 10px; padding: 7px 0; }
+        .tt-note { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; line-height: 1.5; font-weight: 500; color: #8A5A00; background: #FFF8E4; border-radius: 12px; padding: 10px 14px; margin-bottom: 16px; }
+        .tt-note a { color: inherit; font-weight: 700; text-decoration: underline; }
+        .tt-days { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tt-day { border: 1px solid #E2E7F0; background: #fff; color: #4A5A70; font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px; cursor: pointer; transition: all .15s; }
+        .tt-day:hover:not(:disabled) { border-color: #C9D2E3; background: #F5F8FD; }
+        .tt-day.on { background: #071B4A; border-color: #071B4A; color: #fff; }
+        .tt-day:disabled { opacity: .4; cursor: not-allowed; text-decoration: line-through; }
+        .tt-help { font-size: 12px; color: #7A8AA0; margin-top: 7px; }
+        @media (max-width: 720px) { .tt-sum { padding: 0 14px 12px; } .tt-wrapgrid { padding: 4px 6px 14px; } }
       `}</style>
 
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-        <button className={`tt-mode-btn ${mode === 'class' ? 'active' : ''}`} onClick={() => { setMode('class'); setSelectedId(classes[0]?.id ?? ''); }}>
-          Par classe
-        </button>
-        <button className={`tt-mode-btn ${mode === 'teacher' ? 'active' : ''}`} onClick={() => { setMode('teacher'); setSelectedId(teachers[0]?.id ?? ''); }}>
-          Par enseignant
-        </button>
+      <Link href="/dashboard/school-owner" className="lx-back">{Icon.back} Tableau de bord</Link>
 
-        <select className="tt-select" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
-          {options.length === 0 && <option value="">Aucune option disponible</option>}
-          {options.map((o) => (
-            <option key={o.id} value={o.id}>{o.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {!selectedId ? (
-        <p style={{ color: '#5A6A7A', fontSize: 14 }}>
-          {mode === 'class' ? "Ajoutez d'abord une classe pour construire son emploi du temps." : "Ajoutez d'abord un enseignant."}
-        </p>
-      ) : (
-        <div className="tt-table-wrap">
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 8, minWidth: 720 }}>
-            <thead>
-              <tr>
-                <th style={{ width: 74 }} />
-                {DAYS.map((d) => (
-                  <th key={d} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#5A6A7A', textTransform: 'uppercase', letterSpacing: 0.5, padding: '4px 0' }}>
-                    {d}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {HOUR_SLOTS.map((hs) => (
-                <tr key={hs.start}>
-                  <td style={{ fontSize: 11, color: '#5A6A7A', fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap', verticalAlign: 'top', paddingTop: 14 }}>
-                    {hs.start}
-                  </td>
-                  {DAYS.map((_, dayIndex) => {
-                    const entry = findEntry(dayIndex, hs.start);
-                    return (
-                      <td key={dayIndex} style={{ minWidth: 120 }}>
-                        {entry ? (
-                          <button className="tt-cell-filled" style={{ background: colorFor(entry.subject) }} onClick={() => openSlot(dayIndex, hs.start, hs.end)}>
-                            <div style={{ fontSize: 12.5, fontWeight: 700, color: '#071B4A' }}>{entry.subject}</div>
-                            <div style={{ fontSize: 11, color: '#5A6A7A', marginTop: 2 }}>
-                              {mode === 'class' ? entry.teacherName : entry.className}
-                            </div>
-                            {entry.room && <div style={{ fontSize: 10.5, color: '#5A6A7A' }}>Salle {entry.room}</div>}
-                          </button>
-                        ) : (
-                          <button className="tt-cell-btn" onClick={() => openSlot(dayIndex, hs.start, hs.end)} aria-label="Ajouter un cours">
-                            +
-                          </button>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {slot && (
-        <div className="tt-modal-overlay" onClick={closeModal}>
-          <div className="tt-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: 17, fontWeight: 700, color: '#071B4A', margin: '0 0 4px' }}>
-              {DAYS[slot.dayOfWeek]} · {slot.startTime}–{slot.endTime}
-            </h3>
-            <p style={{ fontSize: 12.5, color: '#5A6A7A', margin: '0 0 16px' }}>
-              {mode === 'class' ? options.find((o) => o.id === selectedId)?.name : options.find((o) => o.id === selectedId)?.name}
+      {/* ---------- Hero ---------- */}
+      <div className="lx-hero">
+        <div className="lx-hero-in">
+          <div>
+            <div className="lx-eyebrow">Gestion de l&apos;école</div>
+            <h1 className="lx-h1">Emploi du temps</h1>
+            <p className="lx-lead">
+              Chaque cours relie une classe et un enseignant : il apparaît automatiquement dans l&apos;emploi du temps de l&apos;enseignant et sur le tableau de bord des parents de la classe.
             </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <input className="tt-input" placeholder="Matière (ex. Mathématiques)" value={subject} onChange={(e) => setSubject(e.target.value)} />
-              <select className="tt-input" value={otherPartyId} onChange={(e) => setOtherPartyId(e.target.value)}>
-                <option value="">{mode === 'class' ? 'Choisir un enseignant' : 'Choisir une classe'}</option>
-                {(mode === 'class' ? teachers.map((t) => ({ id: t.id, name: t.username })) : classes).map((o) => (
-                  <option key={o.id} value={o.id}>{o.name}</option>
-                ))}
-              </select>
-              <input className="tt-input" placeholder="Salle (optionnel)" value={room} onChange={(e) => setRoom(e.target.value)} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20, gap: 10 }}>
-              <div>
-                {slot.existing && (
-                  <button className="tt-btn-danger" onClick={handleDelete} disabled={saving}>
-                    Supprimer
-                  </button>
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="tt-btn-secondary" onClick={closeModal} disabled={saving}>Annuler</button>
-                <button className="tt-btn" onClick={handleSave} disabled={saving}>{saving ? '...' : 'Enregistrer'}</button>
-              </div>
-            </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* ---------- Stats ---------- */}
+      <div className="lx-stats">
+        {stat('Cours planifiés', entries.length, `${stats.hours} h par semaine`, CalIcon, 'navy')}
+        {stat('Classes couvertes', `${stats.classesCovered}/${classes.length}`, stats.classesCovered < classes.length ? 'Certaines classes sont vides' : 'Toutes ont un horaire', Icon.building, stats.classesCovered < classes.length && classes.length > 0 ? 'amber' : 'green')}
+        {stat('Enseignants planifiés', `${stats.teachersScheduled}/${teachers.length}`, 'Ont au moins un cours', Icon.users, 'green')}
+        {stat('Aujourd’hui', todayCount, today === null ? 'Pas de cours le dimanche' : 'Cours, toutes classes', ClockIcon, 'muted')}
+      </div>
+
+      {/* ---------- Editor card ---------- */}
+      <div className="lx-card">
+        <div className="lx-toolbar">
+          <div className="lx-seg" role="group" aria-label="Mode">
+            <button type="button" className={mode === 'class' ? 'on' : ''} style={{ width: 'auto', padding: '0 16px', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }} onClick={() => switchMode('class')}>
+              Par classe
+            </button>
+            <button type="button" className={mode === 'teacher' ? 'on' : ''} style={{ width: 'auto', padding: '0 16px', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }} onClick={() => switchMode('teacher')}>
+              Par enseignant
+            </button>
+          </div>
+          <span style={{ fontSize: 13, color: '#7A8AA0' }}>
+            {mode === 'class' ? 'Visible par les parents et les enseignants concernés.' : 'Visible dans l’espace de l’enseignant.'}
+          </span>
+        </div>
+
+        {noOptions ? (
+          <div className="lx-empty">
+            <div className="lx-empty-ico">{mode === 'class' ? Icon.building : Icon.users}</div>
+            <h3>{mode === 'class' ? 'Aucune classe' : 'Aucun enseignant'}</h3>
+            <p>{mode === 'class' ? 'Créez d’abord une classe pour construire son emploi du temps.' : 'Ajoutez d’abord un enseignant à votre école.'}</p>
+            <Link href={mode === 'class' ? '/dashboard/school-owner/classes' : '/dashboard/school-owner/teachers/new'} className="lx-btn navy">
+              {mode === 'class' ? 'Aller aux classes' : 'Ajouter un enseignant'}
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div style={{ padding: '14px 18px 4px' }}>
+              <div className="tt-chips" role="tablist" aria-label={mode === 'class' ? 'Classes' : 'Enseignants'}>
+                {options.map((o) => {
+                  const n = counts.get(o.id) ?? 0;
+                  return (
+                    <button key={o.id} type="button" role="tab" aria-selected={selectedId === o.id} className={`lx-chip${selectedId === o.id ? ' on' : ''}`} onClick={() => setSelectedId(o.id)}>
+                      {o.name}
+                      <span className={`lx-chip-n tt-chip-n${n === 0 ? ' zero' : ''}`}>{n}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="tt-sum">
+              <b>{selectedName}</b>
+              <span>·</span>
+              <span>{visibleEntries.length} cours</span>
+              <span>·</span>
+              <span>{selectionHours} h / semaine</span>
+              {visibleEntries.length > 0 && (<><span>·</span><span>{selectionOthers} {mode === 'class' ? `enseignant${selectionOthers > 1 ? 's' : ''}` : `classe${selectionOthers > 1 ? 's' : ''}`}</span></>)}
+            </div>
+
+            <div className="tt-wrapgrid">
+              <table className="tt-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 78 }} />
+                    {DAYS.map((d, i) => (
+                      <th key={d} className={`tt-th${today === i ? ' today' : ''}`}>
+                        {d}
+                        {today === i && <small>Aujourd&apos;hui</small>}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {HOUR_SLOTS.map((hs, idx) => {
+                    const next = HOUR_SLOTS[idx + 1];
+                    return (
+                      <FragmentRows key={hs.start}>
+                        <tr>
+                          <td className="tt-time"><b>{hs.start}</b><span>{hs.end}</span></td>
+                          {DAYS.map((_, di) => {
+                            const entry = findEntry(di, hs.start);
+                            const t = entry ? subjectTint(entry.subject) : null;
+                            return (
+                              <td key={di} className={`tt-td${today === di ? ' today-col' : ''}`}>
+                                {entry && t ? (
+                                  <button
+                                    type="button"
+                                    className="tt-cell"
+                                    style={{ background: t.bg, color: t.fg, ['--accent' as string]: t.accent } as CSSProperties}
+                                    onClick={() => openSlot(di, hs.start, hs.end)}
+                                    aria-label={`Modifier ${entry.subject}, ${DAYS[di]} ${hs.start}`}
+                                  >
+                                    <span className="tt-edit">{Icon.edit}</span>
+                                    <span className="tt-cell-s">{entry.subject}</span>
+                                    <span className="tt-cell-o">{mode === 'class' ? entry.teacherName : entry.className}</span>
+                                    {entry.room && <span className="tt-room">Salle {entry.room}</span>}
+                                  </button>
+                                ) : (
+                                  <button type="button" className="tt-add" onClick={() => openSlot(di, hs.start, hs.end)} aria-label={`Ajouter un cours, ${DAYS[di]} ${hs.start}`}>
+                                    {Icon.plus}
+                                  </button>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                        {next && next.start !== hs.end && (
+                          <tr className="tt-break"><td colSpan={DAYS.length + 1}>Pause · {hs.end} – {next.start}</td></tr>
+                        )}
+                      </FragmentRows>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ---------- Add / edit modal ---------- */}
+      <Modal
+        open={!!slot}
+        onClose={closeModal}
+        title={slot ? `${DAYS[slot.dayOfWeek]} · ${slot.startTime} – ${slot.endTime}` : ''}
+        subtitle={`${mode === 'class' ? 'Classe' : 'Enseignant'} ${selectedName}`}
+        width={540}
+        footer={
+          slot && (
+            <>
+              {slot.existing && (
+                confirmDelete ? (
+                  <button type="button" className="lx-btn danger" style={{ marginRight: 'auto' }} onClick={handleDelete} disabled={saving}>
+                    Confirmer la suppression
+                  </button>
+                ) : (
+                  <button type="button" className="lx-btn soft" style={{ marginRight: 'auto', color: '#C53030' }} onClick={() => setConfirmDelete(true)} disabled={saving}>
+                    {Icon.trash} Supprimer
+                  </button>
+                )
+              )}
+              <button type="button" className="lx-btn soft" onClick={closeModal} disabled={saving}>Annuler</button>
+              <button type="button" className="lx-btn gold" onClick={handleSave} disabled={saving}>
+                {saving ? 'Enregistrement…' : slot.existing ? 'Enregistrer' : repeat.length > 0 ? `Ajouter sur ${repeat.length + 1} jours` : 'Ajouter le cours'}
+              </button>
+            </>
+          )
+        }
+      >
+        {slot && (
+          <>
+            <div className="lx-field">
+              <label htmlFor="tt-subject">Matière</label>
+              <input id="tt-subject" className="lx-input" list="tt-subjects" placeholder="ex. Mathématiques" value={subject} onChange={(e) => setSubject(e.target.value)} autoFocus maxLength={80} />
+              <datalist id="tt-subjects">
+                {SUBJECT_SUGGESTIONS.map((s) => <option key={s} value={s} />)}
+              </datalist>
+            </div>
+
+            <div className="lx-field">
+              <label htmlFor="tt-other">{mode === 'class' ? 'Enseignant' : 'Classe'}</label>
+              <select id="tt-other" className="lx-select" style={{ width: '100%' }} value={otherId} onChange={(e) => setOtherId(e.target.value)}>
+                <option value="">{mode === 'class' ? 'Choisir un enseignant…' : 'Choisir une classe…'}</option>
+                {otherOptions.map((o) => {
+                  const isBusy = busy(otherKind, o.id, slot.dayOfWeek, slot.startTime, slot.existing?.id);
+                  return (
+                    <option key={o.id} value={o.id} disabled={isBusy}>
+                      {o.name}{isBusy ? (mode === 'class' ? ' — occupé à ce créneau' : ' — a déjà un cours') : ''}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {notAssigned && (
+              <div className="tt-note">
+                <span>{Icon.alert}</span>
+                <span>
+                  Cet enseignant n&apos;est pas encore affecté à cette classe. Le cours apparaîtra dans son emploi du temps, mais il ne pourra pas faire l&apos;appel ni publier de devoirs pour cette classe tant qu&apos;il n&apos;est pas ajouté dans{' '}
+                  <Link href="/dashboard/school-owner/classes">Classes → Gérer</Link>.
+                </span>
+              </div>
+            )}
+
+            <div className="lx-field">
+              <label htmlFor="tt-room">Salle (optionnel)</label>
+              <input id="tt-room" className="lx-input" placeholder="ex. 12, Labo, Salle info" value={room} onChange={(e) => setRoom(e.target.value)} maxLength={40} />
+            </div>
+
+            {!slot.existing && (
+              <div className="lx-field" style={{ marginBottom: 6 }}>
+                <label>Répéter sur d&apos;autres jours à {slot.startTime}</label>
+                <div className="tt-days">
+                  {DAYS.map((d, i) => {
+                    if (i === slot.dayOfWeek) return null;
+                    const conflict = dayConflict(i);
+                    const on = repeat.includes(i);
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        className={`tt-day${on ? ' on' : ''}`}
+                        disabled={conflict}
+                        title={conflict ? 'Créneau déjà occupé' : undefined}
+                        aria-pressed={on}
+                        onClick={() => setRepeat((r) => (r.includes(i) ? r.filter((x) => x !== i) : [...r, i]))}
+                      >
+                        {d.slice(0, 3)}.
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="tt-help">Gagnez du temps pour une matière qui revient plusieurs fois dans la semaine.</div>
+              </div>
+            )}
+          </>
+        )}
+      </Modal>
     </div>
   );
+}
+
+/** Lets a map callback return two <tr> rows without adding an extra DOM node. */
+function FragmentRows({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }

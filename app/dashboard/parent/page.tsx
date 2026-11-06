@@ -22,7 +22,7 @@ export default async function ParentDashboard() {
       const student = link.student;
       const classId = student.classId;
 
-      const [attendanceRecords, allAttendance, grades, resources] = await Promise.all([
+      const [attendanceRecords, allAttendance, grades, resources, timetableRaw] = await Promise.all([
         classId
           ? prisma.attendance.findMany({
               where: { studentId: student.id },
@@ -41,6 +41,22 @@ export default async function ParentDashboard() {
               orderBy: { createdAt: 'desc' },
               take: 5,
               include: { teacher: { select: { username: true } } },
+            })
+          : Promise.resolve([]),
+        // Timetable published by the school owner for this child's class
+        classId
+          ? prisma.timetableEntry.findMany({
+              where: { classId },
+              orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+              select: {
+                id: true,
+                subject: true,
+                dayOfWeek: true,
+                startTime: true,
+                endTime: true,
+                room: true,
+                teacher: { select: { username: true } },
+              },
             })
           : Promise.resolve([]),
       ]);
@@ -80,6 +96,15 @@ export default async function ParentDashboard() {
           fileUrl: r.fileUrl,
           teacherName: r.teacher.username,
           createdAt: r.createdAt.toISOString(),
+        })),
+        timetable: timetableRaw.map((t: any) => ({
+          id: t.id,
+          subject: t.subject,
+          dayOfWeek: t.dayOfWeek,
+          startTime: t.startTime,
+          endTime: t.endTime,
+          room: t.room,
+          teacherName: t.teacher.username,
         })),
       };
     })

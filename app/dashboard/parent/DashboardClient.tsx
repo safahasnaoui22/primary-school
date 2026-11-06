@@ -31,6 +31,7 @@ interface ChildData {
   attendanceLast10: string[];
   subjects: Subject[];
   resources: Resource[];
+  timetable: { id: string; subject: string; dayOfWeek: number; startTime: string; endTime: string; room: string | null; teacherName: string }[];
 }
 
 interface ConversationPreview {
@@ -179,6 +180,7 @@ export default function ParentDashboardClient({
     { title: 'Messages', subtitle: 'Boîte de réception →', link: '/dashboard/messages', icon: '💬' },
     { title: 'Annonces de l’école', subtitle: 'Voir toutes les actualités →', link: '/news-events', icon: '📢' },
     { title: 'Événements à venir', subtitle: 'Calendrier scolaire →', link: '/dashboard/parent/events', icon: '📅' },
+    { title: 'Emploi du temps', subtitle: 'Horaires de la semaine →', link: '/dashboard/parent/timetable', icon: '🗓️' },
   ];
 
   const quickActionShortcuts = [
@@ -773,6 +775,10 @@ export default function ParentDashboardClient({
             <span className="icon">📚</span>
             {sidebarOpen && <span>ClassRoom</span>}
           </Link>
+          <Link href="/dashboard/parent/timetable" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
+            <span className="icon">🗓️</span>
+            {sidebarOpen && <span>Emploi du temps</span>}
+          </Link>
           <Link href="/dashboard/parent/enroll" className={`pd-sidebar-link ${sidebarOpen ? '' : 'justify-center'}`}>
             <span className="icon">➕</span>
             {sidebarOpen && <span>Inscrire un enfant</span>}
@@ -1005,6 +1011,56 @@ export default function ParentDashboardClient({
             </div>
           </div>
 
+          {/* TIMETABLE — today's classes for the selected child */}
+          {child && (() => {
+            const dayIdx = (new Date().getDay() + 6) % 7; // Monday = 0
+            const todays = mounted ? child.timetable.filter((t) => t.dayOfWeek === dayIdx) : [];
+            const weekdays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            return (
+              <div className="pd-card" style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: '#071B4A' }}>🗓️ Emploi du temps — aujourd&apos;hui</div>
+                    {mounted && (
+                      <div style={{ fontSize: 12.5, color: '#7A8AA0', marginTop: 2 }}>
+                        {dayIdx < weekdays.length ? weekdays[dayIdx] : 'Dimanche'} · {child.className}
+                      </div>
+                    )}
+                  </div>
+                  <Link href="/dashboard/parent/timetable" style={{ fontSize: 13, fontWeight: 600, color: '#071B4A', textDecoration: 'none', borderBottom: '2px solid #FFB400', whiteSpace: 'nowrap' }}>
+                    Semaine complète →
+                  </Link>
+                </div>
+
+                {child.timetable.length === 0 ? (
+                  <div style={{ fontSize: 13.5, color: '#7A8AA0', padding: '8px 0' }}>
+                    L&apos;emploi du temps de cette classe n&apos;a pas encore été publié par l&apos;école.
+                  </div>
+                ) : !mounted ? (
+                  <div style={{ fontSize: 13.5, color: '#7A8AA0', padding: '8px 0' }}>Chargement…</div>
+                ) : todays.length === 0 ? (
+                  <div style={{ fontSize: 13.5, color: '#7A8AA0', padding: '8px 0' }}>Pas de cours aujourd&apos;hui. 🎈</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {todays.map((t) => (
+                      <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, background: '#F8FAFD', borderLeft: '4px solid #FFB400' }}>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12.5, color: '#071B4A', fontWeight: 500, width: 92, flexShrink: 0 }}>
+                          {t.startTime}–{t.endTime}
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: '#071B4A' }}>{t.subject}</div>
+                          <div style={{ fontSize: 12.5, color: '#6B7A90', marginTop: 2 }}>
+                            {t.teacherName}{t.room ? ` · Salle ${t.room}` : ''}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* DESKTOP SECTIONS (hidden on mobile) */}
           <div className="desktop-sections" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20, marginTop: children.length === 0 ? 20 : 0 }}>
             <div className="pd-card">
@@ -1139,6 +1195,10 @@ export default function ParentDashboardClient({
               <Link href="/dashboard/parent/classroom">
                 <span className="label">ClassRoom</span>
                 <span className="sub">classroom</span>
+              </Link>
+              <Link href="/dashboard/parent/timetable">
+                <span className="label">Emploi du temps</span>
+                <span className="sub">Horaires de la semaine</span>
               </Link>
             </div>
           </div>

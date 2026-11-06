@@ -25,9 +25,9 @@ function Icon({ name }: { name: string }) {
     case 'student':
       return <svg {...common}><path d="M2 8l10-4 10 4-10 4-10-4z" /><path d="M6 10.5V16c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5.5" /><path d="M22 8v6" /></svg>;
     case 'building':
-          case 'calendar':
-      return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18" /><path d="M8 3v4M16 3v4" /><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" /></svg>;
       return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="1" /><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1" /></svg>;
+    case 'calendar':
+      return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /><path d="M8 14h2M12 14h2M16 14h.01M8 17.5h2M12 17.5h2" /></svg>;
     case 'clipboard':
       return <svg {...common}><rect x="5" y="4" width="14" height="17" rx="2" /><rect x="9" y="2" width="6" height="4" rx="1" /><path d="M8 11h8M8 15h5" /></svg>;
     case 'card':
@@ -52,8 +52,8 @@ export default function Sidebar({ schoolName }: { schoolName: string }) {
         transition: 'width .28s cubic-bezier(.4,0,.2,1)',
         background: '#071B4A',
         color: '#fff',
-        // Fills the app-shell row exactly (the row itself is pinned to 100vh
-        // in DashboardClient), rather than re-declaring its own 100vh/sticky —
+        // Fills the app-shell row exactly (the row itself is pinned to the viewport
+        // height minus the 64px dashboard header in DashboardClient), rather than re-declaring its own 100vh/sticky —
         // that duplication was what let the sidebar and the scrolling content
         // pane drift out of sync.
         height: '100%',

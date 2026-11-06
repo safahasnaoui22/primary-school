@@ -9,17 +9,18 @@ export default async function SchoolOwnerTimetablePage() {
   if (!session?.user.schoolId) {
     return (
       <div style={{ padding: 40, fontFamily: 'Inter, sans-serif', color: '#5A6A7A' }}>
-        Aucune école n'est encore liée à votre compte.
+        Aucune école n&apos;est encore liée à votre compte.
       </div>
     );
   }
   const schoolId = session.user.schoolId;
 
-  const [classes, teachers, entriesRaw] = await Promise.all([
+  const [classes, teachers, entriesRaw, linksRaw] = await Promise.all([
     prisma.class.findMany({ where: { schoolId }, orderBy: { name: 'asc' }, select: { id: true, name: true } }),
     prisma.user.findMany({ where: { schoolId, role: 'TEACHER' }, orderBy: { username: 'asc' }, select: { id: true, username: true } }),
     prisma.timetableEntry.findMany({
       where: { schoolId },
+      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
       select: {
         id: true,
         classId: true,
@@ -32,6 +33,11 @@ export default async function SchoolOwnerTimetablePage() {
         class: { select: { name: true } },
         teacher: { select: { username: true } },
       },
+    }),
+    // Which teachers are officially assigned to which class (used for a gentle hint in the editor)
+    prisma.classTeacher.findMany({
+      where: { class: { schoolId } },
+      select: { classId: true, teacherId: true },
     }),
   ]);
 
@@ -48,18 +54,7 @@ export default async function SchoolOwnerTimetablePage() {
     room: e.room,
   }));
 
-  return (
-    <div style={{ padding: '28px 28px 60px', maxWidth: 1200, margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
-      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, letterSpacing: 1.5, color: '#5A6A7A', textTransform: 'uppercase' }}>
-        Emploi du temps
-      </span>
-      <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, color: '#071B4A', fontSize: 28, margin: '6px 0 4px' }}>
-        Construire l'emploi du temps
-      </h1>
-      <p style={{ color: '#5A6A7A', fontSize: 14, margin: '0 0 24px' }}>
-        Choisissez une classe ou un enseignant, puis cliquez sur un créneau pour y affecter un cours.
-      </p>
-      <TimetableClient classes={classes} teachers={teachers} entries={entries} />
-    </div>
-  );
+  const links = linksRaw.map((l: any) => ({ classId: l.classId, teacherId: l.teacherId }));
+
+  return <TimetableClient classes={classes} teachers={teachers} entries={entries} links={links} />;
 }
